@@ -1,0 +1,2 @@
+ALTER TABLE employees
+    ADD COLUMN id SERIAL PRIMARY KEY;
