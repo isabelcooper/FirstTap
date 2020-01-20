@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -o errexit
+
+NODE_VERSION='10.18.0'
+
+version_check () {
+    if [[ $(node -v) != "v${NODE_VERSION}" ]]; then  return 1; else return 0; fi
+}
+
+install_node () {
+    export NVM_DIR=$HOME/.nvm
+
+    if [[ ! -d ${NVM_DIR} ]]; then
+        mkdir -p ${NVM_DIR}
+        curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
+    fi
+
+    if [[ ! $(command -v nvm) ]]; then
+        set +e
+        [[ -s "$NVM_DIR/nvm.sh" ]] && \. "$NVM_DIR/nvm.sh"
+        set -e
+    fi
+
+    nvm use "${NODE_VERSION}"
+}
+
+install_node_dependencies () {
+    NUMBER_OF_CHANGES=$(git diff --name-only HEAD~3..HEAD package.json | wc -l)
+    if [[ "${NUMBER_OF_CHANGES}" -gt "0" || ! -d node_modules ]]; then
+        echo "Package json changed, installing node dependencies"
+        npm install
+    else
+        echo "No changes to package.json, ignoring npm install"
+    fi
+}
+
+run_arg="${1:-test}"
+case "${run_arg}" in
+"version_check")
+    if ! version_check; then
+        echo "Upgrade to version ${NODE_VERSION} of node to operate"
+        exit 1;
+    else echo "Already running version ${NODE_VERSION}"
+        exit;
+    fi
+    ;;
+"test")
+    if ! version_check; then install_node; fi
+    install_node_dependencies
+    npm run test:unit
+    ;;
+"start")
+    if ! version_check; then install_node; fi
+    install_node_dependencies
+    npm run start
+    ;;
+ "ci")
+    if ! version_check; then install_node; fi
+    install_node_dependencies
+    npm run test:unit
+    ./deploy.sh
+    ;;
+ *)
+    echo "Unexpected argument given:" $1
+esac

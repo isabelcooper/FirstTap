@@ -1,0 +1,37 @@
+{
+  "name": "firsttap",
+  "version": "1.0.0",
+  "description": "First Catering Ltd API to allow F1 company employees to top up and purchase food at their existing kiosk terminals using their current payment cards. ",
+  "main": "main.ts",
+  "scripts": {
+    "test:unit": "mocha '**/*.test.ts' --require ts-node/register",
+    "start": "ts-node ./main.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/makersacademy/isabel-cooper-sp.git"
+  },
+  "keywords": [
+    "topup",
+    "api"
+  ],
+  "author": "Isabel Cooper",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/isabelcooper/FirstTap/issues"
+  },
+  "homepage": "https://github.com/isabelcooper/FirstTap#readme",
+  "dependencies": {
+    "@types/node": "^13.1.8",
+    "dotenv": "^8.2.0",
+    "http4js": "5.0.2",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.7.5"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.7",
+    "@types/mocha": "^5.2.7",
+    "chai": "^4.2.0",
+    "mocha": "^7.0.0"
+  }
+}
