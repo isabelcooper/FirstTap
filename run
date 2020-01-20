@@ -58,6 +58,7 @@ case "${run_arg}" in
     if ! version_check; then install_node; fi
     install_node_dependencies
     npm run test:unit
+    ./deploy.sh
     ;;
  *)
     echo "Unexpected argument given:" $1

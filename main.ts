@@ -1,3 +1,6 @@
-export function run() {
-  return true
-}
+import {Server} from "./src/server";
+
+(async () => {
+  const server = new Server();
+  server.start();
+})();
