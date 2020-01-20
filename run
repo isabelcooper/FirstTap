@@ -48,6 +48,7 @@ case "${run_arg}" in
     if ! version_check; then install_node; fi
     install_node_dependencies
     npm run test:unit
+    npm run test:integration
     ;;
 "start")
     if ! version_check; then install_node; fi

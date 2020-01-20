@@ -5,7 +5,7 @@ import {expect} from "chai";
 import {Server} from "../src/server";
 import {Random} from "../utils/Random";
 
-describe.skip('Server', () => {
+describe.skip('E2E', () => {
   const httpClient = HttpClient;
   const port = 3333;
   let server: Server;

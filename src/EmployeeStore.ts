@@ -6,7 +6,7 @@ export function buildEmployee(partial: Partial<Employee>) {
   return {
     name: Random.string('name'),
     email: Random.string('email'),
-    employeeId: Random.string('employeeId'),
+    employeeId: Random.string('employeeId', 16),
     mobile: Random.string('mobile'),
     pin: Random.integer(9999),
     ...partial
@@ -16,7 +16,7 @@ export function buildEmployee(partial: Partial<Employee>) {
 export interface EmployeeStore {
   findAll(): Promise<Employee[]>;
 
-  store(employee: Employee): Promise<void>;
+  store(employee: Employee): Promise<{inserted: boolean}>;
 }
 
 export class InMemoryEmployeeStore implements EmployeeStore {
@@ -26,8 +26,9 @@ export class InMemoryEmployeeStore implements EmployeeStore {
     return this.employees
   }
 
-  async store(employee: Employee): Promise<void> {
-    this.employees.push(employee)
+  async store(employee: Employee): Promise<{inserted: boolean}> {
+    this.employees.push(employee);
+    return {inserted: true}
   }
 }
 
@@ -42,18 +43,19 @@ export class SqlEmployeeStore implements EmployeeStore {
       return {
         name: row.name,
         email: row.email,
-        employeeId: row.employeeId,
+        employeeId: row.employee_id,
         mobile: row.mobile,
-        pin: row.pin
+        pin: parseInt(row.pin)
       }
     })
   }
 
-  async store(employee: Employee): Promise<any> {
+  async store(employee: Employee): Promise<{inserted: boolean}> {
     let sqlStatement = `
-      INSERT INTO employees (name, email, employeeId, mobile, pin) 
-      VALUES ('${employee.name}','${employee.email}','${employee.employeeId}','${employee.mobile}','${employee.pin}') 
-      ON CONFLICT DO NOTHING;`;
+      INSERT INTO employees (name, email, employee_id, mobile, pin) 
+      VALUES ('${employee.name}','${employee.email}','${employee.employeeId}','${employee.mobile}',${employee.pin}) 
+      ON CONFLICT DO NOTHING
+      RETURNING *;`;
     const rows = (await this.database.query(sqlStatement)).rows;
     return {inserted: !!rows.length}
   }
