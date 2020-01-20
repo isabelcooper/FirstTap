@@ -16,16 +16,22 @@ export class SignUpHandler implements Handler {
   async handle(req: Req): Promise<Res> {
     const employee: Employee = JSON.parse(req.bodyString());
 
-    if(!employee.name || !employee.employeeId || !employee.pin || !employee.name || !employee.mobile || !employee.email) {
+    if (!(
+      employee.name &&
+      employee.employeeId &&
+      employee.pin &&
+      employee.name &&
+      employee.mobile &&
+      employee.email)
+    ) {
       return ResOf(400, 'Bad request - missing required employee details')
     }
-
+    //TODO:
     // check if in DB - redirect if not
     // employeeStore.find(employee.employeeId);
-    // create user -- should return ok
+    // create user -- handle if not ok response
 
     await this.employeeStore.store(employee);
-    //TODO: err testing
     return ResOf(200, JSON.stringify({name: employee.name}));
   }
 }

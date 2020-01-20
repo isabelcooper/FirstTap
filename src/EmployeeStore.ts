@@ -51,13 +51,12 @@ export class SqlEmployeeStore implements EmployeeStore {
   }
 
   async store(employee: Employee): Promise<{inserted: boolean}> {
-    let sqlStatement = `
+    const sqlStatement = `
       INSERT INTO employees (name, email, employee_id, mobile, pin) 
       VALUES ('${employee.name}','${employee.email}','${employee.employeeId}','${employee.mobile}',${employee.pin}) 
       ON CONFLICT DO NOTHING
       RETURNING *;`;
-    let queryResult = await this.database.query(sqlStatement);
-    const rows = (queryResult).rows;
+    const rows = (await this.database.query(sqlStatement)).rows;
     return {inserted: !!rows.length}
   }
 }

@@ -7,20 +7,30 @@ import {Random} from "../utils/Random";
 import {SignUpHandler} from "../src/SignUpHandler";
 import {buildEmployee, SqlEmployeeStore} from "../src/EmployeeStore";
 import {PostgresDatabase} from "../database/postgres/PostgresDatabase";
+import {PostgresMigrator} from "../database/postgres/PostgresMigrator";
+import {EVENT_STORE_CONNECTION_DETAILS} from "../config/prod";
+import {Pool} from "pg";
+import {PostgresTestServer} from "../database/postgres/PostgresTestServer";
 
-describe.skip('E2E', () => {
+describe('E2E', function() {
+  this.timeout(30000);
   const httpClient = HttpClient;
-  const port = 3333;
-  let server: Server;
+  const port = 3332;
   let database: PostgresDatabase;
+  const testPostgresServer = new PostgresTestServer();
+  let server: Server;
 
   beforeEach(async () => {
+    database = await testPostgresServer.startAndGetFirstTapDatabase();
+    await testPostgresServer.start();
+
     server = new Server(new SignUpHandler(new SqlEmployeeStore(database)), port);
-    server.start();
+    await server.start();
   });
 
   afterEach(async () => {
-    server.stop();
+    await testPostgresServer.stop();
+    await server.stop();
   });
 
   it('should allow an unknown user to register', async () =>{
