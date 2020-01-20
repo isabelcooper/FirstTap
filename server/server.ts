@@ -3,14 +3,15 @@ import {Method} from "http4js/core/Methods";
 import {NativeHttpServer} from "http4js/servers/NativeHttpServer";
 import {ResOf} from "http4js/core/Res";
 import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
+import {Authenticator} from "../utils/Authenticator";
 require('dotenv').config();
 
 export class Server {
   private server: Routing;
 
-  constructor(signUpHandler: SignUpHandler, private port: number = 3330) {
+  constructor(signUpHandler: SignUpHandler, authenticator: Authenticator, private port: number = 3330) {
     this.server = routes(Method.GET, '/health', async() => ResOf(200))
-      .withPost('/signup', signUpHandler)
+      .withPost('/signup', authenticator.authFilter(signUpHandler))
       .asServer(new NativeHttpServer(parseInt(process.env.PORT!) || this.port));
   }
 

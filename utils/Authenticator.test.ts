@@ -36,7 +36,7 @@ describe('Authenticator', () => {
     const response = await authenticatedHandler.authFilter(stubbedHandler).handle(req);
 
     expect(response.status).to.eql(401);
-    expect(response.bodyString()).to.eql('User not authenticated');
+    expect(response.bodyString()).to.eql('Client not authenticated');
     expect(response.headers).to.eql({'WWW-Authenticate': 'Basic realm="Entity resource"'});
   });
 });

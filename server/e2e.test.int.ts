@@ -11,6 +11,7 @@ import {PostgresMigrator} from "../database/postgres/PostgresMigrator";
 import {EVENT_STORE_CONNECTION_DETAILS} from "../config/prod";
 import {Pool} from "pg";
 import {PostgresTestServer} from "../database/postgres/PostgresTestServer";
+import {InternalAuthenticator} from "../utils/Authenticator";
 
 describe('E2E', function() {
   this.timeout(30000);
@@ -19,12 +20,19 @@ describe('E2E', function() {
   let database: PostgresDatabase;
   const testPostgresServer = new PostgresTestServer();
   let server: Server;
+  const authenticator = new InternalAuthenticator({
+    username: process.env.FIRSTTAP_CLIENT_USERNAME as string,
+    password: process.env.FIRSTTAP_CLIENT_PASSWORD as string
+  });
+
+  const encodedCredentials = Buffer.from(`${process.env.FIRSTTAP_CLIENT_USERNAME}:${process.env.FIRSTTAP_CLIENT_PASSWORD}`).toString('base64');
+  const authHeaders = {'authorization': `Basic ${encodedCredentials}`};
 
   beforeEach(async () => {
     database = await testPostgresServer.startAndGetFirstTapDatabase();
     await testPostgresServer.start();
 
-    server = new Server(new SignUpHandler(new SqlEmployeeStore(database)), port);
+    server = new Server(new SignUpHandler(new SqlEmployeeStore(database)), authenticator, port);
     await server.start();
   });
 
@@ -35,7 +43,7 @@ describe('E2E', function() {
 
   it('should allow an unknown user to register', async () =>{
     const employee = buildEmployee({});
-    const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee)));
+    const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), authHeaders),);
     expect(response.status).to.eql(200);
     expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
   });

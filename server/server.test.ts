@@ -5,6 +5,7 @@ import {expect} from "chai";
 import {Server} from "./server";
 import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "../signup-logIn-logout/EmployeeStore";
 import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
+import {InternalAuthenticator} from "../utils/Authenticator";
 require('dotenv').config();
 
 describe('Server', () => {
@@ -12,6 +13,10 @@ describe('Server', () => {
   const port = 3333;
   let server: Server;
   let employeeStore: EmployeeStore;
+  const authenticator = new InternalAuthenticator({
+    username: process.env.FIRSTTAP_CLIENT_USERNAME as string,
+    password: process.env.FIRSTTAP_CLIENT_PASSWORD as string
+  });
 
   const employee = buildEmployee({});
   const encodedCredentials = Buffer.from(`${process.env.FIRSTTAP_CLIENT_USERNAME}:${process.env.FIRSTTAP_CLIENT_PASSWORD}`).toString('base64');
@@ -19,7 +24,7 @@ describe('Server', () => {
 
   beforeEach(async () => {
     employeeStore = new InMemoryEmployeeStore();
-    server = new Server(new SignUpHandler(employeeStore), port);
+    server = new Server(new SignUpHandler(employeeStore), authenticator, port);
     server.start();
   });
 
@@ -38,13 +43,9 @@ describe('Server', () => {
     expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
   });
 
-  it.skip('should reject signup attempts without system auth credentials', async() => {
+  it('should reject signup attempts without system auth credentials', async() => {
     const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee)));
-    expect(response.status).to.eql(500);
+    expect(response.status).to.eql(401);
+    expect(response.bodyString()).to.eql('Client not authenticated');
   });
-
-  // TODO: complete server tests for employee storage once DB fully set up
-  // it('should escalate creation issues on the employee signup endpoint', async () => {} )
-  // it('should error if auth fails', async () => {} )
-
 });
