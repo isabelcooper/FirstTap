@@ -12,6 +12,10 @@ export class AlwaysFailsStore implements EmployeeStore{
   store(employee: Employee): Promise<{ inserted: boolean }> {
     throw Error('store broken on employee: ' + employee)
   }
+
+  find(loginDetails: { pin: number; employeeId: string }): Promise<Employee> {
+    throw Error('employee not found ' + loginDetails)
+  }
 }
 
 describe('SignUpHandler', () => {
@@ -42,7 +46,7 @@ describe('SignUpHandler', () => {
 
     expect(response.status).to.eql(500);
     expect(response.bodyString()).to.eql(
-      `Error storing new user - please contact your administrator. \n Error details: Error: store broken on employee: ${employee}`
+      `Error storing new user - please contact your administrator. \n Error: store broken on employee: ${employee}`
     );
   });
 

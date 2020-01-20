@@ -33,7 +33,7 @@ export class SignUpHandler implements Handler {
     try {
       await this.employeeStore.store(employee);
     } catch (e) {
-      return ResOf(500, `Error storing new user - please contact your administrator. \n Error details: ${e}`)
+      return ResOf(500, `Error storing new user - please contact your administrator. \n ${e}`)
     }
     return ResOf(200, JSON.stringify({name: employee.name}));
   }
