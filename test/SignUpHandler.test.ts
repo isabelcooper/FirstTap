@@ -3,6 +3,7 @@ import {ReqOf} from "http4js/core/Req";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
 import {Employee, SignUpHandler} from "../src/SignUpHandler";
+import {InMemoryEmployeeStore} from "../src/EmployeeStore";
 
 function buildEmployee(partial: Partial<Employee>) {
   return {
@@ -16,18 +17,19 @@ function buildEmployee(partial: Partial<Employee>) {
 }
 
 describe('SignUpHandler', () => {
-  const signUpHandler = new SignUpHandler();
+  const employeeStore = new InMemoryEmployeeStore();
+  const signUpHandler = new SignUpHandler(employeeStore);
 
-
-  it('should register a new user', async () => {
-    const body: Employee = buildEmployee({
+  it('should register a new user and return their name', async () => {
+    const employee: Employee = buildEmployee({
         name: Random.string('name')
       }
     );
-    const response = await signUpHandler.handle(ReqOf(Method.POST, '/login', JSON.stringify(body)));
+    const response = await signUpHandler.handle(ReqOf(Method.POST, '/login', JSON.stringify(employee)));
 
     expect(response.status).to.eql(200);
-    expect(JSON.parse(response.bodyString()).name).to.eql(body.name);
+    expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+    expect( await employeeStore.findAll()).to.eql([employee])
   });
 
   it('should error if required sign up info is missing',async () => {
@@ -38,5 +40,5 @@ describe('SignUpHandler', () => {
     expect(response.bodyString()).to.eql('Bad request - missing required employee details');
   });
 
-  // redirect to login if already a known user
+  //TODO: redirect to login if already a known user
 });
