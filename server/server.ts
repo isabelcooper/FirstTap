@@ -12,6 +12,7 @@ export class Server {
   constructor(signUpHandler: SignUpHandler, authenticator: Authenticator, private port: number = 3330) {
     this.server = routes(Method.GET, '/health', async() => ResOf(200))
       .withPost('/signup', authenticator.authFilter(signUpHandler))
+      // .withPost('/login', authenticator.authFilter(logInHandler))
       .asServer(new NativeHttpServer(parseInt(process.env.PORT!) || this.port));
   }
 

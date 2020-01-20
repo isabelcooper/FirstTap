@@ -6,6 +6,7 @@ import {Server} from "./server";
 import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "../signup-logIn-logout/EmployeeStore";
 import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
 import {InternalAuthenticator} from "../utils/Authenticator";
+import {Random} from "../utils/Random";
 require('dotenv').config();
 
 describe('Server', () => {
@@ -47,5 +48,15 @@ describe('Server', () => {
     const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee)));
     expect(response.status).to.eql(401);
     expect(response.bodyString()).to.eql('Client not authenticated');
+  });
+
+  it('should allow an existing user to login using employeeId and pin, returning their name', async() => {
+    await employeeStore.store(employee);
+    const loginDetails = {
+      employeeId: Random.string('', 16)
+    };
+    const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/login`, JSON.stringify(loginDetails), authHeaders));
+    expect(response.status).to.eql(200);
+    expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
   });
 });

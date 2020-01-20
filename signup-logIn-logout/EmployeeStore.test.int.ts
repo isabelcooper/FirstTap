@@ -8,6 +8,7 @@ describe('EmployeeStore', function() {
   const testPostgresServer = new PostgresTestServer();
   let database: PostgresDatabase;
   let employeeStore: EmployeeStore;
+  const employee = buildEmployee({});
 
   beforeEach(async () => {
     database = await testPostgresServer.startAndGetFirstTapDatabase();
@@ -19,8 +20,12 @@ describe('EmployeeStore', function() {
   });
 
   it('should store an employee', async () => {
-    const employee = buildEmployee({});
     await employeeStore.store(employee);
     expect(await employeeStore.findAll()).to.eql([employee])
+  });
+
+  it('should find an employee based on employeeId and pin code', async () => {
+    await employeeStore.store(employee);
+    expect(await employeeStore.find({employeeId: employee.employeeId, pin: employee.pin})).to.eql(employee)
   });
 });
