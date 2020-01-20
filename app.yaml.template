@@ -1,3 +1,5 @@
 runtime: nodejs10
 automatic_scaling:
   min_instances: 1
+env_variables:
+  POSTGRES_PASSWORD:
