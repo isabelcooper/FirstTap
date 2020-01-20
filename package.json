@@ -22,10 +22,11 @@
   },
   "homepage": "https://github.com/isabelcooper/FirstTap#readme",
   "dependencies": {
-    "ts-node": "^8.6.2",
-    "typescript": "^3.7.5",
+    "@types/node": "^13.1.8",
+    "dotenv": "^8.2.0",
     "http4js": "5.0.2",
-    "@types/node": "^13.1.8"
+    "ts-node": "^8.6.2",
+    "typescript": "^3.7.5"
   },
   "devDependencies": {
     "@types/chai": "^4.2.7",
