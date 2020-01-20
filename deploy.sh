@@ -19,7 +19,9 @@ fi
 
 echo ${GCLOUD_SERVICE_KEY} | base64 --decode > ${HOME}/firsttap-service-key.json
 gcloud auth activate-service-account --key-file=${HOME}/firsttap-service-key.json
-gcloud --quiet config set project ${PROJECT_ID}
+echo ${PROJECT_ID}
+gcloud config set project ${PROJECT_ID}
+echo "project id set"
 gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
 gcloud auth list
 
