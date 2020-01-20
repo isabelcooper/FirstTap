@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-PROJECT_NAME=FirstTap
 
 set -e
 
@@ -18,7 +17,7 @@ fi
 
 echo ${GCLOUD_SERVICE_KEY} | base64 --decode > ${HOME}/firsttap-service-key.json
 gcloud auth activate-service-account --key-file=${HOME}/firsttap-service-key.json
-gcloud config set project firsttap
+gcloud config set project ${GOOGLE_PROJECT_ID}
 gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
 gcloud auth list
 
