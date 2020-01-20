@@ -5,6 +5,7 @@ import {expect} from "chai";
 import {Server} from "./server";
 import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "../signup-logIn-logout/EmployeeStore";
 import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
+require('dotenv').config();
 
 describe('Server', () => {
   const httpClient = HttpClient;
@@ -37,7 +38,7 @@ describe('Server', () => {
     expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
   });
 
-  it.skip('should reject signup attempts without system auth credentials', async() => {
+  it('should reject signup attempts without system auth credentials', async() => {
     const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee)));
     expect(response.status).to.eql(500);
   });
