@@ -1,8 +1,8 @@
 import {ReqOf} from "http4js/core/Req";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
-import {Employee, SignUpHandler} from "../src/SignUpHandler";
-import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "../src/EmployeeStore";
+import {Employee, SignUpHandler} from "./SignUpHandler";
+import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "./EmployeeStore";
 
 export class AlwaysFailsStore implements EmployeeStore{
   findAll(): Promise<Employee[]> {

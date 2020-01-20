@@ -1,4 +1,4 @@
-import {buildEmployee, EmployeeStore, SqlEmployeeStore} from "../src/EmployeeStore";
+import {buildEmployee, EmployeeStore, SqlEmployeeStore} from "./EmployeeStore";
 import {expect} from "chai";
 import {PostgresTestServer} from "../database/postgres/PostgresTestServer";
 import {PostgresDatabase} from "../database/postgres/PostgresDatabase";

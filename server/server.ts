@@ -2,7 +2,7 @@ import {routes, Routing} from "http4js/core/Routing";
 import {Method} from "http4js/core/Methods";
 import {NativeHttpServer} from "http4js/servers/NativeHttpServer";
 import {ResOf} from "http4js/core/Res";
-import {SignUpHandler} from "./SignUpHandler";
+import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
 require('dotenv').config();
 
 export class Server {
