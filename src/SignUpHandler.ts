@@ -15,7 +15,6 @@ export class SignUpHandler implements Handler {
 
   async handle(req: Req): Promise<Res> {
     const employee: Employee = JSON.parse(req.bodyString());
-
     if (!(
       employee.name &&
       employee.employeeId &&
@@ -31,7 +30,11 @@ export class SignUpHandler implements Handler {
     // employeeStore.find(employee.employeeId);
     // create user -- handle if not ok response
 
-    await this.employeeStore.store(employee);
+    try {
+      await this.employeeStore.store(employee);
+    } catch (e) {
+      return ResOf(500, `Error storing new user - please contact your administrator. \n Error details: ${e}`)
+    }
     return ResOf(200, JSON.stringify({name: employee.name}));
   }
 }

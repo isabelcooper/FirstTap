@@ -1,9 +1,18 @@
-import {Random} from "../utils/Random";
 import {ReqOf} from "http4js/core/Req";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
 import {Employee, SignUpHandler} from "../src/SignUpHandler";
-import {buildEmployee, InMemoryEmployeeStore} from "../src/EmployeeStore";
+import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "../src/EmployeeStore";
+
+export class AlwaysFailsStore implements EmployeeStore{
+  findAll(): Promise<Employee[]> {
+    throw Error('findAll broken')
+  }
+
+  store(employee: Employee): Promise<{ inserted: boolean }> {
+    throw Error('store broken on employee: ' + employee)
+  }
+}
 
 describe('SignUpHandler', () => {
   const employeeStore = new InMemoryEmployeeStore();
@@ -24,6 +33,17 @@ describe('SignUpHandler', () => {
 
     expect(response.status).to.eql(400);
     expect(response.bodyString()).to.eql('Bad request - missing required employee details');
+  });
+
+  it('should handle errors storing new users', async () => {
+    const employee = buildEmployee({});
+    const handlerWithFailingStore = new SignUpHandler(new AlwaysFailsStore());
+    const response = await handlerWithFailingStore.handle(ReqOf(Method.POST, '/login', JSON.stringify(employee)));
+
+    expect(response.status).to.eql(500);
+    expect(response.bodyString()).to.eql(
+      `Error storing new user - please contact your administrator. \n Error details: Error: store broken on employee: ${employee}`
+    );
   });
 
   //TODO: redirect to login if already a known user
