@@ -54,6 +54,11 @@ case "${run_arg}" in
     install_node_dependencies
     npm run start
     ;;
+ "ci")
+    if ! version_check; then install_node; fi
+    install_node_dependencies
+    npm run test:unit
+    ;;
  *)
     echo "Unexpected argument given:" $1
 esac
