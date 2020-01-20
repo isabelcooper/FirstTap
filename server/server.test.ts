@@ -7,6 +7,7 @@ import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "../signup-log
 import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
 import {InternalAuthenticator} from "../utils/Authenticator";
 import {Random} from "../utils/Random";
+import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
 require('dotenv').config();
 
 describe('Server', () => {
@@ -14,6 +15,9 @@ describe('Server', () => {
   const port = 3333;
   let server: Server;
   let employeeStore: EmployeeStore;
+  let signUpHandler: SignUpHandler;
+  let logInHandler: LogInHandler;
+
   const authenticator = new InternalAuthenticator({
     username: process.env.FIRSTTAP_CLIENT_USERNAME as string,
     password: process.env.FIRSTTAP_CLIENT_PASSWORD as string
@@ -25,7 +29,9 @@ describe('Server', () => {
 
   beforeEach(async () => {
     employeeStore = new InMemoryEmployeeStore();
-    server = new Server(new SignUpHandler(employeeStore), authenticator, port);
+    signUpHandler = new SignUpHandler(employeeStore);
+    logInHandler = new LogInHandler(employeeStore);
+    server = new Server(signUpHandler, logInHandler, authenticator, port);
     server.start();
   });
 
@@ -53,7 +59,8 @@ describe('Server', () => {
   it('should allow an existing user to login using employeeId and pin, returning their name', async() => {
     await employeeStore.store(employee);
     const loginDetails = {
-      employeeId: Random.string('', 16)
+      employeeId: employee.employeeId,
+      pin: employee.pin
     };
     const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/login`, JSON.stringify(loginDetails), authHeaders));
     expect(response.status).to.eql(200);
