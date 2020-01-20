@@ -3,18 +3,7 @@ import {ReqOf} from "http4js/core/Req";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
 import {Employee, SignUpHandler} from "../src/SignUpHandler";
-import {InMemoryEmployeeStore} from "../src/EmployeeStore";
-
-function buildEmployee(partial: Partial<Employee>) {
-  return {
-    name: Random.string('name'),
-    email: Random.string('email'),
-    employeeId: Random.string('employeeId'),
-    mobile: Random.string('mobile'),
-    pin: Random.integer(9999),
-    ...partial
-  };
-}
+import {buildEmployee, InMemoryEmployeeStore} from "../src/EmployeeStore";
 
 describe('SignUpHandler', () => {
   const employeeStore = new InMemoryEmployeeStore();

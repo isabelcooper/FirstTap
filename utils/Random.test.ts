@@ -29,5 +29,10 @@ describe('Random', () => {
       const variation = (count - 10000)/10000;
       expect(variation).to.be.lessThan(0.05);
     });
+  });
+
+  it('should limit a string length to a specific number of chars', () => {
+    const maxLength = 13;
+    expect(Random.string('', maxLength).length).to.be.lessThan(maxLength +1);
   })
 });

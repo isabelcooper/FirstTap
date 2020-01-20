@@ -3,8 +3,9 @@ export class Random {
     return  min + Math.floor(Math.random() * (max-min))
   }
 
-  public static string(prefix = 'string') {
-    return `${prefix}${Random.integer()}`
+  public static string(prefix = 'string', maxLength?: number) {
+    let randomString = `${prefix}${Random.integer()}`;
+    return randomString.length > maxLength ? randomString.substring(0, maxLength) : randomString;
   }
 
   public static oneOf<T>(arr: T[]): T {
