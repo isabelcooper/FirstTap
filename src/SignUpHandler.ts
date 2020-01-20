@@ -1,6 +1,6 @@
 import {Handler, Req, Res} from "http4js";
 import {ResOf} from "http4js/core/Res";
-import {InMemoryEmployeeStore} from "./EmployeeStore";
+import {EmployeeStore} from "./EmployeeStore";
 
 export interface Employee {
   name: string,
@@ -11,7 +11,7 @@ export interface Employee {
 }
 
 export class SignUpHandler implements Handler {
-  constructor(private employeeStore: InMemoryEmployeeStore){}
+  constructor(private employeeStore: EmployeeStore){}
 
   async handle(req: Req): Promise<Res> {
     const employee: Employee = JSON.parse(req.bodyString());

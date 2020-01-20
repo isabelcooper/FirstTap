@@ -56,7 +56,8 @@ export class SqlEmployeeStore implements EmployeeStore {
       VALUES ('${employee.name}','${employee.email}','${employee.employeeId}','${employee.mobile}',${employee.pin}) 
       ON CONFLICT DO NOTHING
       RETURNING *;`;
-    const rows = (await this.database.query(sqlStatement)).rows;
+    let queryResult = await this.database.query(sqlStatement);
+    const rows = (queryResult).rows;
     return {inserted: !!rows.length}
   }
 }

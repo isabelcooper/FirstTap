@@ -10,10 +10,7 @@ describe('SignUpHandler', () => {
   const signUpHandler = new SignUpHandler(employeeStore);
 
   it('should register a new user and return their name', async () => {
-    const employee: Employee = buildEmployee({
-        name: Random.string('name')
-      }
-    );
+    const employee: Employee = buildEmployee({});
     const response = await signUpHandler.handle(ReqOf(Method.POST, '/login', JSON.stringify(employee)));
 
     expect(response.status).to.eql(200);
