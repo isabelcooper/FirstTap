@@ -42,6 +42,7 @@ export class InMemoryTokenStore implements TokenStore {
 
   async store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }> {
     this.tokens.push({employeeId, value: tokenValue, expiry: Dates.addMinutes(new Date(), 5)});
+    console.log('stored')
     return {inserted: true}
   }
 

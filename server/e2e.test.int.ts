@@ -10,7 +10,8 @@ import {PostgresTestServer} from "../database/postgres/PostgresTestServer";
 import {InternalAuthenticator} from "../utils/Authenticator";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
 import {UniqueUserIdGenerator} from "../utils/IdGenerator";
-import {SqlTokenStore} from "../token/TokenStore";
+import {SqlTokenStore, TokenStore} from "../token/TokenStore";
+import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
 
 describe('E2E', function() {
   this.timeout(30000);
@@ -20,6 +21,7 @@ describe('E2E', function() {
   const testPostgresServer = new PostgresTestServer();
   let server: Server;
   let employeeStore: EmployeeStore;
+  let tokenStore: TokenStore;
 
   const authenticator = new InternalAuthenticator({
     username: process.env.FIRSTTAP_CLIENT_USERNAME as string,
@@ -34,8 +36,9 @@ describe('E2E', function() {
     database = await testPostgresServer.startAndGetFirstTapDatabase();
     await testPostgresServer.start();
     employeeStore = new SqlEmployeeStore(database);
+    tokenStore = new SqlTokenStore(database);
 
-    server = new Server(new SignUpHandler(employeeStore), new LogInHandler(employeeStore, new SqlTokenStore(database), new UniqueUserIdGenerator()), authenticator, port);
+    server = new Server(new SignUpHandler(employeeStore), new LogInHandler(employeeStore, tokenStore, new UniqueUserIdGenerator()), new LogOutHandler(tokenStore), authenticator, port);
     await server.start();
   });
 

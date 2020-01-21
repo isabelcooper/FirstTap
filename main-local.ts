@@ -5,6 +5,7 @@ import {InternalAuthenticator} from "./utils/Authenticator";
 import {LogInHandler} from "./signup-logIn-logout/LogInHandler";
 import {UniqueUserIdGenerator} from "./utils/IdGenerator";
 import {InMemoryTokenStore} from "./token/TokenStore";
+import {LogOutHandler} from "./signup-logIn-logout/LogOutHandler";
 
 (async () => {
   const authenticator = new InternalAuthenticator({
@@ -13,7 +14,12 @@ import {InMemoryTokenStore} from "./token/TokenStore";
   });
 
   const employeeStore = new InMemoryEmployeeStore();
+  const tokenStore = new InMemoryTokenStore();
 
-  const server = new Server(new SignUpHandler(employeeStore), new LogInHandler(employeeStore, new InMemoryTokenStore(), new UniqueUserIdGenerator()), authenticator);
+  const signUpHandler = new SignUpHandler(employeeStore);
+  const logInHandler = new LogInHandler(employeeStore, tokenStore, new UniqueUserIdGenerator());
+  const logOutHandler = new LogOutHandler(tokenStore);
+
+  const server = new Server(signUpHandler, logInHandler, logOutHandler, authenticator);
   server.start();
 })();

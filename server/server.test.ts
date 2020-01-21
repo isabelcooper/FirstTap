@@ -10,6 +10,7 @@ import {Random} from "../utils/Random";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
 import {FixedTokenGenerator} from "../utils/IdGenerator";
 import {InMemoryTokenStore, TokenStore} from "../token/TokenStore";
+import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
 
 require('dotenv').config();
 
@@ -21,6 +22,7 @@ describe('Server', () => {
   let tokenStore: TokenStore;
   let signUpHandler: SignUpHandler;
   let logInHandler: LogInHandler;
+  let logOutHandler: LogOutHandler;
 
   const authenticator = new InternalAuthenticator({
     username: process.env.FIRSTTAP_CLIENT_USERNAME as string,
@@ -40,7 +42,8 @@ describe('Server', () => {
     signUpHandler = new SignUpHandler(employeeStore);
     fixedTokenGenerator.setToken(fixedToken);
     logInHandler = new LogInHandler(employeeStore, tokenStore, fixedTokenGenerator);
-    server = new Server(signUpHandler, logInHandler, authenticator, port);
+    logOutHandler = new LogOutHandler(tokenStore);
+    server = new Server(signUpHandler, logInHandler, logOutHandler, authenticator, port);
     server.start();
   });
 
@@ -75,5 +78,38 @@ describe('Server', () => {
     expect(response.status).to.eql(200);
     expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
     expect(JSON.parse(response.bodyString()).token).to.eql(fixedToken);
+  });
+
+  it.skip('should allow logout given an employeeId', async () => {
+    await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), authHeaders));
+    // TODO fix signup- needs token!
+    const tokens = await tokenStore.findAll();
+    expect(tokens[0].employeeId).to.equal(employee.employeeId);
+    expect(tokens[0].expiry).to.be.greaterThan(new Date());
+    //TODO replace with find method when it exists
+
+    const response = await httpClient(ReqOf(
+      Method.GET,
+      `http://localhost:${port}/logout`,
+      JSON.stringify({employeeId: employee.employeeId}),
+      authHeaders
+    ));
+    expect(response.status).to.eql(200);
+    expect(response.bodyString()).to.eql('Log out successful - Goodbye!');
+
+    const updatedTokens = await tokenStore.findAll();
+    expect(updatedTokens[0].employeeId).to.equal(employee.employeeId);
+    expect(updatedTokens[0].expiry).to.be.at.most(new Date());
+  });
+
+  it('should not error even if the user wasn\'t logged in..', async () => {
+    const response = await httpClient(ReqOf(
+      Method.GET,
+      `http://localhost:${port}/logout`,
+      JSON.stringify({employeeId: employee.employeeId}),
+      authHeaders
+    ));
+    expect(response.status).to.eql(200);
+    expect(response.bodyString()).to.eql('Log out successful - Goodbye!');
   });
 });
