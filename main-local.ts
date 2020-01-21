@@ -6,7 +6,6 @@ import {LogInHandler} from "./signup-logIn-logout/LogInHandler";
 import {UniqueUserIdGenerator} from "./utils/IdGenerator";
 import {InMemoryTokenStore} from "./token/TokenStore";
 import {LogOutHandler} from "./signup-logIn-logout/LogOutHandler";
-require('dotenv').config();
 
 (async () => {
   const authenticator = new InternalAuthenticator({

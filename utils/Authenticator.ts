@@ -19,7 +19,6 @@ export class InternalAuthenticator implements Authenticator {
       const header = req.header('authorization');
       const authHeader = (header && header.slice(6)) || '';
       const [username, password] = Buffer.from(authHeader, 'base64').toString().split(':');
-      console.log('missing creds? :', this.credentials);
       if (username !== this.credentials.username || password !== this.credentials.password) {
         return ResOf(401, 'Client not authenticated', {'WWW-Authenticate': 'Basic realm="Entity resource"'});
       }

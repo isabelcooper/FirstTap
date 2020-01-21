@@ -10,7 +10,6 @@ import {LogInHandler} from "./signup-logIn-logout/LogInHandler";
 import {UniqueUserIdGenerator} from "./utils/IdGenerator";
 import {SqlTokenStore} from "./token/TokenStore";
 import {LogOutHandler} from "./signup-logIn-logout/LogOutHandler";
-require('dotenv').config();
 
 (async () => {
   await new PostgresMigrator(EVENT_STORE_CONNECTION_DETAILS, './database/migrations').migrate();

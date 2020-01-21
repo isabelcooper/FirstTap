@@ -3,3 +3,5 @@ automatic_scaling:
   min_instances: 1
 env_variables:
   POSTGRES_PASSWORD:
+  FIRSTTAP_CLIENT_USERNAME:
+  FIRSTTAP_CLIENT_PASSWORD:
