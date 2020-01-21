@@ -8,9 +8,11 @@ export interface Token {
 }
 
 export interface TokenStore {
-  store(employeeId: string, tokenValue: string): Promise<{inserted: boolean}>;
+  store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }>;
 
   findAll(): Promise<Token[]>;
+
+  update(employeeId: string): Promise<{ updated: boolean }>;
 }
 
 export class AlwaysFailsTokenStore implements TokenStore {
@@ -22,12 +24,16 @@ export class AlwaysFailsTokenStore implements TokenStore {
     throw Error('store broken on employee: ' + employeeId)
   }
 
+  update(employeeId: string): Promise<{ updated: boolean }> {
+    throw Error('update broken')
+  }
+
   // find(loginDetails: { pin: number; employeeId: string }): Promise<Employee> {
   //   throw Error('employee not found ' + loginDetails)
   // }
 }
 
-export class InMemoryTokenStore implements TokenStore{
+export class InMemoryTokenStore implements TokenStore {
   private tokens: Token[] = [];
 
   async findAll(): Promise<Token[]> {
@@ -35,15 +41,25 @@ export class InMemoryTokenStore implements TokenStore{
   }
 
   async store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }> {
-    this.tokens.push({employeeId, value: tokenValue, expiry: Dates.addMinutes(new Date(), 5) });
+    this.tokens.push({employeeId, value: tokenValue, expiry: Dates.addMinutes(new Date(), 5)});
     return {inserted: true}
+  }
+
+  async update(employeeId: string): Promise<{ updated: boolean }> {
+    this.tokens.map(token => {
+      if (token.employeeId === employeeId) {
+        token.expiry = new Date()
+      }
+    });
+    return {updated: true}
   }
 }
 
-export class SqlTokenStore {
-  constructor(private database: PostgresDatabase) {}
+export class SqlTokenStore implements TokenStore {
+  constructor(private database: PostgresDatabase) {
+  }
 
-  async store(employeeId: string, tokenValue: string): Promise<{inserted: boolean}> {
+  async store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }> {
     const sqlStatement = `
       INSERT INTO tokens (employee_id, value) 
       VALUES ('${employeeId}','${tokenValue}') 
@@ -53,7 +69,7 @@ export class SqlTokenStore {
   }
 
   async findAll(): Promise<Token[]> {
-    let sqlStatement = `SELECT * FROM tokens`;
+    const sqlStatement = `SELECT * FROM tokens`;
     const rows = (await this.database.query(sqlStatement)).rows;
     return rows.map(row => {
       return {
@@ -62,5 +78,16 @@ export class SqlTokenStore {
         expiry: new Date(row.expiry)
       }
     })
+  }
+
+  async update(employeeId: string): Promise<{ updated: boolean; }> {
+    const sqlStatement = `
+    UPDATE tokens
+    SET expiry = CURRENT_TIMESTAMP
+    WHERE employee_id = '${employeeId}'
+    RETURNING *;
+   `;
+    const rows = (await this.database.query(sqlStatement)).rows;
+    return {updated: !!rows.length}
   }
 }

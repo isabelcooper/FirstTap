@@ -21,7 +21,7 @@ describe('LogInHandler', () => {
   });
 
   it('should look up an existing user, returning their name and a generated token', async () => {
-    const fixedToken = Random.string('id', 10);
+    const fixedToken = Random.string('id');
     fixedTokenGenerator.setToken(fixedToken);
 
     const response = await logInHandler.handle(ReqOf(Method.POST, '/login',
