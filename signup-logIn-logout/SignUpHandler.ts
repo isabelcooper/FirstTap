@@ -1,6 +1,8 @@
 import {Handler, Req, Res} from "http4js";
 import {ResOf} from "http4js/core/Res";
 import {EmployeeStore} from "./EmployeeStore";
+import {Token} from "../token/TokenStore";
+import {TokenManagerClass} from "../token/TokenManager";
 
 export interface Employee {
   name: string,
@@ -11,7 +13,7 @@ export interface Employee {
 }
 
 export class SignUpHandler implements Handler {
-  constructor(private employeeStore: EmployeeStore){}
+  constructor(private employeeStore: EmployeeStore, private tokenManager: TokenManagerClass){}
 
   async handle(req: Req): Promise<Res> {
     const employee: Employee = JSON.parse(req.bodyString());
@@ -26,15 +28,21 @@ export class SignUpHandler implements Handler {
       return ResOf(400, 'Bad request - missing required employee details')
     }
     //TODO:
-    // check if in DB - redirect if not
-    // employeeStore.find(employee.employeeId);
-    // create user -- handle if not ok response
+    // pass to LoginHandler if already stored?
 
     try {
       await this.employeeStore.store(employee);
     } catch (e) {
       return ResOf(500, `Error storing new user - please contact your administrator. \n ${e}`)
     }
-    return ResOf(200, JSON.stringify({name: employee.name}));
+
+    let token: Token;
+    try {
+      token = await this.tokenManager.generateAndStoreToken(employee.employeeId);
+    } catch (e) {
+      return ResOf(500, `Error retrieving token - please contact your administrator.`)
+    }
+
+    return ResOf(200, JSON.stringify({name: employee.name, token: token.value}));
   }
 }

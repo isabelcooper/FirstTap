@@ -25,7 +25,7 @@ import {TokenManager} from "./token/TokenManager";
     password: process.env.FIRSTTAP_CLIENT_PASSWORD as string
   });
 
-  const signUpHandler = new SignUpHandler(employeeStore);
+  const signUpHandler = new SignUpHandler(employeeStore, tokenManager);
   const logInHandler = new LogInHandler(employeeStore, tokenManager);
   const logOutHandler = new LogOutHandler(tokenManager);
 

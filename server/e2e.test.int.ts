@@ -51,7 +51,7 @@ describe('E2E', function () {
     idGenerator = new UniqueUserIdGenerator();
     tokenManager = new TokenManager(tokenStore, idGenerator);
 
-    signUpHandler = new SignUpHandler(employeeStore);
+    signUpHandler = new SignUpHandler(employeeStore, tokenManager);
     logInHandler = new LogInHandler(employeeStore, tokenManager);
     logOutHandler = new LogOutHandler(tokenManager);
 
@@ -98,7 +98,7 @@ describe('E2E', function () {
     expect(response.bodyString()).to.eql('Log out successful - Goodbye!');
 
     const matchedToken = (await tokenStore.findAll()).find(token => token.employeeId === employee.employeeId);
-    //TODO uypdate to find method
+    //TODO update to find method
 
     expect(matchedToken!.value).to.eql(tokenValue);
     expect(Dates.stripMillis(matchedToken!.expiry)).to.be.at.most(new Date());

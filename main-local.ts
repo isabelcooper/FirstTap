@@ -18,7 +18,7 @@ import {TokenManager} from "./token/TokenManager";
   const tokenStore = new InMemoryTokenStore();
   const tokenManager = new TokenManager(tokenStore, new UniqueUserIdGenerator());
 
-  const signUpHandler = new SignUpHandler(employeeStore);
+  const signUpHandler = new SignUpHandler(employeeStore, tokenManager);
   const logInHandler = new LogInHandler(employeeStore, tokenManager);
   const logOutHandler = new LogOutHandler(tokenManager);
 

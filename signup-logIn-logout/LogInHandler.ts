@@ -16,8 +16,8 @@ export class LogInHandler implements Handler {
     ) {
       return ResOf(400, 'Bad request - missing required employee details')
     }
-    let matchedEmployee: Employee | null;
 
+    let matchedEmployee: Employee | null;
     try {
       matchedEmployee = await this.employeeStore.find({employeeId: reqBody.employeeId, pin: reqBody.pin});
       if(!matchedEmployee) {

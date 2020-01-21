@@ -1,5 +1,6 @@
 import {Token, TokenStore} from "./TokenStore";
 import {IdGenerator} from "../utils/IdGenerator";
+import {Dates} from "../utils/Dates";
 
 export interface TokenManagerClass {
   generateAndStoreToken(employeeId: string): Promise<Token>
@@ -12,7 +13,7 @@ export class InMemoryTokenManager implements TokenManagerClass {
   public tokens: Token[] = [];
 
   async generateAndStoreToken(employeeId: string): Promise<Token> {
-    const token = {employeeId, expiry: new Date(), value: this.availableTokenValue};
+    const token = {employeeId, expiry: Dates.addMinutes(new Date(), 5) , value: this.availableTokenValue};
     this.tokens.push(token);
     return token
   }
