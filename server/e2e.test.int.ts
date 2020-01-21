@@ -12,6 +12,7 @@ import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
 import {UniqueUserIdGenerator} from "../utils/IdGenerator";
 import {SqlTokenStore, TokenStore} from "../token/TokenStore";
 import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
+import {Random} from "../utils/Random";
 
 describe('E2E', function() {
   this.timeout(30000);
@@ -64,6 +65,27 @@ describe('E2E', function() {
     expect(response.status).to.eql(200);
     expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
     expect(JSON.parse(response.bodyString()).token).to.exist;
+  });
+
+  it('should log a user out', async () => {
+    const tokenValue = Random.string('token');
+    await tokenStore.store(employee.employeeId, tokenValue);
+
+    const response = await httpClient(ReqOf(
+      Method.GET,
+      `http://localhost:${port}/logout`,
+      JSON.stringify({employeeId: employee.employeeId}),
+      authHeaders
+    ));
+
+    expect(response.status).to.eql(200);
+    expect(response.bodyString()).to.eql('Log out successful - Goodbye!');
+
+    const matchedToken = (await tokenStore.findAll()).find(token => token.employeeId === employee.employeeId);
+    //TODO uypdate to find method
+
+    expect(matchedToken!.value).to.eql(tokenValue);
+    expect(matchedToken!.expiry.getTime()).to.be.at.most(new Date().getTime())
   });
 
 });
