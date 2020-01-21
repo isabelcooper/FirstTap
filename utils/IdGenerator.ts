@@ -4,14 +4,14 @@ export interface IdGenerator {
   createToken(): string;
 }
 
-export class FixedIdGenerator implements IdGenerator {
+export class FixedTokenGenerator implements IdGenerator {
   constructor(private id: string = 'noId'){}
 
   createToken() {
     return this.id
   }
 
-  setId(id: string) {
+  setToken(id: string) {
     this.id = id
   }
 }

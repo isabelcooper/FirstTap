@@ -1,4 +1,7 @@
 import {PostgresDatabase} from "../database/postgres/PostgresDatabase";
+import {Dates} from "../utils/Dates";
+import {EmployeeStore} from "./EmployeeStore";
+import {Employee} from "./SignUpHandler";
 
 export interface Token {
   employeeId: string,
@@ -10,6 +13,33 @@ export interface TokenStore {
   store(employeeId: string, tokenValue: string): Promise<{inserted: boolean}>;
 
   findAll(): Promise<Token[]>;
+}
+
+export class AlwaysFailsTokenStore implements TokenStore {
+  findAll(): Promise<Token[]> {
+    throw Error('findAll broken')
+  }
+
+  store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }> {
+    throw Error('store broken on employee: ' + employeeId)
+  }
+
+  // find(loginDetails: { pin: number; employeeId: string }): Promise<Employee> {
+  //   throw Error('employee not found ' + loginDetails)
+  // }
+}
+
+export class InMemoryTokenStore implements TokenStore{
+  private tokens: Token[] = [];
+
+  async findAll(): Promise<Token[]> {
+    return this.tokens;
+  }
+
+  async store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }> {
+    this.tokens.push({employeeId, value: tokenValue, expiry: Dates.addMinutes(new Date(), 5) });
+    return {inserted: true}
+  }
 }
 
 export class SqlTokenStore {

@@ -4,7 +4,7 @@ import {expect} from "chai";
 import {Employee, SignUpHandler} from "./SignUpHandler";
 import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "./EmployeeStore";
 
-export class AlwaysFailsStore implements EmployeeStore{
+export class AlwaysFailsEmployeeStore implements EmployeeStore{
   findAll(): Promise<Employee[]> {
     throw Error('findAll broken')
   }
@@ -32,7 +32,7 @@ describe('SignUpHandler', () => {
   });
 
   it('should error if required sign up info is missing',async () => {
-    const body = buildEmployee({employeeId: null});
+    const body = buildEmployee({employeeId: undefined});
     const response = await signUpHandler.handle(ReqOf(Method.POST, '/login', JSON.stringify(body)));
 
     expect(response.status).to.eql(400);
@@ -41,7 +41,7 @@ describe('SignUpHandler', () => {
 
   it('should handle errors storing new users', async () => {
     const employee = buildEmployee();
-    const handlerWithFailingStore = new SignUpHandler(new AlwaysFailsStore());
+    const handlerWithFailingStore = new SignUpHandler(new AlwaysFailsEmployeeStore());
     const response = await handlerWithFailingStore.handle(ReqOf(Method.POST, '/login', JSON.stringify(employee)));
 
     expect(response.status).to.eql(500);

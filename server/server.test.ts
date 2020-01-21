@@ -8,7 +8,8 @@ import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
 import {InternalAuthenticator} from "../utils/Authenticator";
 import {Random} from "../utils/Random";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
-import {UniqueUserIdGenerator} from "../utils/IdGenerator";
+import {FixedTokenGenerator, UniqueUserIdGenerator} from "../utils/IdGenerator";
+import {InMemoryTokenStore, SqlTokenStore, TokenStore} from "../signup-logIn-logout/TokenStore";
 require('dotenv').config();
 
 describe('Server', () => {
@@ -16,6 +17,7 @@ describe('Server', () => {
   const port = 3333;
   let server: Server;
   let employeeStore: EmployeeStore;
+  let tokenStore: TokenStore;
   let signUpHandler: SignUpHandler;
   let logInHandler: LogInHandler;
 
@@ -28,10 +30,15 @@ describe('Server', () => {
   const encodedCredentials = Buffer.from(`${process.env.FIRSTTAP_CLIENT_USERNAME}:${process.env.FIRSTTAP_CLIENT_PASSWORD}`).toString('base64');
   const authHeaders = {'authorization': `Basic ${encodedCredentials}`};
 
+  const fixedToken = Random.string('token');
+  const fixedTokenGenerator = new FixedTokenGenerator();
+
   beforeEach(async () => {
     employeeStore = new InMemoryEmployeeStore();
+    tokenStore = new InMemoryTokenStore();
     signUpHandler = new SignUpHandler(employeeStore);
-    logInHandler = new LogInHandler(employeeStore, new UniqueUserIdGenerator());
+    fixedTokenGenerator.setToken(fixedToken);
+    logInHandler = new LogInHandler(employeeStore, tokenStore, fixedTokenGenerator);
     server = new Server(signUpHandler, logInHandler, authenticator, port);
     server.start();
   });
@@ -45,7 +52,7 @@ describe('Server', () => {
     expect(response.status).to.eql(200);
   });
 
-  it('should allow a new employee to be created and return the name of the employee if successful', async() => {
+  it('should allow a new employee to be created and return the name & token of the employee if successful', async() => {
     const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), authHeaders));
     expect(response.status).to.eql(200);
     expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
@@ -66,5 +73,6 @@ describe('Server', () => {
     const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/login`, JSON.stringify(loginDetails), authHeaders));
     expect(response.status).to.eql(200);
     expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+    expect(JSON.parse(response.bodyString()).token).to.eql(fixedToken);
   });
 });

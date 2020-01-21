@@ -5,7 +5,7 @@ export class Random {
 
   public static string(prefix = 'string', maxLength?: number) {
     let randomString = `${prefix}${Random.integer()}`;
-    return randomString.length > maxLength ? randomString.substring(0, maxLength) : randomString;
+    return maxLength && randomString.length > maxLength ? randomString.substring(0, maxLength) : randomString;
   }
 
   public static oneOf<T>(arr: T[]): T {

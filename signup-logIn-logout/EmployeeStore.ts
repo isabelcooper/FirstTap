@@ -14,7 +14,7 @@ export function buildEmployee(partial?: Partial<Employee>) {
 }
 
 export interface EmployeeStore {
-  find(loginDetails: { pin: number; employeeId: string }): Promise<Employee>;
+  find(loginDetails: { pin: number; employeeId: string }): Promise<Employee | null>;
 
   findAll(): Promise<Employee[]>;
 
@@ -24,10 +24,10 @@ export interface EmployeeStore {
 export class InMemoryEmployeeStore implements EmployeeStore {
   public employees: Employee[] = [];
 
-  async find(loginDetails: { pin: number; employeeId: string; }): Promise<Employee> {
-    return this.employees.find(employee => {
+  async find(loginDetails: { pin: number; employeeId: string; }): Promise<Employee | null> {
+    return (this.employees.find(employee => {
       return employee.employeeId === loginDetails.employeeId && employee.pin === loginDetails.pin
-    });
+    })) || null
   }
 
   async findAll(): Promise<Employee[]> {
@@ -44,8 +44,8 @@ export class SqlEmployeeStore implements EmployeeStore {
   constructor(private database: PostgresDatabase) {
   }
 
-  async find(loginDetails: { pin: number; employeeId: string }): Promise<Employee> {
-    let sqlStatement = `
+  async find(loginDetails: { pin: number; employeeId: string }): Promise<Employee | null> {
+    const sqlStatement = `
       SELECT * FROM employees 
       WHERE employee_id = '${loginDetails.employeeId}' 
       AND pin = ${loginDetails.pin}      

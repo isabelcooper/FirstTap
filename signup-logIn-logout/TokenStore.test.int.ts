@@ -23,7 +23,7 @@ describe('TokenStore', function () {
   it('should store tokens with expiry in 5 mins and employeeId', async () => {
     const tokenStore = new SqlTokenStore(database);
     const employeeId = Random.string('', 16);
-    const value = Random.string('', 10);
+    const value = Random.string();
     expect(await tokenStore.store(employeeId, value)).to.eql({inserted: true});
     const dateTimeIn5Minutes = Dates.addMinutes(new Date(), 5);
 
