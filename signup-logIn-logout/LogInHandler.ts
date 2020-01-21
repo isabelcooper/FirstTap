@@ -3,7 +3,7 @@ import {ResOf} from "http4js/core/Res";
 import {EmployeeStore} from "./EmployeeStore";
 import {Employee} from "./SignUpHandler";
 import {IdGenerator} from "../utils/IdGenerator";
-import {Token, TokenStore} from "./TokenStore";
+import {TokenStore} from "../token/TokenStore";
 
 export class LogInHandler implements Handler {
   constructor(private employeeStore: EmployeeStore, private tokenStore: TokenStore, private tokenGenerator: IdGenerator){}

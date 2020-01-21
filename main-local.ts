@@ -4,7 +4,7 @@ import {InMemoryEmployeeStore} from "./signup-logIn-logout/EmployeeStore";
 import {InternalAuthenticator} from "./utils/Authenticator";
 import {LogInHandler} from "./signup-logIn-logout/LogInHandler";
 import {UniqueUserIdGenerator} from "./utils/IdGenerator";
-import {InMemoryTokenStore, SqlTokenStore} from "./signup-logIn-logout/TokenStore";
+import {InMemoryTokenStore} from "./token/TokenStore";
 
 (async () => {
   const authenticator = new InternalAuthenticator({

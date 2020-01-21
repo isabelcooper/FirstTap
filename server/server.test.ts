@@ -8,8 +8,9 @@ import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
 import {InternalAuthenticator} from "../utils/Authenticator";
 import {Random} from "../utils/Random";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
-import {FixedTokenGenerator, UniqueUserIdGenerator} from "../utils/IdGenerator";
-import {InMemoryTokenStore, SqlTokenStore, TokenStore} from "../signup-logIn-logout/TokenStore";
+import {FixedTokenGenerator} from "../utils/IdGenerator";
+import {InMemoryTokenStore, TokenStore} from "../token/TokenStore";
+
 require('dotenv').config();
 
 describe('Server', () => {

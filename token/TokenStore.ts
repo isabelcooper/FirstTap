@@ -1,7 +1,5 @@
 import {PostgresDatabase} from "../database/postgres/PostgresDatabase";
 import {Dates} from "../utils/Dates";
-import {EmployeeStore} from "./EmployeeStore";
-import {Employee} from "./SignUpHandler";
 
 export interface Token {
   employeeId: string,

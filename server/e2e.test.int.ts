@@ -10,7 +10,7 @@ import {PostgresTestServer} from "../database/postgres/PostgresTestServer";
 import {InternalAuthenticator} from "../utils/Authenticator";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
 import {UniqueUserIdGenerator} from "../utils/IdGenerator";
-import {SqlTokenStore} from "../signup-logIn-logout/TokenStore";
+import {SqlTokenStore} from "../token/TokenStore";
 
 describe('E2E', function() {
   this.timeout(30000);

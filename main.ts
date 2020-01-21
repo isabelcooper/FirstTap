@@ -8,7 +8,7 @@ import {SqlEmployeeStore} from "./signup-logIn-logout/EmployeeStore";
 import {InternalAuthenticator} from "./utils/Authenticator";
 import {LogInHandler} from "./signup-logIn-logout/LogInHandler";
 import {UniqueUserIdGenerator} from "./utils/IdGenerator";
-import {SqlTokenStore} from "./signup-logIn-logout/TokenStore";
+import {SqlTokenStore} from "./token/TokenStore";
 
 (async () => {
   await new PostgresMigrator(EVENT_STORE_CONNECTION_DETAILS, './database/migrations').migrate();

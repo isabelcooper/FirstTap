@@ -1,14 +1,13 @@
 import {ReqOf} from "http4js/core/Req";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
-import {Employee, SignUpHandler} from "./SignUpHandler";
-import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "./EmployeeStore";
+import {Employee} from "./SignUpHandler";
+import {buildEmployee, InMemoryEmployeeStore} from "./EmployeeStore";
 import {LogInHandler} from "./LogInHandler";
 import {AlwaysFailsEmployeeStore} from "./SignUpHandler.test";
 import {Random} from "../utils/Random";
 import {FixedTokenGenerator, UniqueUserIdGenerator} from "../utils/IdGenerator";
-import {AlwaysFailsTokenStore, InMemoryTokenStore, SqlTokenStore} from "./TokenStore";
-import {Dates} from "../utils/Dates";
+import {AlwaysFailsTokenStore, InMemoryTokenStore} from "../token/TokenStore";
 
 describe('LogInHandler', () => {
   const employeeStore = new InMemoryEmployeeStore();
