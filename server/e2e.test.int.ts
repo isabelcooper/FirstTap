@@ -88,7 +88,7 @@ describe('E2E', function () {
     await tokenStore.store(employee.employeeId, tokenValue);
 
     const response = await httpClient(ReqOf(
-      Method.GET,
+      Method.POST,
       `http://localhost:${port}/logout`,
       JSON.stringify({employeeId: employee.employeeId}),
       authHeaders

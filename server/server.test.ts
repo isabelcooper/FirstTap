@@ -86,7 +86,7 @@ describe('Server', () => {
     expect(tokenManager.tokens[0].expiry).to.be.greaterThan(new Date());
 
     const response = await httpClient(ReqOf(
-      Method.GET,
+      Method.POST,
       `http://localhost:${port}/logout`,
       JSON.stringify({employeeId: employee.employeeId}),
       authHeaders
@@ -100,12 +100,34 @@ describe('Server', () => {
 
   it('should not error even if the user wasn\'t logged in..', async () => {
     const response = await httpClient(ReqOf(
-      Method.GET,
+      Method.POST,
       `http://localhost:${port}/logout`,
       JSON.stringify({employeeId: employee.employeeId}),
       authHeaders
     ));
     expect(response.status).to.eql(200);
     expect(response.bodyString()).to.eql('Log out successful - Goodbye!');
+  });
+
+  it('should load swagger docs', async () => {
+    const response = await httpClient(ReqOf(
+      Method.GET,
+      `http://localhost:${port}/docs`,
+      undefined,
+      authHeaders
+    ));
+    expect(response.status).to.eql(200);
+    expect(response.bodyString()).to.include('<title>FirstTap Api Docs</title>');
+  });
+
+  it('should load swagger json', async () => {
+    const response = await httpClient(ReqOf(
+      Method.GET,
+      `http://localhost:${port}/swagger/swagger.json`,
+      undefined,
+      authHeaders
+    ));
+    expect(response.status).to.eql(200);
+    expect(response.bodyString()).to.include( '"title": "FirstTap Api"');
   });
 });
