@@ -6,6 +6,7 @@ import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
 import {Authenticator} from "../utils/Authenticator";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
 import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
+import * as fs from "fs";
 require('dotenv').config();
 
 export class Server {
@@ -15,7 +16,13 @@ export class Server {
     this.server = routes(Method.GET, '/health', async() => ResOf(200))
       .withPost('/signup', authenticator.authFilter(signUpHandler))
       .withPost('/login', authenticator.authFilter(logInHandler))
-      .withGet('/logout', authenticator.authFilter(logOutHandler))
+      .withPost('/logout', authenticator.authFilter(logOutHandler))
+
+      .withGet('/docs', authenticator.authFilter(async (_req) => ResOf(200, (fs.readFileSync('./docs/index.html')).toString())))
+      .withGet('/swagger/{filename}', async (req) => {
+        const fileType = req.uri.path().split('.')[1];
+        return ResOf(200, (fs.readFileSync(`./docs/${req.pathParams.filename}.${fileType}`)).toString())
+      })
       .asServer(new NativeHttpServer(parseInt(process.env.PORT!) || this.port));
   }
 

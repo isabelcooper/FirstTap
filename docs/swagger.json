@@ -1,0 +1,102 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "FirstTap Api"
+  },
+  "host": "firsttap.appspot.com",
+  "basePath": "/",
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Check system status",
+        "description": "returns 200 to confirm system is live",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "New user stored successfully"
+          }
+        }
+      }
+    },
+    "/signup": {
+      "post": {
+        "tags": [
+          "signup"
+        ],
+        "summary": "Sign up a new employee",
+        "description": "POST to the signup endpoint with JSON body values to register a new user with the FirstTap system",
+        "operationId": "addEmployee",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "employee",
+            "description": "All core employee data is needed for a sign up",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Employee"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "New user stored successfully"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Employee": {
+      "type": "object",
+      "properties": {
+        "employeeId": {
+          "type": "string",
+          "format": "VARCHAR(16)"
+        },
+        "name": {
+          "type": "string",
+          "format": "VARCHAR"
+        },
+        "email": {
+          "type": "string",
+          "format": "VARCHAR"
+        },
+        "mobile": {
+          "type": "string",
+          "format": "VARCHAR"
+        },
+        "pin": {
+          "type": "integer",
+          "format": "INT(4)"
+        }
+      },
+      "xml": {
+        "name": "Employee"
+      }
+    }
+  }
+}
+
