@@ -2,7 +2,7 @@ import {Employee} from "./SignUpHandler";
 import {Random} from "../utils/Random";
 import {PostgresDatabase} from "../database/postgres/PostgresDatabase";
 
-export function buildEmployee(partial: Partial<Employee>) {
+export function buildEmployee(partial?: Partial<Employee>) {
   return {
     name: Random.string('name'),
     email: Random.string('email'),

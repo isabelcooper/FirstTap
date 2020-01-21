@@ -8,7 +8,7 @@ describe('EmployeeStore', function() {
   const testPostgresServer = new PostgresTestServer();
   let database: PostgresDatabase;
   let employeeStore: EmployeeStore;
-  const employee = buildEmployee({});
+  const employee = buildEmployee();
 
   beforeEach(async () => {
     database = await testPostgresServer.startAndGetFirstTapDatabase();

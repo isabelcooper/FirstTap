@@ -46,7 +46,7 @@ describe('E2E', function() {
   });
 
   it('should allow an unknown user to register', async () =>{
-    const employee = buildEmployee({});
+    const employee = buildEmployee();
     const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), authHeaders),);
     expect(response.status).to.eql(200);
     expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);

@@ -10,7 +10,7 @@ import {Random} from "../utils/Random";
 describe('LogInHandler', () => {
   const employeeStore = new InMemoryEmployeeStore();
   const logInHandler = new LogInHandler(employeeStore);
-  const employee: Employee = buildEmployee({});
+  const employee: Employee = buildEmployee();
 
   before(async () => {
     await employeeStore.store(employee);
@@ -37,7 +37,7 @@ describe('LogInHandler', () => {
   });
 
   it('should handle errors reading from the store', async () => {
-    const employee = buildEmployee({});
+    const employee = buildEmployee();
     const handlerWithFailingStore = new LogInHandler(new AlwaysFailsStore());
     const response = await handlerWithFailingStore.handle(ReqOf(Method.POST, '/login', JSON.stringify(employee)));
 

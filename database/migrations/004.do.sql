@@ -1,0 +1,6 @@
+CREATE TABLE tokens (
+   id SERIAL PRIMARY KEY,
+   employee_id VARCHAR(16),
+   value VARCHAR(10),
+   expiry TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '5 minute'
+   );

@@ -23,7 +23,7 @@ describe('SignUpHandler', () => {
   const signUpHandler = new SignUpHandler(employeeStore);
 
   it('should register a new user and return their name', async () => {
-    const employee: Employee = buildEmployee({});
+    const employee: Employee = buildEmployee();
     const response = await signUpHandler.handle(ReqOf(Method.POST, '/login', JSON.stringify(employee)));
 
     expect(response.status).to.eql(200);
@@ -40,7 +40,7 @@ describe('SignUpHandler', () => {
   });
 
   it('should handle errors storing new users', async () => {
-    const employee = buildEmployee({});
+    const employee = buildEmployee();
     const handlerWithFailingStore = new SignUpHandler(new AlwaysFailsStore());
     const response = await handlerWithFailingStore.handle(ReqOf(Method.POST, '/login', JSON.stringify(employee)));
 
