@@ -12,7 +12,7 @@ export interface TokenStore {
 
   findAll(): Promise<Token[]>;
 
-  update(employeeId: string): Promise<{ updated: boolean }>;
+  expireAll(employeeId: string): Promise<Token[]>;
 }
 
 export class AlwaysFailsTokenStore implements TokenStore {
@@ -24,13 +24,9 @@ export class AlwaysFailsTokenStore implements TokenStore {
     throw Error('store broken on employee: ' + employeeId)
   }
 
-  update(employeeId: string): Promise<{ updated: boolean }> {
+  expireAll(employeeId: string): Promise<Token[]> {
     throw Error('update broken')
   }
-
-  // find(loginDetails: { pin: number; employeeId: string }): Promise<Employee> {
-  //   throw Error('employee not found ' + loginDetails)
-  // }
 }
 
 export class InMemoryTokenStore implements TokenStore {
@@ -42,17 +38,16 @@ export class InMemoryTokenStore implements TokenStore {
 
   async store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }> {
     this.tokens.push({employeeId, value: tokenValue, expiry: Dates.addMinutes(new Date(), 5)});
-    console.log('stored')
     return {inserted: true}
   }
 
-  async update(employeeId: string): Promise<{ updated: boolean }> {
+  async expireAll(employeeId: string): Promise<Token[]> {
     this.tokens.map(token => {
       if (token.employeeId === employeeId) {
         token.expiry = new Date()
       }
     });
-    return {updated: true}
+    return this.tokens.filter(token => token.employeeId === employeeId)!
   }
 }
 
@@ -81,7 +76,7 @@ export class SqlTokenStore implements TokenStore {
     })
   }
 
-  async update(employeeId: string): Promise<{ updated: boolean; }> {
+  async expireAll(employeeId: string): Promise<Token[]> {
     const sqlStatement = `
     UPDATE tokens
     SET expiry = CURRENT_TIMESTAMP
@@ -89,6 +84,12 @@ export class SqlTokenStore implements TokenStore {
     RETURNING *;
    `;
     const rows = (await this.database.query(sqlStatement)).rows;
-    return {updated: !!rows.length}
+    return rows.map(row => {
+      return {
+        employeeId: row.employee_id,
+        expiry: row.expiry,
+        value: row.value
+      }
+    })
   }
 }

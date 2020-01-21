@@ -6,24 +6,21 @@ import {buildEmployee, InMemoryEmployeeStore} from "./EmployeeStore";
 import {LogInHandler} from "./LogInHandler";
 import {AlwaysFailsEmployeeStore} from "./SignUpHandler.test";
 import {Random} from "../utils/Random";
-import {FixedTokenGenerator, UniqueUserIdGenerator} from "../utils/IdGenerator";
-import {AlwaysFailsTokenStore, InMemoryTokenStore} from "../token/TokenStore";
+import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../token/TokenManager";
 
 describe('LogInHandler', () => {
   const employeeStore = new InMemoryEmployeeStore();
-  let fixedTokenGenerator = new FixedTokenGenerator();
-  const tokenStore = new InMemoryTokenStore();
-  const logInHandler = new LogInHandler(employeeStore, tokenStore, fixedTokenGenerator);
+  const tokenManager = new InMemoryTokenManager();
+  const logInHandler = new LogInHandler(employeeStore, tokenManager);
   const employee: Employee = buildEmployee();
+  const fixedToken = Random.string('token');
 
   before(async () => {
     await employeeStore.store(employee);
+    tokenManager.setToken(fixedToken);
   });
 
   it('should look up an existing user, returning their name and a generated token', async () => {
-    const fixedToken = Random.string('id');
-    fixedTokenGenerator.setToken(fixedToken);
-
     const response = await logInHandler.handle(ReqOf(Method.POST, '/login',
       JSON.stringify(employee)
     ));
@@ -32,7 +29,7 @@ describe('LogInHandler', () => {
     expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
     expect(JSON.parse(response.bodyString()).token).to.eql(fixedToken);
 
-    const storedTokens = await tokenStore.findAll();
+    const storedTokens = await tokenManager.tokens;
     expect(storedTokens[0].employeeId).to.eql(employee.employeeId);
     expect(storedTokens[0].value).to.eql(fixedToken);
   });
@@ -50,7 +47,7 @@ describe('LogInHandler', () => {
 
   it('should handle errors reading from the employeeStore', async () => {
     const employee = buildEmployee();
-    const handlerWithFailingStore = new LogInHandler(new AlwaysFailsEmployeeStore(), new InMemoryTokenStore(), new UniqueUserIdGenerator());
+    const handlerWithFailingStore = new LogInHandler(new AlwaysFailsEmployeeStore(), tokenManager);
     const response = await handlerWithFailingStore.handle(ReqOf(Method.POST, '/login', JSON.stringify(employee)));
 
     expect(response.status).to.eql(500);
@@ -63,7 +60,7 @@ describe('LogInHandler', () => {
     const employee = buildEmployee();
     await employeeStore.store(employee);
 
-    const handlerWithFailingStore = new LogInHandler(employeeStore, new AlwaysFailsTokenStore(), new UniqueUserIdGenerator());
+    const handlerWithFailingStore = new LogInHandler(employeeStore, new AlwaysFailsTokenManager());
     const response = await handlerWithFailingStore.handle(ReqOf(Method.POST, '/login', JSON.stringify(employee)));
 
     expect(response.status).to.eql(500);

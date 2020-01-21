@@ -8,9 +8,9 @@ import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
 import {InternalAuthenticator} from "../utils/Authenticator";
 import {Random} from "../utils/Random";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
-import {FixedTokenGenerator} from "../utils/IdGenerator";
-import {InMemoryTokenStore, TokenStore} from "../token/TokenStore";
+import {TokenStore} from "../token/TokenStore";
 import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
+import {InMemoryTokenManager} from "../token/TokenManager";
 
 require('dotenv').config();
 
@@ -34,15 +34,14 @@ describe('Server', () => {
   const authHeaders = {'authorization': `Basic ${encodedCredentials}`};
 
   const fixedToken = Random.string('token');
-  const fixedTokenGenerator = new FixedTokenGenerator();
 
   beforeEach(async () => {
     employeeStore = new InMemoryEmployeeStore();
-    tokenStore = new InMemoryTokenStore();
     signUpHandler = new SignUpHandler(employeeStore);
-    fixedTokenGenerator.setToken(fixedToken);
-    logInHandler = new LogInHandler(employeeStore, tokenStore, fixedTokenGenerator);
-    logOutHandler = new LogOutHandler(tokenStore);
+    const tokenManager = new InMemoryTokenManager();
+    tokenManager.setToken(fixedToken);
+    logInHandler = new LogInHandler(employeeStore, tokenManager);
+    logOutHandler = new LogOutHandler(tokenManager);
     server = new Server(signUpHandler, logInHandler, logOutHandler, authenticator, port);
     server.start();
   });

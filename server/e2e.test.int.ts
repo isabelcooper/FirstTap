@@ -9,12 +9,14 @@ import {PostgresDatabase} from "../database/postgres/PostgresDatabase";
 import {PostgresTestServer} from "../database/postgres/PostgresTestServer";
 import {InternalAuthenticator} from "../utils/Authenticator";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
-import {UniqueUserIdGenerator} from "../utils/IdGenerator";
 import {SqlTokenStore, TokenStore} from "../token/TokenStore";
 import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
 import {Random} from "../utils/Random";
+import {TokenManager, TokenManagerClass} from "../token/TokenManager";
+import {IdGenerator, UniqueUserIdGenerator} from "../utils/IdGenerator";
+import {Dates} from "../utils/Dates";
 
-describe('E2E', function() {
+describe('E2E', function () {
   this.timeout(30000);
   const httpClient = HttpClient;
   const port = 3332;
@@ -23,6 +25,12 @@ describe('E2E', function() {
   let server: Server;
   let employeeStore: EmployeeStore;
   let tokenStore: TokenStore;
+  let idGenerator: IdGenerator;
+  let tokenManager: TokenManagerClass;
+
+  let signUpHandler: SignUpHandler;
+  let logInHandler: LogInHandler;
+  let logOutHandler: LogOutHandler;
 
   const authenticator = new InternalAuthenticator({
     username: process.env.FIRSTTAP_CLIENT_USERNAME as string,
@@ -36,10 +44,18 @@ describe('E2E', function() {
   beforeEach(async () => {
     database = await testPostgresServer.startAndGetFirstTapDatabase();
     await testPostgresServer.start();
+
     employeeStore = new SqlEmployeeStore(database);
     tokenStore = new SqlTokenStore(database);
 
-    server = new Server(new SignUpHandler(employeeStore), new LogInHandler(employeeStore, tokenStore, new UniqueUserIdGenerator()), new LogOutHandler(tokenStore), authenticator, port);
+    idGenerator = new UniqueUserIdGenerator();
+    tokenManager = new TokenManager(tokenStore, idGenerator);
+
+    signUpHandler = new SignUpHandler(employeeStore);
+    logInHandler = new LogInHandler(employeeStore, tokenManager);
+    logOutHandler = new LogOutHandler(tokenManager);
+
+    server = new Server(signUpHandler, logInHandler, logOutHandler, authenticator, port);
     await server.start();
   });
 
@@ -48,7 +64,7 @@ describe('E2E', function() {
     await server.stop();
   });
 
-  it('should allow an unknown user to register', async () =>{
+  it('should allow an unknown user to register', async () => {
     const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), authHeaders),);
     expect(response.status).to.eql(200);
     expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
@@ -85,7 +101,6 @@ describe('E2E', function() {
     //TODO uypdate to find method
 
     expect(matchedToken!.value).to.eql(tokenValue);
-    expect(matchedToken!.expiry.getTime()).to.be.at.most(new Date().getTime())
+    expect(Dates.stripMillis(matchedToken!.expiry)).to.be.at.most(new Date());
   });
-
 });

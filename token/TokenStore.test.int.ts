@@ -37,7 +37,7 @@ describe('TokenStore', function () {
 
   it('should update a token expiry date to now', async () => {
     await tokenStore.store(employeeId, value);
-    await tokenStore.update(employeeId);
+    await tokenStore.expireAll(employeeId);
 
     const tokens = await tokenStore.findAll();
     expect(tokens[0].employeeId).to.eql(employeeId);
@@ -51,7 +51,7 @@ describe('TokenStore', function () {
     const employee2Id = Random.string('employee2', 16);
     await tokenStore.store(employee2Id, Random.string());
 
-    await tokenStore.update(employeeId);
+    await tokenStore.expireAll(employeeId);
     const dateTimeIn5Minutes = Dates.addMinutes(new Date(), 5);
 
     const employee2Token = (await tokenStore.findAll()).find(token => token.employeeId === employee2Id);

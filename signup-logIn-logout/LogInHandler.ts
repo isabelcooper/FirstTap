@@ -2,11 +2,11 @@ import {Handler, Req, Res} from "http4js";
 import {ResOf} from "http4js/core/Res";
 import {EmployeeStore} from "./EmployeeStore";
 import {Employee} from "./SignUpHandler";
-import {IdGenerator} from "../utils/IdGenerator";
-import {TokenStore} from "../token/TokenStore";
+import {Token} from "../token/TokenStore";
+import {TokenManagerClass} from "../token/TokenManager";
 
 export class LogInHandler implements Handler {
-  constructor(private employeeStore: EmployeeStore, private tokenStore: TokenStore, private tokenGenerator: IdGenerator){}
+  constructor(private employeeStore: EmployeeStore, private tokenManager: TokenManagerClass){}
 
   async handle(req: Req): Promise<Res> {
     const reqBody: Employee = JSON.parse(req.bodyString());
@@ -27,14 +27,13 @@ export class LogInHandler implements Handler {
       return ResOf(500, `Error storing new user - please contact your administrator. \n ${e}`)
     }
 
-    let token: string | null;
+    let token: Token;
     try {
-      token = this.tokenGenerator.createToken();
-      await this.tokenStore.store(matchedEmployee.employeeId, token);
+      token = await this.tokenManager.generateAndStoreToken(matchedEmployee.employeeId);
     } catch (e) {
       return ResOf(500, `Error retrieving token - please contact your administrator.`)
-    } //TODO no test for error
+    }
 
-    return ResOf(200, JSON.stringify({name: matchedEmployee.name, token}));
+    return ResOf(200, JSON.stringify({name: matchedEmployee.name, token: token.value}));
   }
 }
