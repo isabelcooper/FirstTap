@@ -8,6 +8,7 @@ import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
 import {InternalAuthenticator} from "../utils/Authenticator";
 import {Random} from "../utils/Random";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
+import {UniqueUserIdGenerator} from "../utils/IdGenerator";
 require('dotenv').config();
 
 describe('Server', () => {
@@ -30,7 +31,7 @@ describe('Server', () => {
   beforeEach(async () => {
     employeeStore = new InMemoryEmployeeStore();
     signUpHandler = new SignUpHandler(employeeStore);
-    logInHandler = new LogInHandler(employeeStore);
+    logInHandler = new LogInHandler(employeeStore, new UniqueUserIdGenerator());
     server = new Server(signUpHandler, logInHandler, authenticator, port);
     server.start();
   });

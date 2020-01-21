@@ -13,6 +13,7 @@ import {Pool} from "pg";
 import {PostgresTestServer} from "../database/postgres/PostgresTestServer";
 import {InternalAuthenticator} from "../utils/Authenticator";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
+import {UniqueUserIdGenerator} from "../utils/IdGenerator";
 
 describe('E2E', function() {
   this.timeout(30000);
@@ -36,7 +37,7 @@ describe('E2E', function() {
     await testPostgresServer.start();
     employeeStore = new SqlEmployeeStore(database);
 
-    server = new Server(new SignUpHandler(employeeStore), new LogInHandler(employeeStore), authenticator, port);
+    server = new Server(new SignUpHandler(employeeStore), new LogInHandler(employeeStore, new UniqueUserIdGenerator()), authenticator, port);
     await server.start();
   });
 

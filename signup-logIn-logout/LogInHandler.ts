@@ -2,9 +2,10 @@ import {Handler, Req, Res} from "http4js";
 import {ResOf} from "http4js/core/Res";
 import {EmployeeStore} from "./EmployeeStore";
 import {Employee} from "./SignUpHandler";
+import {IdGenerator} from "../utils/IdGenerator";
 
 export class LogInHandler implements Handler {
-  constructor(private employeeStore: EmployeeStore){}
+  constructor(private employeeStore: EmployeeStore, private tokenGenerator: IdGenerator){}
 
   async handle(req: Req): Promise<Res> {
     const reqBody: Employee = JSON.parse(req.bodyString());
@@ -24,6 +25,9 @@ export class LogInHandler implements Handler {
     } catch (e) {
       return ResOf(500, `Error storing new user - please contact your administrator. \n ${e}`)
     }
-    return ResOf(200, JSON.stringify({name: matchedEmployee.name}));
+
+    const token = this.tokenGenerator.createToken();
+
+    return ResOf(200, JSON.stringify({name: matchedEmployee.name, token}));
   }
 }

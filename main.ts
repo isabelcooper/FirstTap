@@ -7,6 +7,7 @@ import {Pool} from "pg";
 import {SqlEmployeeStore} from "./signup-logIn-logout/EmployeeStore";
 import {InternalAuthenticator} from "./utils/Authenticator";
 import {LogInHandler} from "./signup-logIn-logout/LogInHandler";
+import {UniqueUserIdGenerator} from "./utils/IdGenerator";
 
 (async () => {
   await new PostgresMigrator(EVENT_STORE_CONNECTION_DETAILS, './database/migrations').migrate();
@@ -19,6 +20,6 @@ import {LogInHandler} from "./signup-logIn-logout/LogInHandler";
     password: process.env.FIRSTTAP_CLIENT_PASSWORD as string
   });
 
-  const server = new Server(new SignUpHandler(employeeStore), new LogInHandler(employeeStore), authenticator);
+  const server = new Server(new SignUpHandler(employeeStore), new LogInHandler(employeeStore, new UniqueUserIdGenerator()), authenticator);
   server.start();
 })();
