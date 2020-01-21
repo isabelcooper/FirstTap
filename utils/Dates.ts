@@ -82,6 +82,10 @@ export class Dates {
     return new Date(date.getTime() + numberOfDays * ONE_DAY_IN_MILLIS);
   }
 
+  static addMinutes(date: Date, numberOfMinutes: number) {
+    return new Date(date.getTime() + numberOfMinutes * ONE_MINUTE_IN_MILLIS);
+  }
+
   static stripMillis(date: Date) {
     const dateWithoutMillis = new Date(date);
     dateWithoutMillis.setMilliseconds(0);
