@@ -18,11 +18,11 @@ export class Server {
       .withPost('/login', authenticator.authFilter(logInHandler))
       .withPost('/logout', authenticator.authFilter(logOutHandler))
 
-      .withGet('/docs', authenticator.authFilter(async (_req) => ResOf(200, (fs.readFileSync('./docs/index.html')).toString())))
-      .withGet('/swagger/{filename}', async (req) => {
-        const fileType = req.uri.path().split('.')[1];
-        return ResOf(200, (fs.readFileSync(`./docs/${req.pathParams.filename}.${fileType}`)).toString())
-      })
+      // .withGet('/docs', authenticator.authFilter(async (_req) => ResOf(200, (fs.readFileSync('./docs/index.html')).toString())))
+      // .withGet('/swagger/{filename}', async (req) => {
+      //   const fileType = req.uri.path().split('.')[1];
+      //   return ResOf(200, (fs.readFileSync(`./docs/${req.pathParams.filename}.${fileType}`)).toString())
+      // })
       .asServer(new NativeHttpServer(parseInt(process.env.PORT!) || this.port));
   }
 

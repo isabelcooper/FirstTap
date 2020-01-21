@@ -109,7 +109,7 @@ describe('Server', () => {
     expect(response.bodyString()).to.eql('Log out successful - Goodbye!');
   });
 
-  it('should load swagger docs', async () => {
+  it.skip('should load swagger docs', async () => {
     const response = await httpClient(ReqOf(
       Method.GET,
       `http://localhost:${port}/docs`,
@@ -120,7 +120,7 @@ describe('Server', () => {
     expect(response.bodyString()).to.include('<title>FirstTap Api Docs</title>');
   });
 
-  it('should load swagger json', async () => {
+  it.skip('should load swagger json', async () => {
     const response = await httpClient(ReqOf(
       Method.GET,
       `http://localhost:${port}/swagger/swagger.json`,
