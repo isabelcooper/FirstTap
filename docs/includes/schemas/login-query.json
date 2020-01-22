@@ -1,0 +1,15 @@
+{
+  "name": "Employee",
+  "properties": {
+    "employeeId": {
+      "type": "string",
+      "format": "max 16 characters",
+      "required": true
+    },
+    "pin": {
+      "type": "integer",
+      "format": "max 4 characters",
+      "required": true
+    }
+  }
+}

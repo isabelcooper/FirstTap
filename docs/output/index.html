@@ -173,7 +173,41 @@ pre code {
     </style></head><body data-spy="scroll" data-target="#sidebar"><div class="container"><div class="row"><div class="col-md-9" role="main"><div class="page-header"><h1>FirstTap API documentation <small>version 1</small></h1><p>http://firsttap.appspot.com/v1</p></div><div class="panel panel-default"><div class="panel-heading"><h3 id="health" class="panel-title">/health</h3></div><div class="panel-body"><div class="top-resource-description"><p>Check system liveness</p></div><div class="panel-group"><div class="panel panel-white resource-modal"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_health"><span class="parent"></span>/health</a> <span class="methods"><a href="#health_get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_health" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#health_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p><strong>Return 200 to confirm system is live</strong></p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="health_get"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent"></span>/health</h4></div><div class="modal-body"><div class="alert alert-info"><p><strong>Return 200 to confirm system is live</strong></p></div><ul class="nav nav-tabs"><li class="active"><a href="#health_get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="health_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: any</p><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
   "status": "ok"
 }
-</code></pre></div></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="signup" class="panel-title">/signup</h3></div><div class="panel-body"><div class="top-resource-description"><p>Sign up new users</p></div><div class="panel-group"><div class="panel panel-white resource-modal"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_signup"><span class="parent"></span>/signup</a> <span class="methods"><a href="#signup_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_signup" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#signup_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p><strong>Store a new employee in the FirstTap system</strong></p><p>This assumes a unique id for each user and stores them in the system DB. Core employee data is required and the route will fail if values are missing from the body.</p><p>The employee name and a usage token valid for 5 minutes will be returned. This must be included in the headers of all further API calls.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="signup_post"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent"></span>/signup</h4></div><div class="modal-body"><div class="alert alert-info"><p><strong>Store a new employee in the FirstTap system</strong></p><p>This assumes a unique id for each user and stores them in the system DB. Core employee data is required and the route will fail if values are missing from the body.</p><p>The employee name and a usage token valid for 5 minutes will be returned. This must be included in the headers of all further API calls.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#signup_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="signup_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: any</p><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
+</code></pre></div></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="signup" class="panel-title">/signup</h3></div><div class="panel-body"><div class="top-resource-description"><p>Sign up new users using existing employee id</p></div><div class="panel-group"><div class="panel panel-white resource-modal"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_signup"><span class="parent"></span>/signup</a> <span class="methods"><a href="#signup_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_signup" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#signup_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p><strong>Store a new employee in the FirstTap system</strong></p><p>This assumes a unique id for each user and stores them in the system DB. Core employee data is required and the route will fail if values are missing from the body.</p><p>The employee name and a usage token valid for 5 minutes will be returned. This must be included in the headers of all further API calls.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="signup_post"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent"></span>/signup</h4></div><div class="modal-body"><div class="alert alert-info"><p><strong>Store a new employee in the FirstTap system</strong></p><p>This assumes a unique id for each user and stores them in the system DB. Core employee data is required and the route will fail if values are missing from the body.</p><p>The employee name and a usage token valid for 5 minutes will be returned. This must be included in the headers of all further API calls.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#signup_post_request" data-toggle="tab">Request</a></li><li><a href="#signup_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="signup_post_request"><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>:</p><pre><code>{
+  "name": "Employee",
+  "properties": {
+    "employeeId": {
+      "type": "string",
+      "format": "max 16 characters",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "email": {
+      "type": "string",
+      "required": true
+    },
+    "mobile": {
+      "type": "string",
+      "required": true
+    },
+    "pin": {
+      "type": "integer",
+      "format": "max 4 characters",
+      "required": true
+    }
+  }
+}
+</code></pre><p><strong>Example</strong>:</p><div class="examples"><p><strong>Basic user info</strong>:<br></p><pre><code>{
+  "employeeId": "r7jTG7dqBy5wGO4L",
+  "name": "Joe Smith",
+  "email": "joe@smith.com",
+  "mobile": "+44 1234 567890",
+  "pin": 1234
+}
+</code></pre></div></div><div class="tab-pane" id="signup_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: any</p><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
   "status": "ok",
   "body": {
     "name": "employee name",
@@ -198,4 +232,48 @@ pre code {
     "message": "Something&#39;s gone wrong - this may be a fault with the datastore or server. Please contact FirstTap support asap."
   }
 }
-</code></pre></div></div></div></div></div></div></div></div></div></div></div></div><div class="col-md-3"><div id="sidebar" class="hidden-print affix" role="complementary"><ul class="nav nav-pills nav-stacked"><li><a href="#health">/health</a></li><li><a href="#signup">/signup</a></li></ul></div></div></div></div></body></html>
+</code></pre></div></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="login" class="panel-title">/login</h3></div><div class="panel-body"><div class="top-resource-description"><p>Log in existing users using existing employeeId and pin code</p></div><div class="panel-group"><div class="panel panel-white resource-modal"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_login"><span class="parent"></span>/login</a> <span class="methods"><a href="#login_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_login" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#login_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p><strong>Log in an existing user</strong></p><p>Retrieve a valid user token by logging in with a valid employeeId and pincode.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="login_post"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent"></span>/login</h4></div><div class="modal-body"><div class="alert alert-info"><p><strong>Log in an existing user</strong></p><p>Retrieve a valid user token by logging in with a valid employeeId and pincode.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#login_post_request" data-toggle="tab">Request</a></li><li><a href="#login_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="login_post_request"><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>:</p><pre><code>{
+  "name": "Employee",
+  "properties": {
+    "employeeId": {
+      "type": "string",
+      "format": "max 16 characters",
+      "required": true
+    },
+    "pin": {
+      "type": "integer",
+      "format": "max 4 characters",
+      "required": true
+    }
+  }
+}
+</code></pre><p><strong>Example</strong>:</p><div class="examples"><p><strong>Basic user info</strong>:<br></p><pre><code>{
+  "employeeId": "r7jTG7dqBy5wGO4L",
+  "pin": 1234
+}
+</code></pre></div></div><div class="tab-pane" id="login_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: any</p><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
+  "status": "ok",
+  "body": {
+    "name": "employee name",
+    "token": "37c05c56-ecd7-4720-b6ab-8314a53d2b63"
+  }
+}
+</code></pre></div><h2>HTTP status code <a href="http://httpstatus.es/400" target="_blank">400</a></h2><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: any</p><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
+  "status": "Bad Request",
+  "body": {
+    "message": "Missing required values"
+  }
+}
+</code></pre></div><h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: any</p><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
+  "status": "Unauthorized",
+  "body": {
+    "message": "Message details if system auth headers or user token are absent"
+  }
+}
+</code></pre></div><h2>HTTP status code <a href="http://httpstatus.es/500" target="_blank">500</a></h2><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: any</p><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
+  "status": "Internal Server Error",
+  "body": {
+    "message": "Something&#39;s gone wrong - this may be a fault with the datastore or server. Please contact FirstTap support asap."
+  }
+}
+</code></pre></div></div></div></div></div></div></div></div></div></div></div></div><div class="col-md-3"><div id="sidebar" class="hidden-print affix" role="complementary"><ul class="nav nav-pills nav-stacked"><li><a href="#health">/health</a></li><li><a href="#signup">/signup</a></li><li><a href="#login">/login</a></li></ul></div></div></div></div></body></html>
