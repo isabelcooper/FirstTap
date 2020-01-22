@@ -1,6 +1,6 @@
 import {Handler, Req, Res} from "http4js";
 import {ResOf} from "http4js/core/Res";
-import {TokenManagerClass} from "../token/TokenManager";
+import {TokenManagerClass} from "../userAuthtoken/TokenManager";
 
 export class LogOutHandler implements Handler {
   constructor(private tokenManager: TokenManagerClass) {

@@ -1,4 +1,4 @@
-import {InMemoryTokenManager} from "../token/TokenManager";
+import {InMemoryTokenManager} from "../userAuthtoken/TokenManager";
 import {buildEmployee, InMemoryEmployeeStore} from "../signup-logIn-logout/EmployeeStore";
 import {Random} from "../utils/Random";
 import {ReqOf} from "http4js/core/Req";

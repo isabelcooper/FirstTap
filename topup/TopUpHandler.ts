@@ -1,5 +1,5 @@
 import {Handler, ResOf} from "http4js";
-import {TokenManagerClass} from "../token/TokenManager";
+import {TokenManagerClass} from "../userAuthtoken/TokenManager";
 import {EmployeeStore} from "../signup-logIn-logout/EmployeeStore";
 import {Req} from "http4js/core/Req";
 import {Res} from "http4js/core/Res";

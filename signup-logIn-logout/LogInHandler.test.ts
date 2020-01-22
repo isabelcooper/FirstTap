@@ -6,7 +6,7 @@ import {buildEmployee, InMemoryEmployeeStore} from "./EmployeeStore";
 import {LogInHandler} from "./LogInHandler";
 import {AlwaysFailsEmployeeStore} from "./SignUpHandler.test";
 import {Random} from "../utils/Random";
-import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../token/TokenManager";
+import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../userAuthtoken/TokenManager";
 
 describe('LogInHandler', () => {
   const employeeStore = new InMemoryEmployeeStore();

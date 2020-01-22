@@ -4,7 +4,7 @@ import {expect} from "chai";
 import {buildEmployee} from "./EmployeeStore";
 import {Random} from "../utils/Random";
 import {LogOutHandler} from "./LogOutHandler";
-import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../token/TokenManager";
+import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../userAuthtoken/TokenManager";
 
 describe('LogOutHandler', () => {
   const tokenManager = new InMemoryTokenManager();

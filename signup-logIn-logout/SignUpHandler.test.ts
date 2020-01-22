@@ -3,7 +3,7 @@ import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
 import {Employee, SignUpHandler} from "./SignUpHandler";
 import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "./EmployeeStore";
-import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../token/TokenManager";
+import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../userAuthtoken/TokenManager";
 import {Random} from "../utils/Random";
 
 export class AlwaysFailsEmployeeStore implements EmployeeStore{

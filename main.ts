@@ -5,12 +5,12 @@ import {EVENT_STORE_CONNECTION_DETAILS} from "./config/prod";
 import {PostgresDatabase} from "./database/postgres/PostgresDatabase";
 import {Pool} from "pg";
 import {SqlEmployeeStore} from "./signup-logIn-logout/EmployeeStore";
-import {InternalAuthenticator} from "./utils/Authenticator";
+import {InternalAuthenticator} from "./systemAuth/Authenticator";
 import {LogInHandler} from "./signup-logIn-logout/LogInHandler";
-import {SqlTokenStore} from "./token/TokenStore";
+import {SqlTokenStore} from "./userAuthtoken/TokenStore";
 import {LogOutHandler} from "./signup-logIn-logout/LogOutHandler";
 import {UniqueUserIdGenerator} from "./utils/IdGenerator";
-import {TokenManager} from "./token/TokenManager";
+import {TokenManager} from "./userAuthtoken/TokenManager";
 import {TopUpHandler} from "./topup/TopUpHandler";
 
 (async () => {

@@ -2,8 +2,8 @@ import {Handler, Req, Res} from "http4js";
 import {ResOf} from "http4js/core/Res";
 import {EmployeeStore} from "./EmployeeStore";
 import {Employee} from "./SignUpHandler";
-import {Token} from "../token/TokenStore";
-import {TokenManagerClass} from "../token/TokenManager";
+import {Token} from "../userAuthtoken/TokenStore";
+import {TokenManagerClass} from "../userAuthtoken/TokenManager";
 
 export class LogInHandler implements Handler {
   constructor(private employeeStore: EmployeeStore, private tokenManager: TokenManagerClass){}

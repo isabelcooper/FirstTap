@@ -1,5 +1,5 @@
 import {InternalAuthenticator} from "./Authenticator";
-import {Random} from "./Random";
+import {Random} from "../utils/Random";
 import {ResOf} from "http4js/core/Res";
 import {Method} from "http4js/core/Methods";
 import {ReqOf} from "http4js/core/Req";

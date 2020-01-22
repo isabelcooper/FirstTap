@@ -5,11 +5,11 @@ import {expect} from "chai";
 import {Server} from "./server";
 import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "../signup-logIn-logout/EmployeeStore";
 import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
-import {InternalAuthenticator} from "../utils/Authenticator";
+import {InternalAuthenticator} from "../systemAuth/Authenticator";
 import {Random} from "../utils/Random";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
 import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
-import {InMemoryTokenManager} from "../token/TokenManager";
+import {InMemoryTokenManager} from "../userAuthtoken/TokenManager";
 import {Dates} from "../utils/Dates";
 import {TopUpHandler} from "../topup/TopUpHandler";
 

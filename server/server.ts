@@ -3,7 +3,7 @@ import {Method} from "http4js/core/Methods";
 import {NativeHttpServer} from "http4js/servers/NativeHttpServer";
 import {ResOf} from "http4js/core/Res";
 import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
-import {Authenticator} from "../utils/Authenticator";
+import {Authenticator} from "../systemAuth/Authenticator";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
 import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
 import {TopUpHandler} from "../topup/TopUpHandler";
