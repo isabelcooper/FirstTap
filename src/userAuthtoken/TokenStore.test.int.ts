@@ -4,6 +4,7 @@ import {SqlTokenStore, TokenStore} from "./TokenStore";
 import {Dates} from "../../utils/Dates";
 import {PostgresTestServer} from "../../database/postgres/PostgresTestServer";
 import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
+import {SqlEmployeeStore} from "../signup-logIn-logout/EmployeeStore";
 
 describe('TokenStore', function () {
   this.timeout(30000);
@@ -13,12 +14,16 @@ describe('TokenStore', function () {
   const employeeId = Random.string('', 16);
   const value = Random.string();
 
-  beforeEach(async () => {
+  before(async () => {
     database = await testPostgresServer.startAndGetFirstTapDatabase();
     tokenStore = new SqlTokenStore(database);
   });
 
   afterEach(async () => {
+    await database.query(`TRUNCATE TABLE tokens;`)
+  });
+
+  after( async() => {
     await testPostgresServer.stop()
   });
 

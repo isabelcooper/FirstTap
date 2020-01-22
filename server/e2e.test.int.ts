@@ -41,7 +41,7 @@ describe('E2E', function () {
 
   const encodedCredentials = Buffer.from(`${process.env.FIRSTTAP_CLIENT_USERNAME}:${process.env.FIRSTTAP_CLIENT_PASSWORD}`).toString('base64');
   const authHeaders = {'authorization': `Basic ${encodedCredentials}`};
-  const employee = buildEmployee();
+  const employee = buildEmployee({balance: undefined});
   const fixedToken = Random.string('token');
 
   beforeEach(async () => {

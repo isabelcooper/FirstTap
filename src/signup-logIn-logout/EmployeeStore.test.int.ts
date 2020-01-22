@@ -4,23 +4,32 @@ import {PostgresTestServer} from "../../database/postgres/PostgresTestServer";
 import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
 import {Random} from "../../utils/Random";
 
-describe('EmployeeStore', function() {
+describe('EmployeeStore',function() {
   this.timeout(30000);
   const testPostgresServer = new PostgresTestServer();
   let database: PostgresDatabase;
   let employeeStore: EmployeeStore;
-  const employee = buildEmployee();
+  const employee = buildEmployee({balance: undefined});
 
-  beforeEach(async () => {
+  before(async () => {
     database = await testPostgresServer.startAndGetFirstTapDatabase();
     employeeStore = new SqlEmployeeStore(database);
   });
 
-  afterEach( async() => {
+  afterEach(async () => {
+    await database.query(`TRUNCATE TABLE employees;`)
+  });
+
+  after( async() => {
     await testPostgresServer.stop()
   });
 
   it('should store an employee', async () => {
+    const storedEmployee = await employeeStore.store(employee);
+    expect(storedEmployee).to.eql(employee);
+  });
+
+  it('should retrieve all employees', async () => {
     await employeeStore.store(employee);
     expect(await employeeStore.findAll()).to.eql([employee])
   });

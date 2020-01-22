@@ -21,7 +21,7 @@ export class TopUpHandler implements Handler {
     let newBalance: number;
     try {
       const updatedEmployee = await this.employeeStore.update(employeeId, amount);
-      newBalance = updatedEmployee!.balance
+      newBalance = updatedEmployee!.balance || 0 // TODO add test?
     } catch (e) {
       return ResOf(500, `${e}`)
     }

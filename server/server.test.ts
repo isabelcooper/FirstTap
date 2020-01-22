@@ -31,7 +31,7 @@ describe('Server', () => {
     password: process.env.FIRSTTAP_CLIENT_PASSWORD as string
   });
 
-  const employee = buildEmployee();
+  const employee = buildEmployee({balance: undefined});
   const encodedCredentials = Buffer.from(`${process.env.FIRSTTAP_CLIENT_USERNAME}:${process.env.FIRSTTAP_CLIENT_PASSWORD}`).toString('base64');
   const basicAuthHeaders = {'authorization': `Basic ${encodedCredentials}`};
 

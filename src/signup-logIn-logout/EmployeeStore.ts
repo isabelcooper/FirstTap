@@ -44,7 +44,9 @@ export class InMemoryEmployeeStore implements EmployeeStore {
 
   public async update(employeeId: string, amount: number): Promise<Employee | null> {
     this.employees.map(employee => {
-        if (employee.employeeId === employeeId) employee.balance += amount
+        if (employee.employeeId === employeeId) {
+          employee.balance ? employee.balance += amount : employee.balance = amount
+        }
       }
     );
     return this.employees.find(employee => employee.employeeId === employeeId) || null
@@ -89,8 +91,8 @@ export class SqlEmployeeStore implements EmployeeStore {
 
   async store(employee: Employee): Promise<{ inserted: boolean }> {
     const sqlStatement = `
-      INSERT INTO employees (name, email, employee_id, mobile, pin, balance) 
-      VALUES ('${employee.name}','${employee.email}','${employee.employeeId}','${employee.mobile}',${employee.pin}, ${employee.balance}) 
+      INSERT INTO employees (name, email, employee_id, mobile, pin) 
+      VALUES ('${employee.name}','${employee.email}','${employee.employeeId}','${employee.mobile}',${employee.pin}) 
       ON CONFLICT DO NOTHING
       RETURNING *;`;
     const rows = (await this.database.query(sqlStatement)).rows;
