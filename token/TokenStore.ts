@@ -14,25 +14,7 @@ export interface TokenStore {
 
   findAll(): Promise<Token[]>;
 
-  store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }>;
-}
-
-export class AlwaysFailsTokenStore implements TokenStore {
-  expireAll(employeeId: string): Promise<Token[]> {
-    throw Error('tokenStore broken')
-  }
-
-  find(employeeId: string, token: string): Promise<Token[]> {
-    throw Error('tokenStore broken')
-  }
-
-  findAll(): Promise<Token[]> {
-    throw Error('tokenStore broken')
-  }
-
-  store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }> {
-    throw Error('tokenStore broken')
-  }
+  store(employeeId: string, tokenValue: string): Promise<Token>;
 }
 
 export class InMemoryTokenStore implements TokenStore {
@@ -48,9 +30,10 @@ export class InMemoryTokenStore implements TokenStore {
     return this.tokens;
   }
 
-  public async store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }> {
-    this.tokens.push({employeeId, value: tokenValue, expiry: Dates.addMinutes(new Date(), 5)});
-    return {inserted: true}
+  public async store(employeeId: string, tokenValue: string): Promise<Token> {
+    const token = {employeeId, value: tokenValue, expiry: Dates.addMinutes(new Date(), 5)};
+    this.tokens.push(token);
+    return token
   }
 
   public async expireAll(employeeId: string): Promise<Token[]> {
@@ -67,13 +50,17 @@ export class SqlTokenStore implements TokenStore {
   constructor(private database: PostgresDatabase) {
   }
 
-  async store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }> {
+  async store(employeeId: string, tokenValue: string): Promise<Token> {
     const sqlStatement = `
       INSERT INTO tokens (employee_id, value) 
       VALUES ('${employeeId}','${tokenValue}') 
       RETURNING *;`;
-    const rows = (await this.database.query(sqlStatement)).rows;
-    return {inserted: !!rows.length}
+    const insertedRow = (await this.database.query(sqlStatement)).rows[0];
+    return {
+      employeeId: insertedRow.employee_id,
+      value: insertedRow.value,
+      expiry: new Date(insertedRow.expiry)
+    }
   }
 
   async findAll(): Promise<Token[]> {

@@ -94,6 +94,7 @@ export class SqlEmployeeStore implements EmployeeStore {
       ON CONFLICT DO NOTHING
       RETURNING *;`;
     const rows = (await this.database.query(sqlStatement)).rows;
+    console.log(rows);
     return {inserted: !!rows.length}
   }
 

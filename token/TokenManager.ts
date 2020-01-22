@@ -66,10 +66,8 @@ export class TokenManager implements TokenManagerClass {
 
   public async generateAndStoreToken(employeeId: string): Promise<Token> {
     const tokenValue = this.idGenerator.createToken();
-    await this.tokenStore.store(employeeId, tokenValue);
-    return {employeeId, value: tokenValue, expiry: new Date()}
-
-    //TODO return the real date from token store
+    const storedToken = await this.tokenStore.store(employeeId, tokenValue);
+    return {employeeId, value: tokenValue, expiry: storedToken.expiry}
   }
 
   public async expireTokens(employeeId: string): Promise<Token[]> {

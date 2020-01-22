@@ -23,7 +23,10 @@ describe('TokenStore', function () {
   });
 
   it('should store tokens with expiry in 5 mins and employeeId', async () => {
-    expect(await tokenStore.store(employeeId, value)).to.eql({inserted: true});
+    const storedToken = await tokenStore.store(employeeId, value);
+    expect(storedToken.employeeId).to.eql(employeeId);
+    expect(storedToken.value).to.eql(value);
+
     const dateTimeIn5Minutes = Dates.addMinutes(new Date(), 5);
 
     const tokens = await tokenStore.findAll();

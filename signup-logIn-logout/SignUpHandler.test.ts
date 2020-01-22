@@ -70,6 +70,4 @@ describe('SignUpHandler', () => {
       `Error retrieving token - please contact your administrator.`
     );
   });
-
-  //TODO: redirect to login if already a known user
 });
