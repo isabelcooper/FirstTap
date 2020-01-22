@@ -21,10 +21,6 @@ export class Server {
       .withPut('/topup/{employeeId}', authenticator.authFilter(topUpHandler))
 
       .withGet('/docs', authenticator.authFilter(async (_req) => ResOf(200, (fs.readFileSync('./docs/output/index.html')).toString())))
-      // .withGet('/swagger/{filename}', async (req) => {
-      //   const fileType = req.uri.path().split('.')[1];
-      //   return ResOf(200, (fs.readFileSync(`./docs/${req.pathParams.filename}.${fileType}`)).toString())
-      // })
       .asServer(new NativeHttpServer(parseInt(process.env.PORT!) || this.port));
   }
 

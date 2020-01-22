@@ -3,6 +3,10 @@
 title: FirstTap
 baseUri: http://firsttap.appspot.com/v1
 version: 1
+documentation:
+  - title: Welcome
+    content: |
+      Welcome to the FirstTap API.
 /health:
   description: Check system liveness
   get:
@@ -31,6 +35,11 @@ version: 1
             basic:
               displayName: Basic user info
               value: !include ./includes/requests/signup-query.json
+      headers:
+        Authorization:
+          type: string
+          description: Basic authentication header using base64 encoded username and password credentials
+          example: !include ./includes/requests/basic-auth-header.json
       responses:
         200:
           body:
@@ -80,3 +89,8 @@ version: 1
           body:
             application/json:
               example: !include ./includes/responses/datastore-err.json
+      headers:
+        Authorization:
+          type: string
+          description: Basic authentication header using base64 encoded username and password credentials
+          example: !include ./includes/requests/basic-auth-header.json
