@@ -7,6 +7,7 @@ import {Authenticator} from "../systemAuth/Authenticator";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
 import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
 import {TopUpHandler} from "../topup/TopUpHandler";
+import * as fs from "fs";
 require('dotenv').config();
 
 export class Server {
@@ -19,7 +20,7 @@ export class Server {
       .withPost('/logout', authenticator.authFilter(logOutHandler))
       .withPut('/topup/{employeeId}', authenticator.authFilter(topUpHandler))
 
-      // .withGet('/docs', authenticator.authFilter(async (_req) => ResOf(200, (fs.readFileSync('./docs/index.html')).toString())))
+      .withGet('/docs', authenticator.authFilter(async (_req) => ResOf(200, (fs.readFileSync('./docs/output/index.html')).toString())))
       // .withGet('/swagger/{filename}', async (req) => {
       //   const fileType = req.uri.path().split('.')[1];
       //   return ResOf(200, (fs.readFileSync(`./docs/${req.pathParams.filename}.${fileType}`)).toString())

@@ -53,11 +53,13 @@ case "${run_arg}" in
 "start")
     if ! version_check; then install_node; fi
     install_node_dependencies
+    npm run generate-docs
     npm run start
     ;;
 "start:local")
     if ! version_check; then install_node; fi
     install_node_dependencies
+    npm run generate-docs
     npm run start:local
     ;;
  "ci")

@@ -1,0 +1,15 @@
+#%RAML 1.0
+---
+title: FirstTap
+baseUri: http://firsttap.appspot.com/v1
+version: 1
+/health:
+  description: Check system liveness
+  get:
+    description: |
+      **Return 200 to confirm system is live**
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include ./includes/responses/health-list.json

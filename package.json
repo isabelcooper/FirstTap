@@ -4,10 +4,11 @@
   "description": "First Catering Ltd API to allow F1 company employees to top up and purchase food at their existing kiosk terminals using their current payment cards. ",
   "main": "main.ts",
   "scripts": {
-    "test:unit": "mocha '**/*.test.ts' --require ts-node/register",
+    "test:unit": "mocha './{,!(node_modules)/**}/*.test.ts' --require ts-node/register",
     "test:integration": "mocha **/*.test.int.ts --require ts-node/register",
     "start": "ts-node ./main.ts",
-    "start:local": "ts-node ./main-local.ts"
+    "start:local": "ts-node ./main-local.ts",
+    "generate-docs": "node ./node_modules/.bin/raml2html -v docs/firstTapApi.raml > docs/output/index.html"
   },
   "repository": {
     "type": "git",
@@ -42,6 +43,7 @@
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
     "mocha": "^7.0.0",
-    "testcontainers": "^2.2.0"
+    "testcontainers": "^2.2.0",
+    "raml2html": "^7.5.0"
   }
 }

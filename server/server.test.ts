@@ -131,7 +131,7 @@ describe('Server', () => {
     expect(response.bodyString()).to.eql(`Account topped up successfully. New balance is ${topUpAmount}`);
   });
 
-  it.skip('should load swagger docs', async () => {
+  it('should load docs home', async () => {
     const response = await httpClient(ReqOf(
       Method.GET,
       `http://localhost:${port}/docs`,
@@ -139,17 +139,7 @@ describe('Server', () => {
       basicAuthHeaders
     ));
     expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.include('<title>FirstTap Api Docs</title>');
+    expect(response.bodyString()).to.include('<title>FirstTap API documentation</title>');
   });
-
-  it.skip('should load swagger json', async () => {
-    const response = await httpClient(ReqOf(
-      Method.GET,
-      `http://localhost:${port}/swagger/swagger.json`,
-      undefined,
-      basicAuthHeaders
-    ));
-    expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.include('"title": "FirstTap Api"');
-  });
+  //TODO: do we need different auth for dev users??
 });
