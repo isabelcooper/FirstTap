@@ -9,6 +9,7 @@ export function buildEmployee(partial?: Partial<Employee>) {
     employeeId: Random.string('employeeId', 16),
     mobile: Random.string('mobile'),
     pin: Random.integer(9999),
+    balance: Random.integer(10000000)/100,
     ...partial
   };
 }
@@ -19,24 +20,34 @@ export interface EmployeeStore {
   findAll(): Promise<Employee[]>;
 
   store(employee: Employee): Promise<{ inserted: boolean }>;
+
+  update(employeeId: string, amount: number): Promise<Employee | null>;
 }
 
 export class InMemoryEmployeeStore implements EmployeeStore {
   public employees: Employee[] = [];
 
-  async find(loginDetails: { pin: number; employeeId: string; }): Promise<Employee | null> {
+  public async find(loginDetails: { pin: number; employeeId: string; }): Promise<Employee | null> {
     return (this.employees.find(employee => {
       return employee.employeeId === loginDetails.employeeId && employee.pin === loginDetails.pin
     })) || null
   }
 
-  async findAll(): Promise<Employee[]> {
+  public async findAll(): Promise<Employee[]> {
     return this.employees
   }
 
-  async store(employee: Employee): Promise<{ inserted: boolean }> {
+  public async store(employee: Employee): Promise<{ inserted: boolean }> {
     this.employees.push(employee);
     return {inserted: true}
+  }
+
+  public async update(employeeId: string, amount: number): Promise<Employee | null> {
+    this.employees.map(employee => {
+        if (employee.employeeId === employeeId) employee.balance += amount
+      }
+    );
+    return this.employees.find(employee => employee.employeeId === employeeId) || null
   }
 }
 
@@ -56,7 +67,8 @@ export class SqlEmployeeStore implements EmployeeStore {
       email: row.email,
       employeeId: row.employee_id,
       mobile: row.mobile,
-      pin: parseInt(row.pin)
+      pin: parseInt(row.pin),
+      balance: parseFloat(row.balance)
     }
   };
 
@@ -69,18 +81,37 @@ export class SqlEmployeeStore implements EmployeeStore {
         email: row.email,
         employeeId: row.employee_id,
         mobile: row.mobile,
-        pin: parseInt(row.pin)
+        pin: parseInt(row.pin),
+        balance: parseFloat(row.balance)
       }
     })
   }
 
   async store(employee: Employee): Promise<{ inserted: boolean }> {
     const sqlStatement = `
-      INSERT INTO employees (name, email, employee_id, mobile, pin) 
-      VALUES ('${employee.name}','${employee.email}','${employee.employeeId}','${employee.mobile}',${employee.pin}) 
+      INSERT INTO employees (name, email, employee_id, mobile, pin, balance) 
+      VALUES ('${employee.name}','${employee.email}','${employee.employeeId}','${employee.mobile}',${employee.pin}, ${employee.balance}) 
       ON CONFLICT DO NOTHING
       RETURNING *;`;
     const rows = (await this.database.query(sqlStatement)).rows;
     return {inserted: !!rows.length}
+  }
+
+  public async update(employeeId: string, amount: number): Promise<Employee | null> {
+    const sqlStatement = `
+      UPDATE employees 
+      SET balance = balance + ${amount}
+      WHERE employee_id = '${employeeId}'  
+      RETURNING *;`;
+    const row = (await this.database.query(sqlStatement)).rows[0];
+    if (!row) return null;
+    return {
+      employeeId: row.employee_id,
+      name: row.name,
+      email: row.email,
+      mobile: row.mobile,
+      pin: parseInt(row.pin),
+      balance: parseFloat(row.balance)
+    }
   }
 }

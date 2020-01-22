@@ -9,7 +9,8 @@ export interface Employee {
   email: string,
   employeeId: string,
   mobile: string,
-  pin: number
+  pin: number,
+  balance: number
 }
 
 export class SignUpHandler implements Handler {

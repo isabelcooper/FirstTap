@@ -1,0 +1,2 @@
+ALTER TABLE employees
+   ADD COLUMN balance NUMERIC (8, 2) DEFAULT 0;

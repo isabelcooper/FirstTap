@@ -11,14 +11,16 @@ import {SqlTokenStore} from "./token/TokenStore";
 import {LogOutHandler} from "./signup-logIn-logout/LogOutHandler";
 import {UniqueUserIdGenerator} from "./utils/IdGenerator";
 import {TokenManager} from "./token/TokenManager";
+import {TopUpHandler} from "./topup/TopUpHandler";
 
 (async () => {
+  const clock = Date;
   await new PostgresMigrator(EVENT_STORE_CONNECTION_DETAILS, './database/migrations').migrate();
 
   const database = new PostgresDatabase(new Pool(EVENT_STORE_CONNECTION_DETAILS));
   const employeeStore = new SqlEmployeeStore(database);
   const tokenStore = new SqlTokenStore(database);
-  const tokenManager = new TokenManager(tokenStore, new UniqueUserIdGenerator());
+  const tokenManager = new TokenManager(tokenStore, new UniqueUserIdGenerator(), clock);
 
   const authenticator = new InternalAuthenticator({
     username: process.env.FIRSTTAP_CLIENT_USERNAME as string,
@@ -28,7 +30,8 @@ import {TokenManager} from "./token/TokenManager";
   const signUpHandler = new SignUpHandler(employeeStore, tokenManager);
   const logInHandler = new LogInHandler(employeeStore, tokenManager);
   const logOutHandler = new LogOutHandler(tokenManager);
+  const topUpHandler = new TopUpHandler(tokenManager, employeeStore);
 
-  const server = new Server(signUpHandler, logInHandler, logOutHandler, authenticator);
+  const server = new Server(authenticator, signUpHandler, logInHandler, logOutHandler, topUpHandler);
   server.start();
 })();

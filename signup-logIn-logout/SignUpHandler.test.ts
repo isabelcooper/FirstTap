@@ -18,6 +18,10 @@ export class AlwaysFailsEmployeeStore implements EmployeeStore{
   find(loginDetails: { pin: number; employeeId: string }): Promise<Employee> {
     throw Error('employee not found ' + loginDetails)
   }
+
+  update(employeeId: string, amount: number): Promise<Employee | null> {
+    throw Error('employee not found ' + employeeId)
+  }
 }
 
 describe('SignUpHandler', () => {

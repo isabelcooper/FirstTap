@@ -6,17 +6,18 @@ import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
 import {Authenticator} from "../utils/Authenticator";
 import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
 import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
-import * as fs from "fs";
+import {TopUpHandler} from "../topup/TopUpHandler";
 require('dotenv').config();
 
 export class Server {
   private server: Routing;
 
-  constructor(signUpHandler: SignUpHandler, logInHandler: LogInHandler, logOutHandler: LogOutHandler, authenticator: Authenticator, private port: number = 3330) {
+  constructor(authenticator: Authenticator, signUpHandler: SignUpHandler, logInHandler: LogInHandler, logOutHandler: LogOutHandler, topUpHandler: TopUpHandler, private port: number = 3330) {
     this.server = routes(Method.GET, '/health', async() => ResOf(200))
       .withPost('/signup', authenticator.authFilter(signUpHandler))
       .withPost('/login', authenticator.authFilter(logInHandler))
       .withPost('/logout', authenticator.authFilter(logOutHandler))
+      .withPut('/topup/{employeeId}', authenticator.authFilter(topUpHandler))
 
       // .withGet('/docs', authenticator.authFilter(async (_req) => ResOf(200, (fs.readFileSync('./docs/index.html')).toString())))
       // .withGet('/swagger/{filename}', async (req) => {

@@ -13,8 +13,9 @@ import {SqlTokenStore, TokenStore} from "../token/TokenStore";
 import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
 import {Random} from "../utils/Random";
 import {TokenManager, TokenManagerClass} from "../token/TokenManager";
-import {IdGenerator, UniqueUserIdGenerator} from "../utils/IdGenerator";
+import {FixedTokenGenerator, IdGenerator, UniqueUserIdGenerator} from "../utils/IdGenerator";
 import {Dates} from "../utils/Dates";
+import {TopUpHandler} from "../topup/TopUpHandler";
 
 describe('E2E', function () {
   this.timeout(30000);
@@ -31,6 +32,7 @@ describe('E2E', function () {
   let signUpHandler: SignUpHandler;
   let logInHandler: LogInHandler;
   let logOutHandler: LogOutHandler;
+  let topUpHandler: TopUpHandler;
 
   const authenticator = new InternalAuthenticator({
     username: process.env.FIRSTTAP_CLIENT_USERNAME as string,
@@ -40,6 +42,7 @@ describe('E2E', function () {
   const encodedCredentials = Buffer.from(`${process.env.FIRSTTAP_CLIENT_USERNAME}:${process.env.FIRSTTAP_CLIENT_PASSWORD}`).toString('base64');
   const authHeaders = {'authorization': `Basic ${encodedCredentials}`};
   const employee = buildEmployee();
+  const fixedToken = Random.string('token');
 
   beforeEach(async () => {
     database = await testPostgresServer.startAndGetFirstTapDatabase();
@@ -49,13 +52,14 @@ describe('E2E', function () {
     tokenStore = new SqlTokenStore(database);
 
     idGenerator = new UniqueUserIdGenerator();
-    tokenManager = new TokenManager(tokenStore, idGenerator);
+    tokenManager = new TokenManager(tokenStore, idGenerator, Date);
 
     signUpHandler = new SignUpHandler(employeeStore, tokenManager);
     logInHandler = new LogInHandler(employeeStore, tokenManager);
     logOutHandler = new LogOutHandler(tokenManager);
+    topUpHandler = new TopUpHandler(tokenManager, employeeStore);
 
-    server = new Server(signUpHandler, logInHandler, logOutHandler, authenticator, port);
+    server = new Server(authenticator, signUpHandler, logInHandler, logOutHandler, topUpHandler, port);
     await server.start();
   });
 
@@ -84,8 +88,7 @@ describe('E2E', function () {
   });
 
   it('should log a user out', async () => {
-    const tokenValue = Random.string('token');
-    await tokenStore.store(employee.employeeId, tokenValue);
+    await tokenStore.store(employee.employeeId, fixedToken);
 
     const response = await httpClient(ReqOf(
       Method.POST,
@@ -100,7 +103,37 @@ describe('E2E', function () {
     const matchedToken = (await tokenStore.findAll()).find(token => token.employeeId === employee.employeeId);
     //TODO update to find method
 
-    expect(matchedToken!.value).to.eql(tokenValue);
+    expect(matchedToken!.value).to.eql(fixedToken);
     expect(Dates.stripMillis(matchedToken!.expiry)).to.be.at.most(new Date());
+  });
+
+  it('should update a user balance', async () => {
+    const fixedIdGenerator = new FixedTokenGenerator();
+    const fixedToken = Random.string();
+    fixedIdGenerator.setToken(fixedToken);
+    tokenManager = new TokenManager(tokenStore, fixedIdGenerator, Date);
+
+    signUpHandler = new SignUpHandler(employeeStore, tokenManager);
+    logInHandler = new LogInHandler(employeeStore, tokenManager);
+    logOutHandler = new LogOutHandler(tokenManager);
+    topUpHandler = new TopUpHandler(tokenManager, employeeStore);
+    await employeeStore.store(employee);
+    await tokenManager.generateAndStoreToken(employee.employeeId);
+
+    const topUpAmount = Random.integer(1000)/100;
+
+    const response = await httpClient(ReqOf(
+      Method.PUT,
+      `http://localhost:${port}/topup/${employee.employeeId}`,
+      JSON.stringify({'amount': topUpAmount}),
+      {
+        ...authHeaders,
+        'token': fixedToken
+      }
+    ).withPathParamsFromTemplate('/topup/{employeeId}'));
+
+    expect(response.status).to.eql(200);
+    expect(response.bodyString()).to.eql(`Account topped up successfully. New balance is ${(topUpAmount + employee.balance).toFixed(2)}`);
+    //TODO check on floating point err
   });
 });

@@ -8,40 +8,52 @@ export interface Token {
 }
 
 export interface TokenStore {
-  store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }>;
+  expireAll(employeeId: string): Promise<Token[]>;
+
+  find(employeeId: string, token: string): Promise<Token[]>;
 
   findAll(): Promise<Token[]>;
 
-  expireAll(employeeId: string): Promise<Token[]>;
+  store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }>;
 }
 
 export class AlwaysFailsTokenStore implements TokenStore {
+  expireAll(employeeId: string): Promise<Token[]> {
+    throw Error('tokenStore broken')
+  }
+
+  find(employeeId: string, token: string): Promise<Token[]> {
+    throw Error('tokenStore broken')
+  }
+
   findAll(): Promise<Token[]> {
-    throw Error('findAll broken')
+    throw Error('tokenStore broken')
   }
 
   store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }> {
-    throw Error('store broken on employee: ' + employeeId)
-  }
-
-  expireAll(employeeId: string): Promise<Token[]> {
-    throw Error('update broken')
+    throw Error('tokenStore broken')
   }
 }
 
 export class InMemoryTokenStore implements TokenStore {
   private tokens: Token[] = [];
 
-  async findAll(): Promise<Token[]> {
+  public async find(employeeId: string, tokenValue: string): Promise<Token[]> {
+    return this.tokens.filter(token => {
+      return token.value === tokenValue && token.employeeId === employeeId
+    });
+  }
+
+  public async findAll(): Promise<Token[]> {
     return this.tokens;
   }
 
-  async store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }> {
+  public async store(employeeId: string, tokenValue: string): Promise<{ inserted: boolean }> {
     this.tokens.push({employeeId, value: tokenValue, expiry: Dates.addMinutes(new Date(), 5)});
     return {inserted: true}
   }
 
-  async expireAll(employeeId: string): Promise<Token[]> {
+  public async expireAll(employeeId: string): Promise<Token[]> {
     this.tokens.map(token => {
       if (token.employeeId === employeeId) {
         token.expiry = new Date()
@@ -89,6 +101,22 @@ export class SqlTokenStore implements TokenStore {
         employeeId: row.employee_id,
         expiry: row.expiry,
         value: row.value
+      }
+    })
+  }
+
+  public async find(employeeId: string, tokenValue: string): Promise<Token[]> {
+    const sqlStatement = `
+    SELECT * FROM tokens 
+    WHERE employee_id = '${employeeId}'
+    AND value = '${tokenValue}';
+    `;
+    const rows = (await this.database.query(sqlStatement)).rows;
+    return rows.map(row => {
+      return {
+        employeeId: row.employee_id,
+        value: row.value,
+        expiry: new Date(row.expiry)
       }
     })
   }

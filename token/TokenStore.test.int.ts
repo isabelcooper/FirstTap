@@ -59,4 +59,19 @@ describe('TokenStore', function () {
     expect(employee2Token!.expiry.getDate()).to.eql(dateTimeIn5Minutes.getDate());
     expect(employee2Token!.expiry.getMinutes()).to.eql(dateTimeIn5Minutes.getMinutes());
   });
+
+  it('should return all tokens matching an employeeId and token value', async () => {
+    await tokenStore.store(employeeId, value);
+    await tokenStore.store(employeeId, value);
+
+    const token2 = Random.string('token2', 16);
+    const employee2 = Random.string('employee2', 16);
+    await tokenStore.store(employeeId, token2);
+    await tokenStore.store(employee2, token2);
+
+    const result = await tokenStore.find(employeeId, value);
+    expect(result.length).to.eql(2);
+    expect(result[0].value).to.eql(value);
+    expect(result[0].employeeId).to.eql(employeeId);
+  });
 });
