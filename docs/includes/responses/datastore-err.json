@@ -1,0 +1,6 @@
+{
+  "status": "Internal Server Error",
+  "body": {
+    "message": "Something's gone wrong - this may be a fault with the datastore or server. Please contact FirstTap support asap."
+  }
+}

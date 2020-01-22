@@ -1,8 +1,8 @@
 import {buildEmployee, EmployeeStore, SqlEmployeeStore} from "./EmployeeStore";
 import {expect} from "chai";
-import {PostgresTestServer} from "../database/postgres/PostgresTestServer";
-import {PostgresDatabase} from "../database/postgres/PostgresDatabase";
-import {Random} from "../utils/Random";
+import {PostgresTestServer} from "../../database/postgres/PostgresTestServer";
+import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
+import {Random} from "../../utils/Random";
 
 describe('EmployeeStore', function() {
   this.timeout(30000);

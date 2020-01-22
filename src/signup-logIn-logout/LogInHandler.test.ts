@@ -5,7 +5,7 @@ import {Employee} from "./SignUpHandler";
 import {buildEmployee, InMemoryEmployeeStore} from "./EmployeeStore";
 import {LogInHandler} from "./LogInHandler";
 import {AlwaysFailsEmployeeStore} from "./SignUpHandler.test";
-import {Random} from "../utils/Random";
+import {Random} from "../../utils/Random";
 import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../userAuthtoken/TokenManager";
 
 describe('LogInHandler', () => {

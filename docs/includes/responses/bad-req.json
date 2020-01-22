@@ -1,0 +1,6 @@
+{
+  "status": "Bad Request",
+  "body": {
+    "message": "Missing required values"
+  }
+}

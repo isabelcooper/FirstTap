@@ -1,5 +1,5 @@
-import {PostgresDatabase} from "../database/postgres/PostgresDatabase";
-import {Dates} from "../utils/Dates";
+import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
+import {Dates} from "../../utils/Dates";
 
 export interface Token {
   employeeId: string,

@@ -1,6 +1,6 @@
 import {Employee} from "./SignUpHandler";
-import {Random} from "../utils/Random";
-import {PostgresDatabase} from "../database/postgres/PostgresDatabase";
+import {Random} from "../../utils/Random";
+import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
 
 export function buildEmployee(partial?: Partial<Employee>) {
   return {

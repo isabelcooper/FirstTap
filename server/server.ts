@@ -2,11 +2,11 @@ import {routes, Routing} from "http4js/core/Routing";
 import {Method} from "http4js/core/Methods";
 import {NativeHttpServer} from "http4js/servers/NativeHttpServer";
 import {ResOf} from "http4js/core/Res";
-import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
-import {Authenticator} from "../systemAuth/Authenticator";
-import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
-import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
-import {TopUpHandler} from "../topup/TopUpHandler";
+import {SignUpHandler} from "../src/signup-logIn-logout/SignUpHandler";
+import {Authenticator} from "../src/systemAuth/Authenticator";
+import {LogInHandler} from "../src/signup-logIn-logout/LogInHandler";
+import {LogOutHandler} from "../src/signup-logIn-logout/LogOutHandler";
+import {TopUpHandler} from "../src/topup/TopUpHandler";
 import * as fs from "fs";
 require('dotenv').config();
 

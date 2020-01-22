@@ -3,15 +3,15 @@ import {HttpClient} from "http4js/client/HttpClient";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
 import {Server} from "./server";
-import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "../signup-logIn-logout/EmployeeStore";
-import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
-import {InternalAuthenticator} from "../systemAuth/Authenticator";
+import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "../src/signup-logIn-logout/EmployeeStore";
+import {SignUpHandler} from "../src/signup-logIn-logout/SignUpHandler";
+import {InternalAuthenticator} from "../src/systemAuth/Authenticator";
 import {Random} from "../utils/Random";
-import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
-import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
-import {InMemoryTokenManager} from "../userAuthtoken/TokenManager";
+import {LogInHandler} from "../src/signup-logIn-logout/LogInHandler";
+import {LogOutHandler} from "../src/signup-logIn-logout/LogOutHandler";
+import {InMemoryTokenManager} from "../src/userAuthtoken/TokenManager";
 import {Dates} from "../utils/Dates";
-import {TopUpHandler} from "../topup/TopUpHandler";
+import {TopUpHandler} from "../src/topup/TopUpHandler";
 
 require('dotenv').config();
 

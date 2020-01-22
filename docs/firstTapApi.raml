@@ -12,4 +12,32 @@ version: 1
       200:
         body:
           application/json:
-            example: !include ./includes/responses/health-list.json
+            example: !include ./includes/responses/health-response.json
+
+/signup:
+    description: Sign up new users
+    post:
+      description: |
+        **Store a new employee in the FirstTap system**
+
+        This assumes a unique id for each user and stores them in the system DB.
+        Core employee data is required and the route will fail if values are missing from the body.
+
+        The employee name and a usage token valid for 5 minutes will be returned. This must be included in the headers of all further API calls.
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include ./includes/responses/login-success.json
+        400:
+          body:
+            application/json:
+              example: !include ./includes/responses/bad-req.json
+        401:
+          body:
+            application/json:
+              example: !include ./includes/responses/auth-fail.json
+        500:
+          body:
+            application/json:
+              example: !include ./includes/responses/datastore-err.json

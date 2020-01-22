@@ -1,7 +1,7 @@
 import {Token, TokenStore} from "./TokenStore";
-import {IdGenerator} from "../utils/IdGenerator";
-import {Dates} from "../utils/Dates";
-import {Clock} from "../utils/Clock";
+import {IdGenerator} from "../../utils/IdGenerator";
+import {Dates} from "../../utils/Dates";
+import {Clock} from "../../utils/Clock";
 
 export interface TokenManagerClass {
   generateAndStoreToken(employeeId: string): Promise<Token>

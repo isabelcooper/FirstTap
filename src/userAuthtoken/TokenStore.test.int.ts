@@ -1,9 +1,9 @@
-import {Random} from "../utils/Random";
+import {Random} from "../../utils/Random";
 import {expect} from "chai";
 import {SqlTokenStore, TokenStore} from "./TokenStore";
-import {Dates} from "../utils/Dates";
-import {PostgresTestServer} from "../database/postgres/PostgresTestServer";
-import {PostgresDatabase} from "../database/postgres/PostgresDatabase";
+import {Dates} from "../../utils/Dates";
+import {PostgresTestServer} from "../../database/postgres/PostgresTestServer";
+import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
 
 describe('TokenStore', function () {
   this.timeout(30000);

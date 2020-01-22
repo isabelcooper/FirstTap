@@ -1,0 +1,6 @@
+{
+  "status": "Unauthorized",
+  "body": {
+    "message": "Message details if system auth headers or user token are absent"
+  }
+}

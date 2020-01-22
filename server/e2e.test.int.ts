@@ -3,19 +3,19 @@ import {HttpClient} from "http4js/client/HttpClient";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
 import {Server} from "./server";
-import {SignUpHandler} from "../signup-logIn-logout/SignUpHandler";
-import {buildEmployee, EmployeeStore, SqlEmployeeStore} from "../signup-logIn-logout/EmployeeStore";
+import {SignUpHandler} from "../src/signup-logIn-logout/SignUpHandler";
+import {buildEmployee, EmployeeStore, SqlEmployeeStore} from "../src/signup-logIn-logout/EmployeeStore";
 import {PostgresDatabase} from "../database/postgres/PostgresDatabase";
 import {PostgresTestServer} from "../database/postgres/PostgresTestServer";
-import {InternalAuthenticator} from "../systemAuth/Authenticator";
-import {LogInHandler} from "../signup-logIn-logout/LogInHandler";
-import {SqlTokenStore, TokenStore} from "../userAuthtoken/TokenStore";
-import {LogOutHandler} from "../signup-logIn-logout/LogOutHandler";
+import {InternalAuthenticator} from "../src/systemAuth/Authenticator";
+import {LogInHandler} from "../src/signup-logIn-logout/LogInHandler";
+import {SqlTokenStore, TokenStore} from "../src/userAuthtoken/TokenStore";
+import {LogOutHandler} from "../src/signup-logIn-logout/LogOutHandler";
 import {Random} from "../utils/Random";
-import {TokenManager, TokenManagerClass} from "../userAuthtoken/TokenManager";
+import {TokenManager, TokenManagerClass} from "../src/userAuthtoken/TokenManager";
 import {FixedTokenGenerator, IdGenerator, UniqueUserIdGenerator} from "../utils/IdGenerator";
 import {Dates} from "../utils/Dates";
-import {TopUpHandler} from "../topup/TopUpHandler";
+import {TopUpHandler} from "../src/topup/TopUpHandler";
 
 describe('E2E', function () {
   this.timeout(30000);

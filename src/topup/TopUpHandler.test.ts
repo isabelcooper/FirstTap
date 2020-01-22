@@ -1,6 +1,6 @@
 import {InMemoryTokenManager} from "../userAuthtoken/TokenManager";
 import {buildEmployee, InMemoryEmployeeStore} from "../signup-logIn-logout/EmployeeStore";
-import {Random} from "../utils/Random";
+import {Random} from "../../utils/Random";
 import {ReqOf} from "http4js/core/Req";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";

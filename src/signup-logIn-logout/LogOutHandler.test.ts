@@ -2,7 +2,7 @@ import {ReqOf} from "http4js/core/Req";
 import {Method} from "http4js";
 import {expect} from "chai";
 import {buildEmployee} from "./EmployeeStore";
-import {Random} from "../utils/Random";
+import {Random} from "../../utils/Random";
 import {LogOutHandler} from "./LogOutHandler";
 import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../userAuthtoken/TokenManager";
 

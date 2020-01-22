@@ -4,7 +4,7 @@ import {expect} from "chai";
 import {Employee, SignUpHandler} from "./SignUpHandler";
 import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "./EmployeeStore";
 import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../userAuthtoken/TokenManager";
-import {Random} from "../utils/Random";
+import {Random} from "../../utils/Random";
 
 export class AlwaysFailsEmployeeStore implements EmployeeStore{
   findAll(): Promise<Employee[]> {

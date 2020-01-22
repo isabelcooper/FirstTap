@@ -1,9 +1,9 @@
 import {InMemoryTokenStore, TokenStore} from "./TokenStore";
 import {expect} from "chai";
-import {Random} from "../utils/Random";
-import {FixedTokenGenerator} from "../utils/IdGenerator";
+import {Random} from "../../utils/Random";
+import {FixedTokenGenerator} from "../../utils/IdGenerator";
 import {TokenManager, TokenManagerClass} from "./TokenManager";
-import {FixedClock} from "../utils/Clock";
+import {FixedClock} from "../../utils/Clock";
 
 describe('TokenManager', () => {
   const employeeId = Random.string('id');
