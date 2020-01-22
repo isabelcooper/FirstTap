@@ -6,19 +6,19 @@ import {SignUpHandler} from "../src/signup-logIn-logout/SignUpHandler";
 import {Authenticator} from "../src/systemAuth/Authenticator";
 import {LogInHandler} from "../src/signup-logIn-logout/LogInHandler";
 import {LogOutHandler} from "../src/signup-logIn-logout/LogOutHandler";
-import {TopUpHandler} from "../src/topup/TopUpHandler";
+import {BalanceHandler} from "../src/topup/BalanceHandler";
 import * as fs from "fs";
 require('dotenv').config();
 
 export class Server {
   private server: Routing;
 
-  constructor(authenticator: Authenticator, signUpHandler: SignUpHandler, logInHandler: LogInHandler, logOutHandler: LogOutHandler, topUpHandler: TopUpHandler, private port: number = 3330) {
+  constructor(authenticator: Authenticator, signUpHandler: SignUpHandler, logInHandler: LogInHandler, logOutHandler: LogOutHandler, balanceHandler: BalanceHandler, private port: number = 3330) {
     this.server = routes(Method.GET, '/health', async() => ResOf(200))
       .withPost('/signup', authenticator.authFilter(signUpHandler))
       .withPost('/login', authenticator.authFilter(logInHandler))
       .withPost('/logout', authenticator.authFilter(logOutHandler))
-      .withPut('/topup/{employeeId}', authenticator.authFilter(topUpHandler))
+      .withPut('/balance/{employeeId}', authenticator.authFilter(balanceHandler))
 
       .withGet('/docs', authenticator.authFilter(async (_req) => ResOf(200, (fs.readFileSync('./docs/output/index.html')).toString())))
       .asServer(new NativeHttpServer(parseInt(process.env.PORT!) || this.port));

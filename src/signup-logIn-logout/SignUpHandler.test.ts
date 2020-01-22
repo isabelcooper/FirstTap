@@ -2,27 +2,9 @@ import {ReqOf} from "http4js/core/Req";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
 import {Employee, SignUpHandler} from "./SignUpHandler";
-import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "./EmployeeStore";
+import {AlwaysFailsEmployeeStore, buildEmployee, InMemoryEmployeeStore} from "./EmployeeStore";
 import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../userAuthtoken/TokenManager";
 import {Random} from "../../utils/Random";
-
-export class AlwaysFailsEmployeeStore implements EmployeeStore{
-  findAll(): Promise<Employee[]> {
-    throw Error('findAll broken')
-  }
-
-  store(employee: Employee): Promise<{ inserted: boolean }> {
-    throw Error('store broken on employee: ' + employee)
-  }
-
-  find(loginDetails: { pin: number; employeeId: string }): Promise<Employee> {
-    throw Error('employee not found ' + loginDetails)
-  }
-
-  update(employeeId: string, amount: number): Promise<Employee | null> {
-    throw Error('employee not found ' + employeeId)
-  }
-}
 
 describe('SignUpHandler', () => {
   const employeeStore = new InMemoryEmployeeStore();

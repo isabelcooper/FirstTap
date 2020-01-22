@@ -2,9 +2,8 @@ import {ReqOf} from "http4js/core/Req";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
 import {Employee} from "./SignUpHandler";
-import {buildEmployee, InMemoryEmployeeStore} from "./EmployeeStore";
+import {AlwaysFailsEmployeeStore, buildEmployee, InMemoryEmployeeStore} from "./EmployeeStore";
 import {LogInHandler} from "./LogInHandler";
-import {AlwaysFailsEmployeeStore} from "./SignUpHandler.test";
 import {Random} from "../../utils/Random";
 import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../userAuthtoken/TokenManager";
 

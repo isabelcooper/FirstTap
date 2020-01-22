@@ -3,7 +3,12 @@ import {HttpClient} from "http4js/client/HttpClient";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
 import {Server} from "./server";
-import {buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "../src/signup-logIn-logout/EmployeeStore";
+import {
+  buildEmployee,
+  EmployeeStore,
+  InMemoryEmployeeStore,
+  TransactionType
+} from "../src/signup-logIn-logout/EmployeeStore";
 import {SignUpHandler} from "../src/signup-logIn-logout/SignUpHandler";
 import {InternalAuthenticator} from "../src/systemAuth/Authenticator";
 import {Random} from "../utils/Random";
@@ -11,7 +16,7 @@ import {LogInHandler} from "../src/signup-logIn-logout/LogInHandler";
 import {LogOutHandler} from "../src/signup-logIn-logout/LogOutHandler";
 import {InMemoryTokenManager} from "../src/userAuthtoken/TokenManager";
 import {Dates} from "../utils/Dates";
-import {TopUpHandler} from "../src/topup/TopUpHandler";
+import {BalanceHandler} from "../src/topup/BalanceHandler";
 
 require('dotenv').config();
 
@@ -24,7 +29,7 @@ describe('Server', () => {
   let signUpHandler: SignUpHandler;
   let logInHandler: LogInHandler;
   let logOutHandler: LogOutHandler;
-  let topUpHandler: TopUpHandler;
+  let topUpHandler: BalanceHandler;
 
   const authenticator = new InternalAuthenticator({
     username: process.env.FIRSTTAP_CLIENT_USERNAME as string,
@@ -44,7 +49,7 @@ describe('Server', () => {
     tokenManager.setToken(fixedToken);
     logInHandler = new LogInHandler(employeeStore, tokenManager);
     logOutHandler = new LogOutHandler(tokenManager);
-    topUpHandler = new TopUpHandler(tokenManager, employeeStore);
+    topUpHandler = new BalanceHandler(tokenManager, employeeStore);
     server = new Server(authenticator, signUpHandler, logInHandler, logOutHandler, topUpHandler, port);
     server.start();
   });
@@ -119,16 +124,56 @@ describe('Server', () => {
     const topUpAmount = Random.number();
     const response = await httpClient(ReqOf(
       Method.PUT,
-      `http://localhost:${port}/topup/${zeroBalanceEmployee.employeeId}`,
-      JSON.stringify({'amount': topUpAmount}),
+      `http://localhost:${port}/balance/${zeroBalanceEmployee.employeeId}`,
+      JSON.stringify({
+        amount: topUpAmount,
+        transactionType: TransactionType.TOPUP
+      }),
       {
         ...basicAuthHeaders,
         'token': fixedToken
       }
-    ).withPathParamsFromTemplate('/topup/{employeeId}'));
+    ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
     expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.eql(`Account topped up successfully. New balance is ${topUpAmount}`);
+    expect(response.bodyString()).to.eql(`New balance is ${topUpAmount}`);
+  });
+
+  it('should detract from the user balance according to their payment', async () => {
+    await tokenManager.generateAndStoreToken(employee.employeeId);
+    await employeeStore.store(employee);
+
+    const topUpAmount = 100;
+
+    await httpClient(ReqOf(
+      Method.PUT,
+      `http://localhost:${port}/balance/${employee.employeeId}`,
+      JSON.stringify({
+        amount: topUpAmount,
+        transactionType: 'payment'
+      }),
+      {
+        ...basicAuthHeaders,
+        'token': fixedToken
+      }
+    ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+    const paymentAmount = Random.number(1000)/10;
+    const response = await httpClient(ReqOf(
+      Method.PUT,
+      `http://localhost:${port}/balance/${employee.employeeId}`,
+      JSON.stringify({
+        amount: paymentAmount,
+        transactionType: 'purchase'
+      }),
+      {
+        ...basicAuthHeaders,
+        'token': fixedToken
+      }
+    ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+    expect(response.status).to.eql(200);
+    expect(response.bodyString()).to.eql(`New balance is ${topUpAmount - paymentAmount}`);
   });
 
   it('should load docs home', async () => {

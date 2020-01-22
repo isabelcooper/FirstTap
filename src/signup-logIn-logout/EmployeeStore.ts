@@ -2,6 +2,11 @@ import {Employee} from "./SignUpHandler";
 import {Random} from "../../utils/Random";
 import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
 
+export enum TransactionType {
+  PURCHASE = 'purchase',
+  TOPUP = 'topup',
+}
+
 export function buildEmployee(partial?: Partial<Employee>) {
   return {
     name: Random.string('name'),
@@ -9,7 +14,7 @@ export function buildEmployee(partial?: Partial<Employee>) {
     employeeId: Random.string('employeeId', 16),
     mobile: Random.string('mobile'),
     pin: Random.integer(9999),
-    balance: Random.integer(10000000)/100,
+    balance: Random.integer(10000000) / 100,
     ...partial
   };
 }
@@ -19,9 +24,9 @@ export interface EmployeeStore {
 
   findAll(): Promise<Employee[]>;
 
-  store(employee: Employee): Promise<{ inserted: boolean }>;
+  store(employee: Employee): Promise<Employee | null>;
 
-  update(employeeId: string, amount: number): Promise<Employee | null>;
+  update(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null>;
 }
 
 export class InMemoryEmployeeStore implements EmployeeStore {
@@ -37,19 +42,22 @@ export class InMemoryEmployeeStore implements EmployeeStore {
     return this.employees
   }
 
-  public async store(employee: Employee): Promise<{ inserted: boolean }> {
+  public async store(employee: Employee): Promise<Employee> {
     this.employees.push(employee);
-    return {inserted: true}
+    return employee
   }
 
-  public async update(employeeId: string, amount: number): Promise<Employee | null> {
-    this.employees.map(employee => {
-        if (employee.employeeId === employeeId) {
-          employee.balance ? employee.balance += amount : employee.balance = amount
-        }
-      }
-    );
-    return this.employees.find(employee => employee.employeeId === employeeId) || null
+  public async update(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null> {
+    const employeeToUpdate = this.employees.find(employee => employeeId === employee.employeeId);
+    if (!employeeToUpdate) return null;
+    if (employeeToUpdate.balance === undefined) employeeToUpdate.balance = amount;
+    if (transactionType === TransactionType.TOPUP) {
+      employeeToUpdate.balance += amount;
+    }
+    if (transactionType === TransactionType.PURCHASE) employeeToUpdate.balance -= amount;
+    // not saving back into array
+    return employeeToUpdate
+    //TODO simplify or split out - transaction manager?
   }
 }
 
@@ -89,21 +97,28 @@ export class SqlEmployeeStore implements EmployeeStore {
     })
   }
 
-  async store(employee: Employee): Promise<{ inserted: boolean }> {
+  async store(employee: Employee): Promise<Employee | null> {
     const sqlStatement = `
       INSERT INTO employees (name, email, employee_id, mobile, pin) 
       VALUES ('${employee.name}','${employee.email}','${employee.employeeId}','${employee.mobile}',${employee.pin}) 
       ON CONFLICT DO NOTHING
       RETURNING *;`;
-    const rows = (await this.database.query(sqlStatement)).rows;
-    console.log(rows);
-    return {inserted: !!rows.length}
+    const row = (await this.database.query(sqlStatement)).rows[0];
+    return row ? {
+      name: row.name,
+      email: row.email,
+      employeeId: row.employee_id,
+      mobile: row.mobile,
+      pin: parseInt(row.pin),
+      balance: parseFloat(row.balance)
+    } : null
   }
 
-  public async update(employeeId: string, amount: number): Promise<Employee | null> {
+  public async update(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null> {
+    const action = transactionType === TransactionType.TOPUP ? '+' : '-';
     const sqlStatement = `
       UPDATE employees 
-      SET balance = balance + ${amount}
+      SET balance = balance ${action} ${amount}
       WHERE employee_id = '${employeeId}'  
       RETURNING *;`;
     const row = (await this.database.query(sqlStatement)).rows[0];
@@ -116,5 +131,23 @@ export class SqlEmployeeStore implements EmployeeStore {
       pin: parseInt(row.pin),
       balance: parseFloat(row.balance)
     }
+  }
+}
+
+export class AlwaysFailsEmployeeStore implements EmployeeStore {
+  findAll(): Promise<Employee[]> {
+    throw Error('findAll broken')
+  }
+
+  store(employee: Employee): Promise<Employee> {
+    throw Error('store broken on employee: ' + employee)
+  }
+
+  find(loginDetails: { pin: number; employeeId: string }): Promise<Employee> {
+    throw Error('employee not found ' + loginDetails)
+  }
+
+  update(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null> {
+    throw Error('employee not found ' + employeeId)
   }
 }

@@ -1,10 +1,10 @@
 import {Handler, ResOf} from "http4js";
 import {TokenManagerClass} from "../userAuthtoken/TokenManager";
-import {EmployeeStore} from "../signup-logIn-logout/EmployeeStore";
+import {EmployeeStore, TransactionType} from "../signup-logIn-logout/EmployeeStore";
 import {Req} from "http4js/core/Req";
 import {Res} from "http4js/core/Res";
 
-export class TopUpHandler implements Handler {
+export class BalanceHandler implements Handler {
   constructor(private tokenManager: TokenManagerClass, private employeeStore: EmployeeStore) {
   }
 
@@ -17,14 +17,17 @@ export class TopUpHandler implements Handler {
       return ResOf(401, 'User not logged in')
     }
 
-    const amount = JSON.parse(req.bodyString()).amount;
+    const reqBody = JSON.parse(req.bodyString());
+    const transactionType: TransactionType = reqBody.transactionType;
+    const amount = reqBody.amount;
+
     let newBalance: number;
     try {
-      const updatedEmployee = await this.employeeStore.update(employeeId, amount);
+      const updatedEmployee = await this.employeeStore.update(employeeId, amount, transactionType);
       newBalance = updatedEmployee!.balance || 0 // TODO add test?
     } catch (e) {
       return ResOf(500, `${e}`)
     }
-    return ResOf(200, `Account topped up successfully. New balance is ${newBalance}`)
+    return ResOf(200, `New balance is ${newBalance}`)
   }
 }
