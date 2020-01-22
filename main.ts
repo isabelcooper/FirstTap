@@ -27,6 +27,9 @@ import {TopUpHandler} from "./src/topup/TopUpHandler";
     password: process.env.FIRSTTAP_CLIENT_PASSWORD as string
   });
 
+  console.log('username',process.env.FIRSTTAP_CLIENT_USERNAME as string)
+  console.log('password', process.env.FIRSTTAP_CLIENT_PASSWORD as string)
+
   const signUpHandler = new SignUpHandler(employeeStore, tokenManager);
   const logInHandler = new LogInHandler(employeeStore, tokenManager);
   const logOutHandler = new LogOutHandler(tokenManager);
