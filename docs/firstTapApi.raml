@@ -6,7 +6,16 @@ version: 1
 documentation:
   - title: Welcome
     content: |
-      Welcome to the FirstTap API.
+      Welcome to the FirstTap API, your seamless payment system for employees at Bows F1.
+
+      NB this system does not take payment itself, it simply stores a user's balance and payments against their record.
+      The API must always be accessed using the provided login credentials in auth headers to ensure that only the designated kiosks have access.
+
+      Individual user logins also generate session tokens which will expire after 5 minutes.
+
+
+      For information on how we store data, please visit: [Privacy Policy]()
+      To contact a member of the team, please visit: [Contact Us]()
 /health:
   description: Check system liveness
   get:
@@ -77,6 +86,48 @@ documentation:
           body:
             application/json:
               example: !include ./includes/responses/login-success.json
+        400:
+          body:
+            application/json:
+              example: !include ./includes/responses/bad-req.json
+        401:
+          body:
+            application/json:
+              example: !include ./includes/responses/auth-fail.json
+        500:
+          body:
+            application/json:
+              example: !include ./includes/responses/datastore-err.json
+      headers:
+        Authorization:
+          type: string
+          description: Basic authentication header using base64 encoded username and password credentials
+          example: !include ./includes/requests/basic-auth-header.json
+/topup:
+    description: Top up the employee's balance by a given amount
+    put:
+      description: |
+        **Top up an employee's balance**
+
+        Given a valid employeeId and session token, add the given amount to the user's balance.
+
+        **Known limitations**
+        - This is not configured to use any specific currency
+        - The datastore allows 2 decimal places and figures up to 8 digits (so max £999999.99).
+
+        Should this prove insufficient, please contact us for an extension.
+      body:
+        application/json:
+          type: !include ./includes/schemas/topup-query.json
+          examples:
+            basic:
+              displayName: Simple topup
+              value: !include ./includes/requests/topup-query.json
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include ./includes/responses/topup-success.json
         400:
           body:
             application/json:
