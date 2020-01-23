@@ -8,29 +8,27 @@ import {LogInHandler} from "../src/signup-logIn-logout/LogInHandler";
 import {LogOutHandler} from "../src/signup-logIn-logout/LogOutHandler";
 import {BalanceHandler} from "../src/transactions/BalanceHandler";
 import * as fs from "fs";
+import {FileHandler} from "../utils/FileHandler";
+
 require('dotenv').config();
 
 export class Server {
   private server: Routing;
 
-  constructor(authenticator: Authenticator, signUpHandler: SignUpHandler, logInHandler: LogInHandler, logOutHandler: LogOutHandler, balanceHandler: BalanceHandler, private port: number = 3330) {
-    this.server = routes(Method.GET, '/health', async() => ResOf(200))
+  constructor(authenticator: Authenticator, signUpHandler: SignUpHandler, logInHandler: LogInHandler, logOutHandler: LogOutHandler, balanceHandler: BalanceHandler, fileHandler: FileHandler = new FileHandler(), private port: number = 3330) {
+    this.server = routes(Method.GET, '/health', async () => ResOf(200))
       .withPost('/signup', authenticator.authFilter(signUpHandler))
       .withPost('/login', authenticator.authFilter(logInHandler))
       .withPost('/logout', authenticator.authFilter(logOutHandler))
       .withPut('/balance/{employeeId}', authenticator.authFilter(balanceHandler))
 
       .withGet('/docs', authenticator.authFilter(async (_req) => ResOf(200, (fs.readFileSync('./docs/output/index.html')).toString())))
-      .withGet('/docs/{fileName}', authenticator.authFilter(async (req) => {
-        const fileName = req.pathParams.fileName;
-        const fileType = req.uri.path().split('.')[1] === 'css' ? 'css' : 'html';
-        return ResOf(200, (fs.readFileSync(`./docs/privacy/${fileName}.${fileType}`)).toString())
-      }))
+      .withGet('/docs/{fileName}', authenticator.authFilter(fileHandler))
       .asServer(new NativeHttpServer(parseInt(process.env.PORT!) || this.port));
   }
 
   start() {
-    try{
+    try {
       this.server.start();
     } catch (e) {
       console.log("Error on server start:", e)

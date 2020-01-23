@@ -1,6 +1,0 @@
-{
-  "status": "ok",
-  "body": {
-    "message": "Account topped up successfully. New balance is ${newBalance}"
-  }
-}

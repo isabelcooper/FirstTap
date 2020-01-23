@@ -1,9 +1,9 @@
 {
-  "name": "Top Up",
+  "name": "Balance",
   "properties": {
-    "employeeId": {
+    "transactionType": {
       "type": "string",
-      "format": "max 16 characters",
+      "format": "one of 'topup' or 'purchase'",
       "required": true
     },
     "amount": {

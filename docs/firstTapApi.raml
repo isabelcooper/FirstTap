@@ -14,7 +14,7 @@ documentation:
       Individual user logins also generate session tokens which will expire after 5 minutes.
 
 
-      For information on how we store data, please visit: [Privacy Policy](http://firsttap.appspot.com/docs/privacy)
+      For information on how we store data, please visit: [Privacy Policy](https://firsttap.appspot.com/docs/privacy)
 /health:
   description: Check system liveness
   get:
@@ -102,45 +102,49 @@ documentation:
           type: string
           description: Basic authentication header using base64 encoded username and password credentials
           example: !include ./includes/requests/basic-auth-header.json
-/topup:
-    description: Top up the employee's balance by a given amount
-    put:
-      description: |
-        **Top up an employee's balance**
+/balance:
+    description: Top up or reduce a user's balance
+    /{employeeId}:
+      put:
+        description: |
+          **Top up an employee's balance with path using transactionType: 'topup'**
 
-        Given a valid employeeId and session token, add the given amount to the user's balance.
+          **Detract a purchase total from an employee's balance with path using transactionType: 'purchase'**
 
-        **Known limitations**
-        - This is not configured to use any specific currency
-        - The datastore allows 2 decimal places and figures up to 8 digits (so max £999999.99).
+          Given a valid employeeId and session token, add or remove the given amount to the user's balance.
 
-        Should this prove insufficient, please contact us for an extension.
-      body:
-        application/json:
-          type: !include ./includes/schemas/topup-query.json
-          examples:
-            basic:
-              displayName: Simple topup
-              value: !include ./includes/requests/topup-query.json
-      responses:
-        200:
-          body:
-            application/json:
-              example: !include ./includes/responses/topup-success.json
-        400:
-          body:
-            application/json:
-              example: !include ./includes/responses/bad-req.json
-        401:
-          body:
-            application/json:
-              example: !include ./includes/responses/auth-fail.json
-        500:
-          body:
-            application/json:
-              example: !include ./includes/responses/datastore-err.json
-      headers:
-        Authorization:
-          type: string
-          description: Basic authentication header using base64 encoded username and password credentials
-          example: !include ./includes/requests/basic-auth-header.json
+          **Known limitations**
+          - This is not configured to use any specific currency
+          - The datastore allows 2 decimal places and figures up to 8 digits (so max £999999.99).
+          - The purchase history is not currently being stored, nor a record of balance updates.
+
+          Should this prove insufficient, please contact us for an extension.
+        body:
+          application/json:
+            type: !include ./includes/schemas/balance-query.json
+            examples:
+              basic:
+                displayName: Simple topup
+                value: !include ./includes/requests/balance-query.json
+        responses:
+          200:
+            body:
+              application/json:
+                example: !include ./includes/responses/balance-success.json
+          400:
+            body:
+              application/json:
+                example: !include ./includes/responses/bad-req.json
+          401:
+            body:
+              application/json:
+                example: !include ./includes/responses/auth-fail.json
+          500:
+            body:
+              application/json:
+                example: !include ./includes/responses/datastore-err.json
+        headers:
+          Authorization:
+            type: string
+            description: Basic authentication header using base64 encoded username and password credentials
+            example: !include ./includes/requests/basic-auth-header.json

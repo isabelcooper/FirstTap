@@ -18,6 +18,7 @@ import {InMemoryTokenManager} from "../src/userAuthtoken/TokenManager";
 import {Dates} from "../utils/Dates";
 import {BalanceHandler} from "../src/transactions/BalanceHandler";
 import {InMemoryTransactionManager, TransactionManager} from "../src/transactions/TransactionManager";
+import {FileHandler} from "../utils/FileHandler";
 
 require('dotenv').config();
 
@@ -32,6 +33,7 @@ describe('Server', () => {
   let logInHandler: LogInHandler;
   let logOutHandler: LogOutHandler;
   let topUpHandler: BalanceHandler;
+  const fileHandler = new FileHandler();
 
   const authenticator = new InternalAuthenticator({
     username: process.env.FIRSTTAP_CLIENT_USERNAME as string,
@@ -53,7 +55,7 @@ describe('Server', () => {
     logInHandler = new LogInHandler(employeeStore, tokenManager);
     logOutHandler = new LogOutHandler(tokenManager);
     topUpHandler = new BalanceHandler(tokenManager, transactionManager);
-    server = new Server(authenticator, signUpHandler, logInHandler, logOutHandler, topUpHandler, port);
+    server = new Server(authenticator, signUpHandler, logInHandler, logOutHandler, topUpHandler, fileHandler, port);
     server.start();
   });
 

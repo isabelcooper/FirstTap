@@ -23,6 +23,7 @@ import {FixedTokenGenerator, IdGenerator, UniqueUserIdGenerator} from "../utils/
 import {Dates} from "../utils/Dates";
 import {BalanceHandler} from "../src/transactions/BalanceHandler";
 import {TransactionManager, TransactionManagerClass} from "../src/transactions/TransactionManager";
+import {FileHandler} from "../utils/FileHandler";
 
 describe('E2E', function () {
   this.timeout(30000);
@@ -41,12 +42,12 @@ describe('E2E', function () {
   let logInHandler: LogInHandler;
   let logOutHandler: LogOutHandler;
   let topUpHandler: BalanceHandler;
+  const fileHandler = new FileHandler();
 
   const authenticator = new InternalAuthenticator({
     username: process.env.FIRSTTAP_CLIENT_USERNAME as string,
     password: process.env.FIRSTTAP_CLIENT_PASSWORD as string
   });
-
   const encodedCredentials = Buffer.from(`${process.env.FIRSTTAP_CLIENT_USERNAME}:${process.env.FIRSTTAP_CLIENT_PASSWORD}`).toString('base64');
   const authHeaders = {'authorization': `Basic ${encodedCredentials}`};
   const employee = buildEmployee({balance: undefined});
@@ -68,7 +69,7 @@ describe('E2E', function () {
     transactionManager = new TransactionManager(employeeStore);
     topUpHandler = new BalanceHandler(tokenManager, transactionManager);
 
-    server = new Server(authenticator, signUpHandler, logInHandler, logOutHandler, topUpHandler, port);
+    server = new Server(authenticator, signUpHandler, logInHandler, logOutHandler, topUpHandler, fileHandler, port);
     await server.start();
   });
 
