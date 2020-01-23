@@ -3,12 +3,16 @@ import {IdGenerator} from "../../utils/IdGenerator";
 import {Dates} from "../../utils/Dates";
 import {Clock} from "../../utils/Clock";
 
+const TIME_TO_TOKEN_EXPIRY = 5;
+
 export interface TokenManagerClass {
   generateAndStoreToken(employeeId: string): Promise<Token>
 
   expireTokens(employeeId: string): Promise<Token[]>;
 
-  validateToken(employeeId: string, token: string): Promise<boolean>;
+  validateAndUpdateToken(employeeId: string, token: string): Promise<boolean>;
+
+  updateTokenExpiry(employeeId: string, token: string): Promise<Token | null>;
 }
 
 export class InMemoryTokenManager implements TokenManagerClass {
@@ -32,16 +36,26 @@ export class InMemoryTokenManager implements TokenManagerClass {
       }
     });
     return this.tokens.filter(token => token.employeeId === employeeId);
-    //TODO must be a neater way?
   }
 
-  public async validateToken(employeeId: string, token: string): Promise<boolean> {
-    return this.tokens.some(storedToken => {
-        return storedToken.value === token
+  public async validateAndUpdateToken(employeeId: string, tokenValue: string): Promise<boolean> {
+    const valid = this.tokens.some(storedToken => {
+        return storedToken.value === tokenValue
           && storedToken.employeeId === employeeId
           && storedToken.expiry >= new Date()
       }
     );
+    if(valid){ this.updateTokenExpiry(employeeId, tokenValue)}
+    return valid
+  }
+
+  public async updateTokenExpiry(employeeId: string, tokenValue: string): Promise<Token | null> {
+    this.tokens.map(token => {
+      if( token.employeeId === employeeId && token.value === tokenValue) {
+        return token.expiry === Dates.addMinutes(new Date(), 5);
+      }
+    });
+    return this.tokens.find(token => token.employeeId === employeeId && token.value === tokenValue) || null;
   }
 
 }
@@ -56,7 +70,11 @@ export class AlwaysFailsTokenManager implements TokenManagerClass {
     throw Error('Issue with token management')
   }
 
-  validateToken(employeeId: string, token: string): Promise<boolean> {
+  validateAndUpdateToken(employeeId: string, token: string): Promise<boolean> {
+    throw Error('Issue with token management')
+  }
+
+  updateTokenExpiry(employeeId: string, token: string): Promise<Token | null> {
     throw Error('Issue with token management')
   }
 }
@@ -66,7 +84,7 @@ export class TokenManager implements TokenManagerClass {
 
   public async generateAndStoreToken(employeeId: string): Promise<Token> {
     const tokenValue = this.idGenerator.createToken();
-    const storedToken = await this.tokenStore.store(employeeId, tokenValue);
+    const storedToken = await this.tokenStore.store(employeeId, tokenValue, TIME_TO_TOKEN_EXPIRY);
     return {employeeId, value: tokenValue, expiry: storedToken.expiry}
   }
 
@@ -74,10 +92,14 @@ export class TokenManager implements TokenManagerClass {
     return await this.tokenStore.expireAll(employeeId);
   }
 
-  public async validateToken(employeeId: string, token: string): Promise<boolean> {
+  public async validateAndUpdateToken(employeeId: string, token: string): Promise<boolean> {
     const matchingTokens = await this.tokenStore.find(employeeId, token);
     return matchingTokens.some(matchingToken => {
       return matchingToken.expiry >= new Date(this.clock.now())
     });
+  }
+
+  public async updateTokenExpiry(employeeId: string, tokenValue: string): Promise<Token | null> {
+    return await this.tokenStore.updateTokenExpiry(employeeId, tokenValue, TIME_TO_TOKEN_EXPIRY);
   }
 }

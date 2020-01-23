@@ -24,6 +24,7 @@ import {Dates} from "../utils/Dates";
 import {BalanceHandler} from "../src/transactions/BalanceHandler";
 import {TransactionManager, TransactionManagerClass} from "../src/transactions/TransactionManager";
 import {FileHandler} from "../utils/FileHandler";
+import {FixedClock} from "../utils/Clock";
 
 describe('E2E', function () {
   this.timeout(30000);
@@ -52,6 +53,7 @@ describe('E2E', function () {
   const authHeaders = {'authorization': `Basic ${encodedCredentials}`};
   const employee = buildEmployee({balance: undefined});
   const fixedToken = Random.string('token');
+  const clock = new FixedClock();
 
   beforeEach(async () => {
     database = await testPostgresServer.startAndGetFirstTapDatabase();
@@ -61,7 +63,7 @@ describe('E2E', function () {
     tokenStore = new SqlTokenStore(database);
 
     idGenerator = new UniqueUserIdGenerator();
-    tokenManager = new TokenManager(tokenStore, idGenerator, Date);
+    tokenManager = new TokenManager(tokenStore, idGenerator, clock);
 
     signUpHandler = new SignUpHandler(employeeStore, tokenManager);
     logInHandler = new LogInHandler(employeeStore, tokenManager);
@@ -78,46 +80,48 @@ describe('E2E', function () {
     await server.stop();
   });
 
-  it('should allow an unknown user to register', async () => {
-    const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), authHeaders),);
-    expect(response.status).to.eql(200);
-    expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+  describe('Sign up, log in and out', async() => {
+    it('should allow an unknown user to register', async () => {
+      const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), authHeaders),);
+      expect(response.status).to.eql(200);
+      expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+    });
+
+    it('should allow a known user to log in', async () => {
+      await employeeStore.store(employee);
+      const response = await httpClient(ReqOf(
+        Method.POST,
+        `http://localhost:${port}/login`,
+        JSON.stringify({employeeId: employee.employeeId, pin: employee.pin}),
+        authHeaders
+      ));
+      expect(response.status).to.eql(200);
+      expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+      expect(JSON.parse(response.bodyString()).token).to.exist;
+    });
+
+    it('should log a user out', async () => {
+      await tokenStore.store(employee.employeeId, fixedToken, 5);
+
+      const response = await httpClient(ReqOf(
+        Method.POST,
+        `http://localhost:${port}/logout`,
+        JSON.stringify({employeeId: employee.employeeId}),
+        authHeaders
+      ));
+
+      expect(response.status).to.eql(200);
+      expect(response.bodyString()).to.eql('Log out successful - Goodbye!');
+
+      const matchedToken = (await tokenStore.findAll()).find(token => token.employeeId === employee.employeeId);
+      //TODO update to find method
+
+      expect(matchedToken!.value).to.eql(fixedToken);
+      expect(Dates.stripMillis(matchedToken!.expiry)).to.be.at.most(new Date());
+    });
   });
 
-  it('should allow a known user to log in', async () => {
-    await employeeStore.store(employee);
-    const response = await httpClient(ReqOf(
-      Method.POST,
-      `http://localhost:${port}/login`,
-      JSON.stringify({employeeId: employee.employeeId, pin: employee.pin}),
-      authHeaders
-    ));
-    expect(response.status).to.eql(200);
-    expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
-    expect(JSON.parse(response.bodyString()).token).to.exist;
-  });
-
-  it('should log a user out', async () => {
-    await tokenStore.store(employee.employeeId, fixedToken);
-
-    const response = await httpClient(ReqOf(
-      Method.POST,
-      `http://localhost:${port}/logout`,
-      JSON.stringify({employeeId: employee.employeeId}),
-      authHeaders
-    ));
-
-    expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.eql('Log out successful - Goodbye!');
-
-    const matchedToken = (await tokenStore.findAll()).find(token => token.employeeId === employee.employeeId);
-    //TODO update to find method
-
-    expect(matchedToken!.value).to.eql(fixedToken);
-    expect(Dates.stripMillis(matchedToken!.expiry)).to.be.at.most(new Date());
-  });
-
-  describe('actions which require a fixed Id', () => {
+  describe('Updating a user balance', () => {
     const fixedIdGenerator = new FixedTokenGenerator();
     const fixedToken = Random.string();
     const topUpAmount = Random.integer(100000)/100;
@@ -171,6 +175,29 @@ describe('E2E', function () {
 
       expect(response.status).to.eql(200);
       expect(response.bodyString()).to.eql(`New balance is ${(topUpAmount - purchaseAmount).toFixed(2)}`);
+    });
+
+    it('should refresh the expiry on each api request', async () => {
+      const response = await httpClient(ReqOf(
+        Method.PUT,
+        `http://localhost:${port}/balance/${employee.employeeId}`,
+        JSON.stringify({
+          amount: Random.integer(100),
+          transactionType: TransactionType.TOPUP
+        }),
+        {
+          ...authHeaders,
+          'token': fixedToken
+        }
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      clock.moveForwardMins(5);
+
+      expect(response.status).to.eql(200);
+
+      const tokens = await tokenStore.findAll();
+      expect(tokens.length).to.eql(1);
+      expect(tokens[0].expiry).to.be.greaterThan(new Date(clock.now()));
     });
   });
 });

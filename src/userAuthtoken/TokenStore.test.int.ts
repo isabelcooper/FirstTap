@@ -28,7 +28,7 @@ describe('TokenStore', function () {
   });
 
   it('should store tokens with expiry in 5 mins and employeeId', async () => {
-    const storedToken = await tokenStore.store(employeeId, value);
+    const storedToken = await tokenStore.store(employeeId, value, 5);
     expect(storedToken.employeeId).to.eql(employeeId);
     expect(storedToken.value).to.eql(value);
 
@@ -44,7 +44,7 @@ describe('TokenStore', function () {
   });
 
   it('should update a token expiry date to now', async () => {
-    await tokenStore.store(employeeId, value);
+    await tokenStore.store(employeeId, value, 5);
     await tokenStore.expireAll(employeeId);
 
     const tokens = await tokenStore.findAll();
@@ -55,9 +55,9 @@ describe('TokenStore', function () {
   });
 
   it('should not be messing with other tokens on update', async () => {
-    await tokenStore.store(employeeId, value);
+    await tokenStore.store(employeeId, value, 5);
     const employee2Id = Random.string('employee2', 16);
-    await tokenStore.store(employee2Id, Random.string());
+    await tokenStore.store(employee2Id, Random.string(), 5);
 
     await tokenStore.expireAll(employeeId);
     const dateTimeIn5Minutes = Dates.addMinutes(new Date(), 5);
@@ -69,17 +69,28 @@ describe('TokenStore', function () {
   });
 
   it('should return all tokens matching an employeeId and token value', async () => {
-    await tokenStore.store(employeeId, value);
-    await tokenStore.store(employeeId, value);
+    await tokenStore.store(employeeId, value, 5);
+    await tokenStore.store(employeeId, value, 5);
 
     const token2 = Random.string('token2', 16);
     const employee2 = Random.string('employee2', 16);
-    await tokenStore.store(employeeId, token2);
-    await tokenStore.store(employee2, token2);
+    await tokenStore.store(employeeId, token2, 5);
+    await tokenStore.store(employee2, token2, 5);
 
     const result = await tokenStore.find(employeeId, value);
     expect(result.length).to.eql(2);
     expect(result[0].value).to.eql(value);
     expect(result[0].employeeId).to.eql(employeeId);
+  });
+
+  it('should update token expiry time', async() => {
+    await tokenStore.store(employeeId, value, 5);
+    await tokenStore.updateTokenExpiry(employeeId, value, 10);
+
+    const token = (await tokenStore.find(employeeId, value))[0];
+
+    expect(token.expiry.getDate()).to.eql(new Date().getDate());
+    const dateIn8Minutes = Dates.addMinutes(new Date(), 8);
+    expect(token.expiry.getMinutes()).to.be.greaterThan(dateIn8Minutes.getMinutes());
   });
 });

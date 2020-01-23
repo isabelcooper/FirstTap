@@ -13,7 +13,7 @@ export class BalanceHandler implements Handler {
     const employeeId = req.pathParams.employeeId;
     const token = req.header('token');
 
-    const valid = await this.tokenManager.validateToken(employeeId, token);
+    const valid = await this.tokenManager.validateAndUpdateToken(employeeId, token);
     if (!valid) {
       return ResOf(401, 'User not logged in')
     }
@@ -29,6 +29,6 @@ export class BalanceHandler implements Handler {
     } catch (e) {
       return ResOf(500, `${e}`)
     }
-    return ResOf(200, `New balance is ${newBalance}`)
+    return ResOf(200, `New balance is ${(newBalance).toFixed(2)}`)
   }
 }

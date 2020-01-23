@@ -146,7 +146,7 @@ describe('Server', () => {
       ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
       expect(response.status).to.eql(200);
-      expect(response.bodyString()).to.eql(`New balance is ${topUpAmount}`);
+      expect(response.bodyString()).to.eql(`New balance is ${(topUpAmount).toFixed(2)}`);
     });
 
     it('should detract from the user balance according to their payment', async () => {
@@ -184,7 +184,7 @@ describe('Server', () => {
       ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
       expect(response.status).to.eql(200);
-      expect(response.bodyString()).to.eql(`New balance is ${topUpAmount - paymentAmount}`);
+      expect(response.bodyString()).to.eql(`New balance is ${(topUpAmount - paymentAmount).toFixed(2)}`);
     });
 
     it('should error if no system auth is present', async () => {

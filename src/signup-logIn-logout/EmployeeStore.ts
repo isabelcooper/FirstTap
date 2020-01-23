@@ -130,7 +130,6 @@ export class SqlEmployeeStore implements EmployeeStore {
       SET balance = balance ${action} ${amount}
       WHERE employee_id = '${employeeId}'  
       RETURNING *;`;
-    console.log(sqlStatement)
     const row = (await this.database.query(sqlStatement)).rows[0];
     if (!row) return null;
     return {
