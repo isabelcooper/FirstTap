@@ -68,152 +68,158 @@ describe('Server', () => {
     expect(response.status).to.eql(200);
   });
 
-  it('should allow a new employee to be created and return the name & token of the employee if successful', async () => {
-    const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), basicAuthHeaders));
-    expect(response.status).to.eql(200);
-    expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+  describe('Signing up, logging in and out', () => {
+    it('should allow a new employee to be created and return the name & token of the employee if successful', async () => {
+      const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), basicAuthHeaders));
+      expect(response.status).to.eql(200);
+      expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+      expect(JSON.parse(response.bodyString()).token).to.exist;
+    });
+
+    it('should reject signup attempts without system auth credentials', async () => {
+      const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee)));
+      expect(response.status).to.eql(401);
+      expect(response.bodyString()).to.eql('Client not authenticated');
+    });
+
+    it('should allow an existing user to login using employeeId and pin, returning their name', async () => {
+      await employeeStore.store(employee);
+      const loginDetails = {
+        employeeId: employee.employeeId,
+        pin: employee.pin
+      };
+      const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/login`, JSON.stringify(loginDetails), basicAuthHeaders));
+      expect(response.status).to.eql(200);
+      expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+      expect(JSON.parse(response.bodyString()).token).to.eql(fixedToken);
+    });
+
+    it('should allow logout given an employeeId', async () => {
+      await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), basicAuthHeaders));
+      expect(tokenManager.tokens[0].employeeId).to.equal(employee.employeeId);
+      expect(tokenManager.tokens[0].expiry).to.be.greaterThan(new Date());
+
+      const response = await httpClient(ReqOf(
+        Method.POST,
+        `http://localhost:${port}/logout`,
+        JSON.stringify({employeeId: employee.employeeId}),
+        basicAuthHeaders
+      ));
+      expect(response.status).to.eql(200);
+      expect(response.bodyString()).to.eql('Log out successful - Goodbye!');
+
+      expect(tokenManager.tokens[0].employeeId).to.equal(employee.employeeId);
+      expect(Dates.stripMillis(tokenManager.tokens[0].expiry)).to.be.at.most(new Date());
+    });
+
+    it('should not error on logout even if the user wasn\'t logged in..', async () => {
+      const response = await httpClient(ReqOf(
+        Method.POST,
+        `http://localhost:${port}/logout`,
+        JSON.stringify({employeeId: employee.employeeId}),
+        basicAuthHeaders
+      ));
+      expect(response.status).to.eql(200);
+      expect(response.bodyString()).to.eql('Log out successful - Goodbye!');
+    });
   });
 
-  it('should reject signup attempts without system auth credentials', async () => {
-    const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee)));
-    expect(response.status).to.eql(401);
-    expect(response.bodyString()).to.eql('Client not authenticated');
+  describe('Amending balance', () => {
+    it('should allow a user to top up their account', async () => {
+      const zeroBalanceEmployee = buildEmployee({balance: 0});
+      await tokenManager.generateAndStoreToken(zeroBalanceEmployee.employeeId);
+      await employeeStore.store(zeroBalanceEmployee);
+      await transactionManager.employees.push(zeroBalanceEmployee);
+
+      const topUpAmount = Random.number();
+      const response = await httpClient(ReqOf(
+        Method.PUT,
+        `http://localhost:${port}/balance/${zeroBalanceEmployee.employeeId}`,
+        JSON.stringify({
+          amount: topUpAmount,
+          transactionType: TransactionType.TOPUP
+        }),
+        {
+          ...basicAuthHeaders,
+          'token': fixedToken
+        }
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      expect(response.status).to.eql(200);
+      expect(response.bodyString()).to.eql(`New balance is ${topUpAmount}`);
+    });
+
+    it('should detract from the user balance according to their payment', async () => {
+      await tokenManager.generateAndStoreToken(employee.employeeId);
+      await employeeStore.store(employee);
+      await transactionManager.employees.push(employee);
+
+      const topUpAmount = 100;
+
+      await httpClient(ReqOf(
+        Method.PUT,
+        `http://localhost:${port}/balance/${employee.employeeId}`,
+        JSON.stringify({
+          amount: topUpAmount,
+          transactionType: 'payment'
+        }),
+        {
+          ...basicAuthHeaders,
+          'token': fixedToken
+        }
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      const paymentAmount = Random.number(1000)/10;
+      const response = await httpClient(ReqOf(
+        Method.PUT,
+        `http://localhost:${port}/balance/${employee.employeeId}`,
+        JSON.stringify({
+          amount: paymentAmount,
+          transactionType: 'purchase'
+        }),
+        {
+          ...basicAuthHeaders,
+          'token': fixedToken
+        }
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      expect(response.status).to.eql(200);
+      expect(response.bodyString()).to.eql(`New balance is ${topUpAmount - paymentAmount}`);
+    });
   });
 
-  it('should allow an existing user to login using employeeId and pin, returning their name', async () => {
-    await employeeStore.store(employee);
-    const loginDetails = {
-      employeeId: employee.employeeId,
-      pin: employee.pin
-    };
-    const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/login`, JSON.stringify(loginDetails), basicAuthHeaders));
-    expect(response.status).to.eql(200);
-    expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
-    expect(JSON.parse(response.bodyString()).token).to.eql(fixedToken);
+  describe('Loading docs', () => {
+    it('should load docs home', async () => {
+      const response = await httpClient(ReqOf(
+        Method.GET,
+        `http://localhost:${port}/docs`,
+        undefined,
+        basicAuthHeaders
+      ));
+      expect(response.status).to.eql(200);
+      expect(response.bodyString()).to.include('<title>FirstTap API documentation</title>');
+    });
+
+    it('should load privacy policy', async () => {
+      const response = await httpClient(ReqOf(
+        Method.GET,
+        `http://localhost:${port}/docs/privacy`,
+        undefined,
+        basicAuthHeaders
+      ));
+      expect(response.status).to.eql(200);
+      expect(response.bodyString()).to.include('<title>FirstTap Privacy Policy</title>');
+    });
+
+    it('should load privacy policy css', async () => {
+      const response = await httpClient(ReqOf(
+        Method.GET,
+        `http://localhost:${port}/docs/style.css`,
+        undefined,
+        basicAuthHeaders
+      ));
+      expect(response.status).to.eql(200);
+      expect(response.bodyString()).to.include('font-family: "Helvetica Neue"');
+    });
   });
-
-  it('should allow logout given an employeeId', async () => {
-    await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), basicAuthHeaders));
-    expect(tokenManager.tokens[0].employeeId).to.equal(employee.employeeId);
-    expect(tokenManager.tokens[0].expiry).to.be.greaterThan(new Date());
-
-    const response = await httpClient(ReqOf(
-      Method.POST,
-      `http://localhost:${port}/logout`,
-      JSON.stringify({employeeId: employee.employeeId}),
-      basicAuthHeaders
-    ));
-    expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.eql('Log out successful - Goodbye!');
-
-    expect(tokenManager.tokens[0].employeeId).to.equal(employee.employeeId);
-    expect(Dates.stripMillis(tokenManager.tokens[0].expiry)).to.be.at.most(new Date());
-  });
-
-  it('should not error even if the user wasn\'t logged in..', async () => {
-    const response = await httpClient(ReqOf(
-      Method.POST,
-      `http://localhost:${port}/logout`,
-      JSON.stringify({employeeId: employee.employeeId}),
-      basicAuthHeaders
-    ));
-    expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.eql('Log out successful - Goodbye!');
-  });
-
-  it('should allow a user to top up their account', async () => {
-    const zeroBalanceEmployee = buildEmployee({balance: 0});
-    await tokenManager.generateAndStoreToken(zeroBalanceEmployee.employeeId);
-    await employeeStore.store(zeroBalanceEmployee);
-    await transactionManager.employees.push(zeroBalanceEmployee);
-
-    const topUpAmount = Random.number();
-    const response = await httpClient(ReqOf(
-      Method.PUT,
-      `http://localhost:${port}/balance/${zeroBalanceEmployee.employeeId}`,
-      JSON.stringify({
-        amount: topUpAmount,
-        transactionType: TransactionType.TOPUP
-      }),
-      {
-        ...basicAuthHeaders,
-        'token': fixedToken
-      }
-    ).withPathParamsFromTemplate('/balance/{employeeId}'));
-
-    expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.eql(`New balance is ${topUpAmount}`);
-  });
-
-  it('should detract from the user balance according to their payment', async () => {
-    await tokenManager.generateAndStoreToken(employee.employeeId);
-    await employeeStore.store(employee);
-    await transactionManager.employees.push(employee);
-
-    const topUpAmount = 100;
-
-    await httpClient(ReqOf(
-      Method.PUT,
-      `http://localhost:${port}/balance/${employee.employeeId}`,
-      JSON.stringify({
-        amount: topUpAmount,
-        transactionType: 'payment'
-      }),
-      {
-        ...basicAuthHeaders,
-        'token': fixedToken
-      }
-    ).withPathParamsFromTemplate('/balance/{employeeId}'));
-
-    const paymentAmount = Random.number(1000)/10;
-    const response = await httpClient(ReqOf(
-      Method.PUT,
-      `http://localhost:${port}/balance/${employee.employeeId}`,
-      JSON.stringify({
-        amount: paymentAmount,
-        transactionType: 'purchase'
-      }),
-      {
-        ...basicAuthHeaders,
-        'token': fixedToken
-      }
-    ).withPathParamsFromTemplate('/balance/{employeeId}'));
-
-    expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.eql(`New balance is ${topUpAmount - paymentAmount}`);
-  });
-
-  it('should load docs home', async () => {
-    const response = await httpClient(ReqOf(
-      Method.GET,
-      `http://localhost:${port}/docs`,
-      undefined,
-      basicAuthHeaders
-    ));
-    expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.include('<title>FirstTap API documentation</title>');
-  });
-
-  it('should load privacy policy', async () => {
-    const response = await httpClient(ReqOf(
-      Method.GET,
-      `http://localhost:${port}/docs/privacy`,
-      undefined,
-      basicAuthHeaders
-    ));
-    expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.include('<title>FirstTap Privacy Policy</title>');
-  });
-
-  it('should load privacy policy css', async () => {
-    const response = await httpClient(ReqOf(
-      Method.GET,
-      `http://localhost:${port}/docs/style.css`,
-      undefined,
-      basicAuthHeaders
-    ));
-    expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.include('font-family: "Helvetica Neue"');
-  });
-  //TODO: do we need different auth for dev users??
 });
