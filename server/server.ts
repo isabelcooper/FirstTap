@@ -23,7 +23,7 @@ export class Server {
       .withPut('/balance/{employeeId}', authenticator.authFilter(balanceHandler))
 
       .withGet('/docs', authenticator.authFilter(async (_req) => ResOf(200, (fs.readFileSync('./docs/output/index.html')).toString())))
-      .withGet('/docs/{fileName}', authenticator.authFilter(fileHandler))
+      .withGet('/docs/{fileName}', fileHandler)
       .asServer(new NativeHttpServer(parseInt(process.env.PORT!) || this.port));
   }
 
