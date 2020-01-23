@@ -8,7 +8,7 @@ documentation:
     content: |
       **Welcome to the FirstTap API, your seamless payment system for employees at Bows F1.**
 
-      Please note that this system does not take payment itself, it simply stores and uddates an employee's balance.
+      Please note that this system does not take payment itself, it simply stores and updates an employee's balance.
       The API must always be accessed using the provided login credentials in auth headers to ensure that only the designated kiosks have access.
 
       Individual user logins also generate session tokens which will expire after 5 minutes.
@@ -32,10 +32,14 @@ documentation:
       description: |
         **Store a new employee in the FirstTap system**
 
-        This assumes a unique id for each user and stores them in the system DB.
+        This assumes a unique id for each user and stores them in the system DB and will not allow an employee to register with the same id more than once.
         Core employee data is required and the route will fail if values are missing from the body.
 
         The employee name and a usage token valid for 5 minutes will be returned. This must be included in the headers of all further API calls.
+
+        **Known limitations:**
+        - there is currently no means of changing or resetting a pin code so employees cannot forget (!)
+
       body:
         application/json:
           type: !include ./includes/schemas/signup-query.json

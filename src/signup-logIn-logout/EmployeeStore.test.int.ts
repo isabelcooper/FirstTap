@@ -4,13 +4,13 @@ import {PostgresTestServer} from "../../database/postgres/PostgresTestServer";
 import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
 import {Random} from "../../utils/Random";
 
-describe('EmployeeStore',function() {
+describe('EmployeeStore', function () {
   this.timeout(30000);
   const testPostgresServer = new PostgresTestServer();
   let database: PostgresDatabase;
   let employeeStore: EmployeeStore;
   const employee = buildEmployee({balance: undefined});
-  const amountToTopUp = Random.integer(1000)/100;
+  const amountToTopUp = Random.integer(1000) / 100;
 
   before(async () => {
     database = await testPostgresServer.startAndGetFirstTapDatabase();
@@ -21,7 +21,7 @@ describe('EmployeeStore',function() {
     await database.query(`TRUNCATE TABLE employees;`)
   });
 
-  after( async() => {
+  after(async () => {
     await testPostgresServer.stop()
   });
 
@@ -33,17 +33,35 @@ describe('EmployeeStore',function() {
     });
   });
 
-  it('should retrieve all employees', async () => {
+  it('should retrieve an employee by id', async () => {
     await employeeStore.store(employee);
-    expect(await employeeStore.findAll()).to.eql([{
+
+    const retrievedEmployee = await employeeStore.find(employee.employeeId);
+    expect(retrievedEmployee).to.eql({
       ...employee,
       balance: 0
-    }])
+    });
+  });
+
+  it('should not error if not matching employee is found', async () => {
+    const retrievedEmployee = await employeeStore.find(employee.employeeId);
+    expect(retrievedEmployee).to.eql(undefined);
+  });
+
+  it('should retrieve all employees', async () => {
+    await employeeStore.store(employee);
+    const employee2 = buildEmployee();
+    await employeeStore.store(employee2);
+
+    expect(await employeeStore.findAll()).to.eql([
+      {...employee, balance: 0},
+      {...employee2, balance: 0}
+    ]);
   });
 
   it('should find an employee based on employeeId and pin code', async () => {
     await employeeStore.store(employee);
-    expect(await employeeStore.find({employeeId: employee.employeeId, pin: employee.pin})).to.eql({
+    expect(await employeeStore.login({employeeId: employee.employeeId, pin: employee.pin})).to.eql({
       ...employee,
       balance: 0
     })
@@ -62,16 +80,16 @@ describe('EmployeeStore',function() {
     await employeeStore.store(employee);
     await employeeStore.update(employee.employeeId, amountToTopUp, Action.Plus);
 
-    const amountToDetract = Random.integer(1000)/100;
+    const amountToDetract = Random.integer(1000) / 100;
     const updatedEmployee = await employeeStore.update(employee.employeeId, amountToDetract, Action.Minus);
 
     expect(updatedEmployee).to.eql({
       ...employee,
-      balance: amountToTopUp - amountToDetract
+      balance: parseFloat((amountToTopUp - amountToDetract).toFixed(2))
     });
   });
 
-  it('should check the balance for a user', async() => {
+  it('should check the balance for a user', async () => {
     await employeeStore.store(employee);
     await employeeStore.update(employee.employeeId, amountToTopUp, Action.Plus);
     const balance = await employeeStore.checkBalance(employee.employeeId);

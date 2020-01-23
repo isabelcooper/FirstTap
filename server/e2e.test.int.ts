@@ -81,10 +81,14 @@ describe('E2E', function () {
   });
 
   describe('Sign up, log in and out', async() => {
-    it('should allow an unknown user to register', async () => {
+    it('should allow an unknown user to register, but not twice', async () => {
       const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), authHeaders),);
       expect(response.status).to.eql(200);
       expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+
+      const employeeSameId = buildEmployee({employeeId:employee.employeeId});
+      const response2 = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employeeSameId), authHeaders),);
+      expect(response2.status).to.eql(401);
     });
 
     it('should allow a known user to log in', async () => {

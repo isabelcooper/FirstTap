@@ -27,19 +27,21 @@ export function buildEmployee(partial?: Partial<Employee>) {
 export interface EmployeeStore {
   checkBalance(employeeId: string): Promise<number>;
 
-  find(loginDetails: { pin: number; employeeId: string }): Promise<Employee | null>;
+  login(loginDetails: { pin: number; employeeId: string }): Promise<Employee | null>;
 
   findAll(): Promise<Employee[]>;
 
   store(employee: Employee): Promise<Employee | null>;
 
   update(employeeId: string, amount: number, action: Action): Promise<Employee | null>;
+
+  find(employeeId: string): Promise<Employee | undefined>;
 }
 
 export class InMemoryEmployeeStore implements EmployeeStore {
   public employees: Employee[] = [];
 
-  public async find(loginDetails: { pin: number; employeeId: string; }): Promise<Employee | null> {
+  public async login(loginDetails: { pin: number; employeeId: string; }): Promise<Employee | null> {
     return (this.employees.find(employee => {
       return employee.employeeId === loginDetails.employeeId && employee.pin === loginDetails.pin
     })) || null
@@ -55,7 +57,7 @@ export class InMemoryEmployeeStore implements EmployeeStore {
   }
 
   public async update(employeeId: string, amount: number, action: Action): Promise<Employee | null> {
-    const updateThisEmployee = this.employees.find(employee => employeeId === employee.employeeId);
+    const updateThisEmployee = await this.find(employeeId);
 
     if (!updateThisEmployee) return null;
     if (updateThisEmployee.balance === undefined) updateThisEmployee.balance = amount;
@@ -66,8 +68,12 @@ export class InMemoryEmployeeStore implements EmployeeStore {
   }
 
   public async checkBalance(employeeId: string): Promise<number> {
-    const matchedEmployee = this.employees.find(employee => employeeId === employee.employeeId);
+    const matchedEmployee = await this.find(employeeId);
     return matchedEmployee && matchedEmployee.balance || 0
+  }
+
+  public async find(employeeId: string): Promise<Employee | undefined> {
+    return this.employees.find(employee => employeeId === employee.employeeId)
   }
 }
 
@@ -75,7 +81,7 @@ export class SqlEmployeeStore implements EmployeeStore {
   constructor(private database: PostgresDatabase) {
   }
 
-  async find(loginDetails: { pin: number; employeeId: string }): Promise<Employee | null> {
+  async login(loginDetails: { pin: number; employeeId: string }): Promise<Employee | null> {
     const sqlStatement = `
       SELECT * FROM employees 
       WHERE employee_id = '${loginDetails.employeeId}' 
@@ -150,18 +156,35 @@ export class SqlEmployeeStore implements EmployeeStore {
     const row = (await this.database.query(sqlStatement)).rows[0];
     return parseFloat(row.balance)
   }
+
+  public async find(employeeId: string): Promise<Employee | undefined> {
+    const sqlStatement = `
+      SELECT * FROM employees 
+      WHERE employee_id = '${employeeId}' 
+      ;`;
+    const row = (await this.database.query(sqlStatement)).rows[0];
+    if(!row) return;
+    return {
+      employeeId: row.employee_id,
+      name: row.name,
+      email: row.email,
+      mobile: row.mobile,
+      pin: parseInt(row.pin),
+      balance: parseFloat(row.balance)
+    }
+  }
 }
 
 export class AlwaysFailsEmployeeStore implements EmployeeStore {
   findAll(): Promise<Employee[]> {
-    throw Error('findAll broken')
+    throw Error('store broken');
   }
 
   store(employee: Employee): Promise<Employee> {
     throw Error('store broken on employee: ' + employee)
   }
 
-  find(loginDetails: { pin: number; employeeId: string }): Promise<Employee> {
+  login(loginDetails: { pin: number; employeeId: string }): Promise<Employee> {
     throw Error('employee not found ' + loginDetails)
   }
 
@@ -171,5 +194,9 @@ export class AlwaysFailsEmployeeStore implements EmployeeStore {
 
   checkBalance(employeeId: string): Promise<number> {
     throw Error('employee not found ' + employeeId)
+  }
+
+  public async find(employeeId: string): Promise<Employee | undefined> {
+    return undefined;
   }
 }

@@ -19,7 +19,7 @@ export class LogInHandler implements Handler {
 
     let matchedEmployee: Employee | null;
     try {
-      matchedEmployee = await this.employeeStore.find({employeeId: reqBody.employeeId, pin: reqBody.pin});
+      matchedEmployee = await this.employeeStore.login({employeeId: reqBody.employeeId, pin: reqBody.pin});
       if(!matchedEmployee) {
         return ResOf(401, 'User not recognised')
       }

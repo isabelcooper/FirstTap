@@ -27,8 +27,9 @@ export class SignUpHandler implements Handler {
     ) {
       return ResOf(400, 'Bad request - missing required employee details')
     }
-    //TODO:
-    // pass to LoginHandler if already stored?
+
+    const isAlreadyUser = await this.employeeStore.find(employee.employeeId);
+    if(isAlreadyUser) return ResOf(401, 'User already registered, please log in');
 
     try {
       await this.employeeStore.store(employee);
