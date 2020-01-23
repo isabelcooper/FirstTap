@@ -3,13 +3,20 @@ import {Employee} from "../signup-logIn-logout/SignUpHandler";
 
 export interface TransactionManagerClass {
   updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null>;
+
+  retrieveBalance(employeeId: string): Promise<number>;
 }
 
 export class InMemoryTransactionManager implements TransactionManagerClass {
   public employees: Employee[] = [];
 
+  public async retrieveBalance(employeeId: string): Promise<number> {
+    const matchedEmployee = this.findEmployee(employeeId);
+    return matchedEmployee && matchedEmployee.balance ? matchedEmployee.balance : 0;
+  }
+
   public async updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null> {
-    const updateThisEmployee = this.employees.find(employee => employeeId === employee.employeeId);
+    const updateThisEmployee = this.findEmployee(employeeId);
 
     if (!updateThisEmployee) return null;
     if (updateThisEmployee.balance === undefined) updateThisEmployee.balance = amount;
@@ -24,10 +31,18 @@ export class InMemoryTransactionManager implements TransactionManagerClass {
     return updateThisEmployee
     //TODO simplify or split out? also not updating array!
   }
+
+  private findEmployee(employeeId: string) {
+    return this.employees.find(employee => employeeId === employee.employeeId);
+  }
 }
 
 export class AlwaysFailsTransactionManager implements TransactionManagerClass {
-  public async updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null> {
+  updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null> {
+    throw Error('transaction error ' + employeeId)
+  }
+
+  retrieveBalance(employeeId: string): Promise<number> {
     throw Error('transaction error ' + employeeId)
   }
 }
@@ -37,11 +52,15 @@ export class TransactionManager implements TransactionManagerClass {
 
   public async updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null> {
     if (transactionType === TransactionType.PURCHASE) {
-      const employeeBalance = await this.employeeStore.checkBalance(employeeId);
+      const employeeBalance = await this.retrieveBalance(employeeId);
       if (employeeBalance < amount) throw Error('Insufficient funds, please top up to continue');
     }
 
     const action = transactionType === TransactionType.TOPUP ? Action.Plus : Action.Minus;
     return await this.employeeStore.update(employeeId, amount, action)
+  }
+
+  public async retrieveBalance(employeeId: string): Promise<number> {
+    return await this.employeeStore.checkBalance(employeeId)
   }
 }

@@ -20,6 +20,7 @@ export class Server {
       .withPost('/signup', authenticator.authFilter(signUpHandler))
       .withPost('/login', authenticator.authFilter(logInHandler))
       .withPost('/logout', authenticator.authFilter(logOutHandler))
+      .withGet('/balance/{employeeId}', authenticator.authFilter(balanceHandler))
       .withPut('/balance/{employeeId}', authenticator.authFilter(balanceHandler))
 
       .withGet('/docs', authenticator.authFilter(async (_req) => ResOf(200, (fs.readFileSync('./docs/output/index.html')).toString())))

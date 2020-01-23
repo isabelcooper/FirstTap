@@ -4,6 +4,7 @@ import {TransactionType} from "../signup-logIn-logout/EmployeeStore";
 import {Req} from "http4js/core/Req";
 import {Res} from "http4js/core/Res";
 import {TransactionManagerClass} from "./TransactionManager";
+import {Method} from "http4js/core/Methods";
 
 export class BalanceHandler implements Handler {
   constructor(private tokenManager: TokenManagerClass, private transactionManager: TransactionManagerClass) {
@@ -16,6 +17,10 @@ export class BalanceHandler implements Handler {
     const valid = await this.tokenManager.validateAndUpdateToken(employeeId, token);
     if (!valid) {
       return ResOf(401, 'User not logged in')
+    }
+
+    if(req.method === Method.GET) {
+      return ResOf(200, `Current balance: ${await this.transactionManager.retrieveBalance(employeeId)}`)
     }
 
     const reqBody = JSON.parse(req.bodyString());

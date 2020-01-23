@@ -221,5 +221,22 @@ describe('E2E', function () {
       expect(tokens.length).to.eql(1);
       expect(tokens[0].expiry).to.be.greaterThan(new Date(clock.now()));
     });
+
+    it('should retrieve an employee balance', async () => {
+      await employeeStore.update(employee.employeeId, topUpAmount, Action.Plus);
+
+      const response = await httpClient(ReqOf(
+        Method.GET,
+        `http://localhost:${port}/balance/${employee.employeeId}`,
+        undefined,
+        {
+          ...authHeaders,
+          'token': fixedToken
+        }
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      expect(response.status).to.eql(200);
+      expect(response.bodyString()).to.eql(`Current balance: ${topUpAmount}`);
+    });
   });
 });

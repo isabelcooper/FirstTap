@@ -4,6 +4,7 @@ import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
 import {Server} from "./server";
 import {
+  Action,
   buildEmployee,
   EmployeeStore,
   InMemoryEmployeeStore,
@@ -17,7 +18,7 @@ import {LogOutHandler} from "../src/signup-logIn-logout/LogOutHandler";
 import {InMemoryTokenManager} from "../src/userAuthtoken/TokenManager";
 import {Dates} from "../utils/Dates";
 import {BalanceHandler} from "../src/transactions/BalanceHandler";
-import {InMemoryTransactionManager, TransactionManager} from "../src/transactions/TransactionManager";
+import {InMemoryTransactionManager} from "../src/transactions/TransactionManager";
 import {FileHandler} from "../utils/FileHandler";
 
 require('dotenv').config();
@@ -125,6 +126,48 @@ describe('Server', () => {
   });
 
   describe('Amending balance', () => {
+    const topUpAmount = Random.integer(100000)/100;
+
+    it('should retrieve an employee balance', async () => {
+      await transactionManager.employees.push(buildEmployee({...employee, balance: topUpAmount}));
+      tokenManager.tokens.push({employeeId: employee.employeeId, value: fixedToken, expiry: Dates.addMinutes(new Date, 5)});
+
+      const response = await httpClient(ReqOf(
+        Method.GET,
+        `http://localhost:${port}/balance/${employee.employeeId}`,
+        undefined,
+        {
+          ...basicAuthHeaders,
+          token: fixedToken
+        }
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      expect(response.status).to.eql(200);
+      expect(response.bodyString()).to.eql(`Current balance: ${topUpAmount}`);
+    });
+
+    it('should require system auth when getting balance', async () => {
+      await transactionManager.employees.push(buildEmployee({...employee, balance: topUpAmount}));
+      tokenManager.tokens.push({employeeId: employee.employeeId, value: fixedToken, expiry: Dates.addMinutes(new Date, 5)});
+
+      const response = await httpClient(ReqOf(
+        Method.GET, `http://localhost:${port}/balance/${employee.employeeId}`, undefined, {'token': fixedToken}
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      expect(response.status).to.eql(401);
+    });
+
+    it('should require logged in session tokeh when getting balance', async () => {
+      await transactionManager.employees.push(buildEmployee({...employee, balance: topUpAmount}));
+      tokenManager.tokens.push({employeeId: employee.employeeId, value: fixedToken, expiry: Dates.addMinutes(new Date, 5)});
+
+      const response = await httpClient(ReqOf(
+        Method.GET, `http://localhost:${port}/balance/${employee.employeeId}`, undefined, basicAuthHeaders
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      expect(response.status).to.eql(401);
+    });
+
     it('should allow a user to top up their account', async () => {
       const zeroBalanceEmployee = buildEmployee({balance: 0});
       await tokenManager.generateAndStoreToken(zeroBalanceEmployee.employeeId);
@@ -187,7 +230,7 @@ describe('Server', () => {
       expect(response.bodyString()).to.eql(`New balance is ${(topUpAmount - paymentAmount).toFixed(2)}`);
     });
 
-    it('should return 402 with an error message if there are insufficient funds for the payment', async() =>{
+    it('should return 500 with an error message if there are insufficient funds for the payment', async() =>{
       const balance = 1.00;
       const paymentAmount = 1.99;
       const employeeWithBalance = buildEmployee({balance});

@@ -1,4 +1,4 @@
-import {buildEmployee, InMemoryEmployeeStore, TransactionType} from "../signup-logIn-logout/EmployeeStore";
+import {Action, buildEmployee, InMemoryEmployeeStore, TransactionType} from "../signup-logIn-logout/EmployeeStore";
 import {Random} from "../../utils/Random";
 import {expect} from "chai";
 import {Employee} from "../signup-logIn-logout/SignUpHandler";
@@ -13,6 +13,12 @@ describe('TransactionManager', () => {
   beforeEach(async () => {
     employee = buildEmployee({balance: undefined});
     await employeeStore.store(employee);
+  });
+
+  it('should retrieve an employee balance', async() => {
+    await employeeStore.update(employee.employeeId, topUpAmount, Action.Plus);
+    const employeeBalance = await transactionManager.retrieveBalance(employee.employeeId);
+    expect(employeeBalance).to.eql(topUpAmount);
   });
 
   it('should decide whether to top up or detract from balance', async () => {
