@@ -4,7 +4,6 @@ import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
 import {Server} from "./server";
 import {
-  Action,
   buildEmployee,
   EmployeeStore,
   InMemoryEmployeeStore,
@@ -129,7 +128,7 @@ describe('Server', () => {
     const topUpAmount = Random.integer(100000)/100;
 
     it('should retrieve an employee balance', async () => {
-      await transactionManager.employees.push(buildEmployee({...employee, balance: topUpAmount}));
+      transactionManager.employees.push(buildEmployee({...employee, balance: topUpAmount}));
       tokenManager.tokens.push({employeeId: employee.employeeId, value: fixedToken, expiry: Dates.addMinutes(new Date, 5)});
 
       const response = await httpClient(ReqOf(
@@ -147,7 +146,7 @@ describe('Server', () => {
     });
 
     it('should require system auth when getting balance', async () => {
-      await transactionManager.employees.push(buildEmployee({...employee, balance: topUpAmount}));
+      transactionManager.employees.push(buildEmployee({...employee, balance: topUpAmount}));
       tokenManager.tokens.push({employeeId: employee.employeeId, value: fixedToken, expiry: Dates.addMinutes(new Date, 5)});
 
       const response = await httpClient(ReqOf(
@@ -158,7 +157,7 @@ describe('Server', () => {
     });
 
     it('should require logged in session tokeh when getting balance', async () => {
-      await transactionManager.employees.push(buildEmployee({...employee, balance: topUpAmount}));
+      transactionManager.employees.push(buildEmployee({...employee, balance: topUpAmount}));
       tokenManager.tokens.push({employeeId: employee.employeeId, value: fixedToken, expiry: Dates.addMinutes(new Date, 5)});
 
       const response = await httpClient(ReqOf(
@@ -170,11 +169,9 @@ describe('Server', () => {
 
     it('should allow a user to top up their account', async () => {
       const zeroBalanceEmployee = buildEmployee({balance: 0});
-      await tokenManager.generateAndStoreToken(zeroBalanceEmployee.employeeId);
-      await employeeStore.store(zeroBalanceEmployee);
-      await transactionManager.employees.push(zeroBalanceEmployee);
+      transactionManager.employees.push(buildEmployee(zeroBalanceEmployee));
+      tokenManager.tokens.push({employeeId: zeroBalanceEmployee.employeeId, value: fixedToken, expiry: Dates.addMinutes(new Date, 5)});
 
-      const topUpAmount = Random.number();
       const response = await httpClient(ReqOf(
         Method.PUT,
         `http://localhost:${port}/balance/${zeroBalanceEmployee.employeeId}`,
@@ -193,24 +190,9 @@ describe('Server', () => {
     });
 
     it('should detract from the user balance according to their payment', async () => {
-      await tokenManager.generateAndStoreToken(employee.employeeId);
-      await employeeStore.store(employee);
-      await transactionManager.employees.push(employee);
-
-      const topUpAmount = 100;
-
-      await httpClient(ReqOf(
-        Method.PUT,
-        `http://localhost:${port}/balance/${employee.employeeId}`,
-        JSON.stringify({
-          amount: topUpAmount,
-          transactionType: 'topup'
-        }),
-        {
-          ...basicAuthHeaders,
-          'token': fixedToken
-        }
-      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+      const fixedTopUpAmount = 100;
+      transactionManager.employees.push(buildEmployee({...employee, balance: fixedTopUpAmount}));
+      tokenManager.tokens.push({employeeId: employee.employeeId, value: fixedToken, expiry: Dates.addMinutes(new Date, 5)});
 
       const paymentAmount = 99.99;
       const response = await httpClient(ReqOf(
@@ -227,7 +209,7 @@ describe('Server', () => {
       ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
       expect(response.status).to.eql(200);
-      expect(response.bodyString()).to.eql(`New balance is ${(topUpAmount - paymentAmount).toFixed(2)}`);
+      expect(response.bodyString()).to.eql(`New balance is ${(fixedTopUpAmount - paymentAmount).toFixed(2)}`);
     });
 
     it('should return 500 with an error message if there are insufficient funds for the payment', async() =>{
