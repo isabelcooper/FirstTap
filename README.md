@@ -4,7 +4,7 @@ First Catering Ltd API to allow F1 company employees to top up and purchase food
 ### Useful links:
 - [Full API documentation](https://firsttap.appspot.com/docs#)
 - [Privacy Policy](https://firsttap.appspot.com/docs/privacy) _NB the FirstCatering API should be updated to cover our involvement in processing and storing this data._
-- [Using as a dev](#dev)
+
 ## Api Overview
 
 ### Possible use cases
@@ -52,8 +52,6 @@ First Catering Ltd API to allow F1 company employees to top up and purchase food
 - Payments will be sent to the api as a float with max 2 decimal places - if this is not the case, the system will currently round, store and return as such. 
 - Niceties of error handling/ posting messages to the UI will be handled by the front end. Required data is returned (eg the username on the login endpoint), but not stylised.
 
-#dev
-## Using as a dev
 ### Getting started in the codebase
 From your terminal you can run: 
 `./run version_check` checks you're on the correct version of node
