@@ -6,9 +6,9 @@ version: 1
 documentation:
   - title: Welcome
     content: |
-      Welcome to the FirstTap API, your seamless payment system for employees at Bows F1.
+      **Welcome to the FirstTap API, your seamless payment system for employees at Bows F1.**
 
-      NB this system does not take payment itself, it simply stores a user's balance and payments against their record.
+      Please note that this system does not take payment itself, it simply stores and uddates an employee's balance.
       The API must always be accessed using the provided login credentials in auth headers to ensure that only the designated kiosks have access.
 
       Individual user logins also generate session tokens which will expire after 5 minutes.
@@ -105,6 +105,35 @@ documentation:
 /balance:
     description: Top up or reduce a user's balance
     /{employeeId}:
+      get:
+        description: |
+          **Retrieve employee's balance**
+
+          Given a valid employeeId and session token, retrieve the user's balance.
+          Though there is protection on the /balance endpoint to prevent purchases being logged if there are insufficient funds, we have exposed the balance to a logged in user to minimise the risk of this mistake.
+
+        responses:
+          200:
+            body:
+              application/json:
+                example: !include ./includes/responses/balance-check.json
+          400:
+            body:
+              application/json:
+                example: !include ./includes/responses/bad-req.json
+          401:
+            body:
+              application/json:
+                example: !include ./includes/responses/auth-fail.json
+          500:
+            body:
+              application/json:
+                example: !include ./includes/responses/datastore-err.json
+        headers:
+          Authorization:
+            type: string
+            description: Basic authentication header using base64 encoded username and password credentials
+            example: !include ./includes/requests/basic-auth-header.json
       put:
         description: |
           **Top up an employee's balance with path using transactionType: 'topup'**
