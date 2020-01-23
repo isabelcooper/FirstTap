@@ -186,6 +186,56 @@ describe('Server', () => {
       expect(response.status).to.eql(200);
       expect(response.bodyString()).to.eql(`New balance is ${topUpAmount - paymentAmount}`);
     });
+
+    it('should error if no system auth is present', async () => {
+      const response = await httpClient(ReqOf(
+        Method.PUT,
+        `http://localhost:${port}/balance/${employee.employeeId}`,
+        JSON.stringify({
+          amount: Random.integer(100),
+          transactionType: TransactionType.TOPUP
+        }),
+        {
+          'token': fixedToken
+        }
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      expect(response.status).to.eql(401);
+      expect(response.bodyString()).to.eql('Client not authenticated');
+    });
+
+    it('should error if user is not logged in', async() =>{
+      const response = await httpClient(ReqOf(
+        Method.PUT,
+        `http://localhost:${port}/balance/${employee.employeeId}`,
+        JSON.stringify({
+          amount: Random.integer(100),
+          transactionType: TransactionType.TOPUP
+        }),
+        basicAuthHeaders
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      expect(response.status).to.eql(401);
+      expect(response.bodyString()).to.eql('User not logged in');
+    });
+
+    it('should error if token is not valid', async() =>{
+      const response = await httpClient(ReqOf(
+        Method.PUT,
+        `http://localhost:${port}/balance/${employee.employeeId}`,
+        JSON.stringify({
+          amount: Random.integer(100),
+          transactionType: TransactionType.TOPUP
+        }),
+        {
+          ...basicAuthHeaders,
+          token: Random.string('token'),
+        }
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      expect(response.status).to.eql(401);
+      expect(response.bodyString()).to.eql('User not logged in');
+    });
   });
 
   describe('Loading docs', () => {
@@ -220,6 +270,13 @@ describe('Server', () => {
       ));
       expect(response.status).to.eql(200);
       expect(response.bodyString()).to.include('font-family: "Helvetica Neue"');
+    });
+
+    it('should require basic auth on docs home',async () => {
+      const response = await httpClient(ReqOf(Method.GET, `http://localhost:${port}/docs`));
+
+      expect(response.status).to.eql(401);
+      expect(response.bodyString()).to.eql('Client not authenticated');
     });
   });
 });
