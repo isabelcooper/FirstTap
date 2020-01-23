@@ -191,5 +191,27 @@ describe('Server', () => {
     expect(response.status).to.eql(200);
     expect(response.bodyString()).to.include('<title>FirstTap API documentation</title>');
   });
+
+  it('should load privacy policy', async () => {
+    const response = await httpClient(ReqOf(
+      Method.GET,
+      `http://localhost:${port}/docs/privacy`,
+      undefined,
+      basicAuthHeaders
+    ));
+    expect(response.status).to.eql(200);
+    expect(response.bodyString()).to.include('<title>FirstTap Privacy Policy</title>');
+  });
+
+  it('should load privacy policy css', async () => {
+    const response = await httpClient(ReqOf(
+      Method.GET,
+      `http://localhost:${port}/docs/style.css`,
+      undefined,
+      basicAuthHeaders
+    ));
+    expect(response.status).to.eql(200);
+    expect(response.bodyString()).to.include('font-family: "Helvetica Neue"');
+  });
   //TODO: do we need different auth for dev users??
 });

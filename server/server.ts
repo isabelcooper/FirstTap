@@ -21,6 +21,11 @@ export class Server {
       .withPut('/balance/{employeeId}', authenticator.authFilter(balanceHandler))
 
       .withGet('/docs', authenticator.authFilter(async (_req) => ResOf(200, (fs.readFileSync('./docs/output/index.html')).toString())))
+      .withGet('/docs/{fileName}', authenticator.authFilter(async (req) => {
+        const fileName = req.pathParams.fileName;
+        const fileType = req.uri.path().split('.')[1] === 'css' ? 'css' : 'html';
+        return ResOf(200, (fs.readFileSync(`./docs/privacy/${fileName}.${fileType}`)).toString())
+      }))
       .asServer(new NativeHttpServer(parseInt(process.env.PORT!) || this.port));
   }
 
