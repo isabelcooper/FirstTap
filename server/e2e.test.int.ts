@@ -5,6 +5,7 @@ import {expect} from "chai";
 import {Server} from "./server";
 import {SignUpHandler} from "../src/signup-logIn-logout/SignUpHandler";
 import {
+  Action,
   buildEmployee,
   EmployeeStore,
   SqlEmployeeStore,
@@ -20,7 +21,8 @@ import {Random} from "../utils/Random";
 import {TokenManager, TokenManagerClass} from "../src/userAuthtoken/TokenManager";
 import {FixedTokenGenerator, IdGenerator, UniqueUserIdGenerator} from "../utils/IdGenerator";
 import {Dates} from "../utils/Dates";
-import {BalanceHandler} from "../src/topup/BalanceHandler";
+import {BalanceHandler} from "../src/transactions/BalanceHandler";
+import {TransactionManager, TransactionManagerClass} from "../src/transactions/TransactionManager";
 
 describe('E2E', function () {
   this.timeout(30000);
@@ -33,6 +35,7 @@ describe('E2E', function () {
   let tokenStore: TokenStore;
   let idGenerator: IdGenerator;
   let tokenManager: TokenManagerClass;
+  let transactionManager: TransactionManagerClass;
 
   let signUpHandler: SignUpHandler;
   let logInHandler: LogInHandler;
@@ -62,7 +65,8 @@ describe('E2E', function () {
     signUpHandler = new SignUpHandler(employeeStore, tokenManager);
     logInHandler = new LogInHandler(employeeStore, tokenManager);
     logOutHandler = new LogOutHandler(tokenManager);
-    topUpHandler = new BalanceHandler(tokenManager, employeeStore);
+    transactionManager = new TransactionManager(employeeStore);
+    topUpHandler = new BalanceHandler(tokenManager, transactionManager);
 
     server = new Server(authenticator, signUpHandler, logInHandler, logOutHandler, topUpHandler, port);
     await server.start();
@@ -115,6 +119,7 @@ describe('E2E', function () {
   describe('actions which require a fixed Id', () => {
     const fixedIdGenerator = new FixedTokenGenerator();
     const fixedToken = Random.string();
+    const topUpAmount = Random.integer(100000)/100;
 
     beforeEach(async () => {
       fixedIdGenerator.setToken(fixedToken);
@@ -123,12 +128,10 @@ describe('E2E', function () {
       signUpHandler = new SignUpHandler(employeeStore, tokenManager);
       logInHandler = new LogInHandler(employeeStore, tokenManager);
       logOutHandler = new LogOutHandler(tokenManager);
-      topUpHandler = new BalanceHandler(tokenManager, employeeStore);
+      topUpHandler = new BalanceHandler(tokenManager, transactionManager);
       await employeeStore.store(employee);
       await tokenManager.generateAndStoreToken(employee.employeeId);
     });
-
-    const topUpAmount = Random.integer(1000)/100;
 
     it('should update a user balance', async () => {
       const response = await httpClient(ReqOf(
@@ -149,9 +152,9 @@ describe('E2E', function () {
     });
 
     it('should detract from a user balance', async () => {
-      const result = await employeeStore.update(employee.employeeId, topUpAmount, TransactionType.TOPUP);
-      console.log(result);
-      const purchaseAmount = Random.integer(1000)/10;
+      await employeeStore.update(employee.employeeId, topUpAmount, Action.Plus);
+
+      const purchaseAmount = Random.integer(100)/10;
       const response = await httpClient(ReqOf(
         Method.PUT,
         `http://localhost:${port}/balance/${employee.employeeId}`,

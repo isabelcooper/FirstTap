@@ -2,6 +2,11 @@ import {Employee} from "./SignUpHandler";
 import {Random} from "../../utils/Random";
 import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
 
+export enum Action {
+  Plus = '+',
+  Minus = '-',
+}
+
 export enum TransactionType {
   PURCHASE = 'purchase',
   TOPUP = 'topup',
@@ -20,13 +25,15 @@ export function buildEmployee(partial?: Partial<Employee>) {
 }
 
 export interface EmployeeStore {
+  checkBalance(employeeId: string): Promise<number>;
+
   find(loginDetails: { pin: number; employeeId: string }): Promise<Employee | null>;
 
   findAll(): Promise<Employee[]>;
 
   store(employee: Employee): Promise<Employee | null>;
 
-  update(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null>;
+  update(employeeId: string, amount: number, action: Action): Promise<Employee | null>;
 }
 
 export class InMemoryEmployeeStore implements EmployeeStore {
@@ -47,17 +54,20 @@ export class InMemoryEmployeeStore implements EmployeeStore {
     return employee
   }
 
-  public async update(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null> {
-    const employeeToUpdate = this.employees.find(employee => employeeId === employee.employeeId);
-    if (!employeeToUpdate) return null;
-    if (employeeToUpdate.balance === undefined) employeeToUpdate.balance = amount;
-    if (transactionType === TransactionType.TOPUP) {
-      employeeToUpdate.balance += amount;
-    }
-    if (transactionType === TransactionType.PURCHASE) employeeToUpdate.balance -= amount;
-    // not saving back into array
-    return employeeToUpdate
-    //TODO simplify or split out - transaction manager?
+  public async update(employeeId: string, amount: number, action: Action): Promise<Employee | null> {
+    const updateThisEmployee = this.employees.find(employee => employeeId === employee.employeeId);
+
+    if (!updateThisEmployee) return null;
+    if (updateThisEmployee.balance === undefined) updateThisEmployee.balance = amount;
+    else if (action === Action.Plus) updateThisEmployee.balance += amount;
+    else if (action === Action.Minus) updateThisEmployee.balance -= amount;
+    return updateThisEmployee
+    //TODO simplify or split out? also not updating array!
+  }
+
+  public async checkBalance(employeeId: string): Promise<number> {
+    const matchedEmployee = this.employees.find(employee => employeeId === employee.employeeId);
+    return matchedEmployee && matchedEmployee.balance || 0
   }
 }
 
@@ -114,13 +124,13 @@ export class SqlEmployeeStore implements EmployeeStore {
     } : null
   }
 
-  public async update(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null> {
-    const action = transactionType === TransactionType.TOPUP ? '+' : '-';
+  public async update(employeeId: string, amount: number, action: Action): Promise<Employee | null> {
     const sqlStatement = `
       UPDATE employees 
       SET balance = balance ${action} ${amount}
       WHERE employee_id = '${employeeId}'  
       RETURNING *;`;
+    console.log(sqlStatement)
     const row = (await this.database.query(sqlStatement)).rows[0];
     if (!row) return null;
     return {
@@ -131,6 +141,15 @@ export class SqlEmployeeStore implements EmployeeStore {
       pin: parseInt(row.pin),
       balance: parseFloat(row.balance)
     }
+  }
+
+  public async checkBalance(employeeId: string): Promise<any> {
+    const sqlStatement = `
+      SELECT balance FROM employees 
+      WHERE employee_id = '${employeeId}' 
+      ;`;
+    const row = (await this.database.query(sqlStatement)).rows[0];
+    return parseFloat(row.balance)
   }
 }
 
@@ -147,7 +166,11 @@ export class AlwaysFailsEmployeeStore implements EmployeeStore {
     throw Error('employee not found ' + loginDetails)
   }
 
-  update(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null> {
+  update(employeeId: string, amount: number, action: Action): Promise<Employee | null> {
+    throw Error('employee not found ' + employeeId)
+  }
+
+  checkBalance(employeeId: string): Promise<number> {
     throw Error('employee not found ' + employeeId)
   }
 }

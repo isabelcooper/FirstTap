@@ -1,4 +1,4 @@
-import {buildEmployee, EmployeeStore, SqlEmployeeStore, TransactionType} from "./EmployeeStore";
+import {Action, buildEmployee, EmployeeStore, SqlEmployeeStore} from "./EmployeeStore";
 import {expect} from "chai";
 import {PostgresTestServer} from "../../database/postgres/PostgresTestServer";
 import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
@@ -51,7 +51,7 @@ describe('EmployeeStore',function() {
 
   it('should update an employee balance given a new top up amount', async () => {
     await employeeStore.store(employee);
-    const updatedEmployee = await employeeStore.update(employee.employeeId, amountToTopUp, TransactionType.TOPUP);
+    const updatedEmployee = await employeeStore.update(employee.employeeId, amountToTopUp, Action.Plus);
     expect(updatedEmployee).to.eql({
       ...employee,
       balance: amountToTopUp,
@@ -60,14 +60,21 @@ describe('EmployeeStore',function() {
 
   it('should detract from employee balance given a transaction amount', async () => {
     await employeeStore.store(employee);
-    await employeeStore.update(employee.employeeId, amountToTopUp, TransactionType.TOPUP);
+    await employeeStore.update(employee.employeeId, amountToTopUp, Action.Plus);
 
     const amountToDetract = Random.integer(1000)/100;
-    const updatedEmployee = await employeeStore.update(employee.employeeId, amountToDetract, TransactionType.PURCHASE);
+    const updatedEmployee = await employeeStore.update(employee.employeeId, amountToDetract, Action.Minus);
 
     expect(updatedEmployee).to.eql({
       ...employee,
-      balance: amountToTopUp - amountToDetract,
-    })
+      balance: amountToTopUp - amountToDetract
+    });
+  });
+
+  it('should check the balance for a user', async() => {
+    await employeeStore.store(employee);
+    await employeeStore.update(employee.employeeId, amountToTopUp, Action.Plus);
+    const balance = await employeeStore.checkBalance(employee.employeeId);
+    expect(parseFloat(balance.toFixed(2))).to.eql(amountToTopUp);
   });
 });

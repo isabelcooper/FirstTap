@@ -16,7 +16,8 @@ import {LogInHandler} from "../src/signup-logIn-logout/LogInHandler";
 import {LogOutHandler} from "../src/signup-logIn-logout/LogOutHandler";
 import {InMemoryTokenManager} from "../src/userAuthtoken/TokenManager";
 import {Dates} from "../utils/Dates";
-import {BalanceHandler} from "../src/topup/BalanceHandler";
+import {BalanceHandler} from "../src/transactions/BalanceHandler";
+import {InMemoryTransactionManager, TransactionManager} from "../src/transactions/TransactionManager";
 
 require('dotenv').config();
 
@@ -26,6 +27,7 @@ describe('Server', () => {
   let server: Server;
   let employeeStore: EmployeeStore;
   let tokenManager: InMemoryTokenManager;
+  let transactionManager: InMemoryTransactionManager;
   let signUpHandler: SignUpHandler;
   let logInHandler: LogInHandler;
   let logOutHandler: LogOutHandler;
@@ -44,12 +46,13 @@ describe('Server', () => {
 
   beforeEach(async () => {
     tokenManager = new InMemoryTokenManager();
+    transactionManager = new InMemoryTransactionManager();
     employeeStore = new InMemoryEmployeeStore();
     signUpHandler = new SignUpHandler(employeeStore, tokenManager);
     tokenManager.setToken(fixedToken);
     logInHandler = new LogInHandler(employeeStore, tokenManager);
     logOutHandler = new LogOutHandler(tokenManager);
-    topUpHandler = new BalanceHandler(tokenManager, employeeStore);
+    topUpHandler = new BalanceHandler(tokenManager, transactionManager);
     server = new Server(authenticator, signUpHandler, logInHandler, logOutHandler, topUpHandler, port);
     server.start();
   });
@@ -120,6 +123,7 @@ describe('Server', () => {
     const zeroBalanceEmployee = buildEmployee({balance: 0});
     await tokenManager.generateAndStoreToken(zeroBalanceEmployee.employeeId);
     await employeeStore.store(zeroBalanceEmployee);
+    await transactionManager.employees.push(zeroBalanceEmployee);
 
     const topUpAmount = Random.number();
     const response = await httpClient(ReqOf(
@@ -142,6 +146,7 @@ describe('Server', () => {
   it('should detract from the user balance according to their payment', async () => {
     await tokenManager.generateAndStoreToken(employee.employeeId);
     await employeeStore.store(employee);
+    await transactionManager.employees.push(employee);
 
     const topUpAmount = 100;
 

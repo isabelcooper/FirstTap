@@ -6,7 +6,7 @@ import {SignUpHandler} from "../src/signup-logIn-logout/SignUpHandler";
 import {Authenticator} from "../src/systemAuth/Authenticator";
 import {LogInHandler} from "../src/signup-logIn-logout/LogInHandler";
 import {LogOutHandler} from "../src/signup-logIn-logout/LogOutHandler";
-import {BalanceHandler} from "../src/topup/BalanceHandler";
+import {BalanceHandler} from "../src/transactions/BalanceHandler";
 import * as fs from "fs";
 require('dotenv').config();
 

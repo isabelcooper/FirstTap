@@ -1,11 +1,12 @@
 import {Handler, ResOf} from "http4js";
 import {TokenManagerClass} from "../userAuthtoken/TokenManager";
-import {EmployeeStore, TransactionType} from "../signup-logIn-logout/EmployeeStore";
+import {TransactionType} from "../signup-logIn-logout/EmployeeStore";
 import {Req} from "http4js/core/Req";
 import {Res} from "http4js/core/Res";
+import {TransactionManagerClass} from "./TransactionManager";
 
 export class BalanceHandler implements Handler {
-  constructor(private tokenManager: TokenManagerClass, private employeeStore: EmployeeStore) {
+  constructor(private tokenManager: TokenManagerClass, private transactionManager: TransactionManagerClass) {
   }
 
   public async handle(req: Req): Promise<Res> {
@@ -23,7 +24,7 @@ export class BalanceHandler implements Handler {
 
     let newBalance: number;
     try {
-      const updatedEmployee = await this.employeeStore.update(employeeId, amount, transactionType);
+      const updatedEmployee = await this.transactionManager.updateBalance(employeeId, amount, transactionType);
       newBalance = updatedEmployee!.balance || 0 // TODO add test?
     } catch (e) {
       return ResOf(500, `${e}`)
