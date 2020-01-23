@@ -15,7 +15,14 @@ require('dotenv').config();
 export class Server {
   private server: Routing;
 
-  constructor(authenticator: Authenticator, signUpHandler: SignUpHandler, logInHandler: LogInHandler, logOutHandler: LogOutHandler, balanceHandler: BalanceHandler, fileHandler: FileHandler = new FileHandler(), private port: number = 3330) {
+  constructor(authenticator: Authenticator,
+              signUpHandler: SignUpHandler,
+              logInHandler: LogInHandler,
+              logOutHandler: LogOutHandler,
+              balanceHandler: BalanceHandler,
+              fileHandler: FileHandler = new FileHandler(),
+              private port: number = 3330
+  ) {
     this.server = routes(Method.GET, '/health', async () => ResOf(200))
       .withPost('/signup', authenticator.authFilter(signUpHandler))
       .withPost('/login', authenticator.authFilter(logInHandler))
@@ -23,7 +30,7 @@ export class Server {
       .withGet('/balance/{employeeId}', authenticator.authFilter(balanceHandler))
       .withPut('/balance/{employeeId}', authenticator.authFilter(balanceHandler))
 
-      .withGet('/docs', authenticator.authFilter(async (_req) => ResOf(200, (fs.readFileSync('./docs/output/index.html')).toString())))
+      .withGet('/docs', authenticator.authFilter(async () => ResOf(200, (fs.readFileSync('./docs/output/index.html')).toString())))
       .withGet('/docs/{fileName}', fileHandler)
       .asServer(new NativeHttpServer(parseInt(process.env.PORT!) || this.port));
   }

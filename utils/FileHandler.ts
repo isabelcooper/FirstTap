@@ -9,8 +9,10 @@ import * as fs from "fs";
 export class FileHandler implements Handler {
 
   public async handle(req: Req): Promise<Res> {
+    console.log(req);
     const fileName = req.pathParams.fileName;
     const fileType = req.uri.path().split('.')[1] === 'css' ? 'css' : 'html';
+    console.log(`./docs/privacy/${fileName}.${fileType}`);
     return ResOf(200, (fs.readFileSync(`./docs/privacy/${fileName}.${fileType}`)).toString())
   }
 }
