@@ -177,6 +177,28 @@ describe('E2E', function () {
       expect(response.bodyString()).to.eql(`New balance is ${(topUpAmount - purchaseAmount).toFixed(2)}`);
     });
 
+    it("should not allow payment if the user has less money than the cost", async () => {
+      const amount = 10;
+      const purchaseAmount = 10.01;
+      await employeeStore.update(employee.employeeId, amount, Action.Plus);
+
+      const response = await httpClient(ReqOf(
+        Method.PUT,
+        `http://localhost:${port}/balance/${employee.employeeId}`,
+        JSON.stringify({
+          amount: purchaseAmount,
+          transactionType: TransactionType.PURCHASE
+        }),
+        {
+          ...authHeaders,
+          'token': fixedToken
+        }
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      expect(response.status).to.eql(500);
+      expect(response.bodyString()).to.eql(`Error: Insufficient funds, please top up to continue`);
+    });
+
     it('should refresh the expiry on each api request', async () => {
       const response = await httpClient(ReqOf(
         Method.PUT,

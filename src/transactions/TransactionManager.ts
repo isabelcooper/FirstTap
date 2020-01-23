@@ -14,7 +14,13 @@ export class InMemoryTransactionManager implements TransactionManagerClass {
     if (!updateThisEmployee) return null;
     if (updateThisEmployee.balance === undefined) updateThisEmployee.balance = amount;
     else if (transactionType === TransactionType.TOPUP) updateThisEmployee.balance += amount;
-    else if (transactionType === TransactionType.PURCHASE) updateThisEmployee.balance -= amount;
+    else if (transactionType === TransactionType.PURCHASE) {
+      if (updateThisEmployee.balance >= amount) {
+        updateThisEmployee.balance -= amount
+      } else {
+        throw new Error('Insufficient funds, please top up to continue')
+      }
+    }
     return updateThisEmployee
     //TODO simplify or split out? also not updating array!
   }

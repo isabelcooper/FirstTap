@@ -93,7 +93,6 @@ describe('TokenManager', () => {
     clock.moveForwardMins(4);
     await tokenManager.updateTokenExpiry(employeeId, fixedTokenValue);
 
-    console.log(await tokenStore.findAll());
     clock.moveForwardMins(3);
 
     const resultForValidToken = await tokenManager.validateAndUpdateToken(employeeId, fixedTokenValue);

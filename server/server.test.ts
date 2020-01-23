@@ -161,7 +161,7 @@ describe('Server', () => {
         `http://localhost:${port}/balance/${employee.employeeId}`,
         JSON.stringify({
           amount: topUpAmount,
-          transactionType: 'payment'
+          transactionType: 'topup'
         }),
         {
           ...basicAuthHeaders,
@@ -169,7 +169,7 @@ describe('Server', () => {
         }
       ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
-      const paymentAmount = Random.number(1000)/10;
+      const paymentAmount = 99.99;
       const response = await httpClient(ReqOf(
         Method.PUT,
         `http://localhost:${port}/balance/${employee.employeeId}`,
@@ -185,6 +185,34 @@ describe('Server', () => {
 
       expect(response.status).to.eql(200);
       expect(response.bodyString()).to.eql(`New balance is ${(topUpAmount - paymentAmount).toFixed(2)}`);
+    });
+
+    it('should return 402 with an error message if there are insufficient funds for the payment', async() =>{
+      const balance = 1.00;
+      const paymentAmount = 1.99;
+      const employeeWithBalance = buildEmployee({balance});
+
+      transactionManager.employees.push(employeeWithBalance);
+      await tokenManager.generateAndStoreToken(employeeWithBalance.employeeId);
+
+      const response = await httpClient(ReqOf(
+        Method.PUT,
+        `http://localhost:${port}/balance/${employeeWithBalance.employeeId}`,
+        JSON.stringify({
+          amount: paymentAmount,
+          transactionType: 'purchase'
+        }),
+        {
+          ...basicAuthHeaders,
+          'token': fixedToken
+        }
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      expect(response.status).to.eql(500); // Payment Required status code - not in general use but seems best fit
+      expect(response.bodyString()).to.eql(`Error: Insufficient funds, please top up to continue`);
+
+      const updatedEmployee = transactionManager.employees.find(storedEmployee => storedEmployee.employeeId === employeeWithBalance.employeeId);
+      expect(updatedEmployee!.balance).to.eql(balance);
     });
 
     it('should error if no system auth is present', async () => {
