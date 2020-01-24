@@ -77,6 +77,22 @@ describe('BalanceHandler', () => {
     expect(response.bodyString()).to.eql(`User not logged in`);
   });
 
+  it('should reject requests that have no token', async () => {
+    const response = await balanceHandler.handle(ReqOf(
+      Method.PUT,
+      `/balance/${employee.employeeId}`,
+      JSON.stringify({
+        transactionType: 'topup',
+        amount: topUpAmount
+      }),
+      {'token': Random.string('differentToken')}
+    ).withPathParamsFromTemplate('/balance/{employeeId}'
+    ));
+
+    expect(response.status).to.eql(401);
+    expect(response.bodyString()).to.eql(`User not logged in`);
+  });
+
   it('should handle errors in updating the balance', async () => {
     const failingTopUpHandler = new BalanceHandler(tokenManager, new AlwaysFailsTransactionManager());
     const response = await failingTopUpHandler.handle(ReqOf(

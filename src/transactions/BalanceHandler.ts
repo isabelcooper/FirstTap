@@ -14,7 +14,7 @@ export class BalanceHandler implements Handler {
     const employeeId = req.pathParams.employeeId;
     const token = req.header('token');
 
-    const valid = await this.tokenManager.validateAndUpdateToken(employeeId, token);
+    const valid = token && await this.tokenManager.validateAndUpdateToken(employeeId, token);
     if (!valid) {
       return ResOf(401, 'User not logged in')
     }
