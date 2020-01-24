@@ -143,7 +143,7 @@ describe('Server', () => {
       ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
       expect(response.status).to.eql(200);
-      expect(response.bodyString()).to.eql(`Current balance: ${topUpAmount}`);
+      expect(response.bodyString()).to.eql(`Your balance: ${topUpAmount}`);
     });
 
     it('should require system auth when getting balance', async () => {
@@ -187,7 +187,7 @@ describe('Server', () => {
       ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
       expect(response.status).to.eql(200);
-      expect(response.bodyString()).to.eql(`New balance is ${(topUpAmount).toFixed(2)}`);
+      expect(response.bodyString()).to.eql(`Your balance: ${(topUpAmount).toFixed(2)}`);
     });
 
     it('should detract from the user balance according to their payment', async () => {
@@ -210,7 +210,7 @@ describe('Server', () => {
       ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
       expect(response.status).to.eql(200);
-      expect(response.bodyString()).to.eql(`New balance is ${(fixedTopUpAmount - paymentAmount).toFixed(2)}`);
+      expect(response.bodyString()).to.eql(`Your balance: ${(fixedTopUpAmount - paymentAmount).toFixed(2)}`);
     });
 
     it('should return 500 with an error message if there are insufficient funds for the payment', async() =>{

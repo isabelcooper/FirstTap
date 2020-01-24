@@ -159,7 +159,7 @@ describe('E2E', function () {
       ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
       expect(response.status).to.eql(200);
-      expect(response.bodyString()).to.eql(`New balance is ${(topUpAmount).toFixed(2)}`);
+      expect(response.bodyString()).to.eql(`Your balance: ${(topUpAmount).toFixed(2)}`);
     });
 
     it('should detract from a user balance', async () => {
@@ -180,7 +180,7 @@ describe('E2E', function () {
       ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
       expect(response.status).to.eql(200);
-      expect(response.bodyString()).to.eql(`New balance is ${(topUpAmount - purchaseAmount).toFixed(2)}`);
+      expect(response.bodyString()).to.eql(`Your balance: ${(topUpAmount - purchaseAmount).toFixed(2)}`);
     });
 
     it("should not allow payment if the user has less money than the cost", async () => {
@@ -242,7 +242,7 @@ describe('E2E', function () {
       ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
       expect(response.status).to.eql(200);
-      expect(response.bodyString()).to.eql(`Current balance: ${topUpAmount}`);
+      expect(response.bodyString()).to.eql(`Your balance: ${topUpAmount}`);
     });
   });
 });
