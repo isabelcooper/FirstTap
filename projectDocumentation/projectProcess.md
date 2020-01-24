@@ -14,6 +14,9 @@ _NB I would normally work on a whiteboard which is a little more visually obviou
  
 **Mocha/chai**
 I use a full tests suite of unit tests (which are isolated to their class by stubbing using InMemory instances of other classes), plus an end to end set of tests on the server. 
+ 
+**Localhost**
+`./run start:local` serves the app on localhost so I can view the docs in the browser or send requests locally for problemshooting.
 
 **Postman**
 I tested all the endpoints by following my own documentation files and running the requests in Postman (an app to send requests and show responses in a more user friendly way than curl)
