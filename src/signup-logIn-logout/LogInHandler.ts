@@ -17,14 +17,14 @@ export class LogInHandler implements Handler {
       return ResOf(400, 'Bad request - missing required employee details')
     }
 
-    let matchedEmployee: Employee | null;
+    let matchedEmployee: Employee | undefined;
     try {
-      matchedEmployee = await this.employeeStore.login({employeeId: reqBody.employeeId, pin: reqBody.pin});
+      matchedEmployee = await this.employeeStore.login(reqBody.pin, reqBody.employeeId);
       if(!matchedEmployee) {
         return ResOf(401, 'User not recognised')
       }
     } catch (e) {
-      return ResOf(500, `Error storing new user - please contact your administrator. \n ${e}`)
+      return ResOf(500, `${e}`)
     }
 
     let token: Token;

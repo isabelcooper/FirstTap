@@ -51,7 +51,7 @@ describe('LogInHandler', () => {
 
     expect(response.status).to.eql(500);
     expect(response.bodyString()).to.eql(
-      `Error storing new user - please contact your administrator. \n Error: employee not found ${employee}`
+      `Error: employee not found ${employee.employeeId}`
     );
   });
 

@@ -1,8 +1,9 @@
-import {Action, buildEmployee, EmployeeStore, SqlEmployeeStore} from "./EmployeeStore";
+import {Action, buildEmployee, EmployeeStore} from "./EmployeeStore";
 import {expect} from "chai";
 import {PostgresTestServer} from "../../database/postgres/PostgresTestServer";
 import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
 import {Random} from "../../utils/Random";
+import {SqlEmployeeStore} from "./SqlEmployeeStore";
 
 describe('EmployeeStore', function () {
   this.timeout(30000);
@@ -61,7 +62,7 @@ describe('EmployeeStore', function () {
 
   it('should find an employee based on employeeId and pin code', async () => {
     await employeeStore.store(employee);
-    expect(await employeeStore.login({employeeId: employee.employeeId, pin: employee.pin})).to.eql({
+    expect(await employeeStore.login(employee.pin, employee.employeeId)).to.eql({
       ...employee,
       balance: 0
     })
