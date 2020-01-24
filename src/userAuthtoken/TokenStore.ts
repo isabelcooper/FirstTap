@@ -1,6 +1,6 @@
-import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
 import {Dates} from "../../utils/Dates";
 import {Clock} from "../../utils/Clock";
+import {Random} from "../../utils/Random";
 
 export interface Token {
   employeeId: string,
@@ -17,7 +17,7 @@ export interface TokenStore {
 
   store(employeeId: string, tokenValue: string, timeToExpiry: number): Promise<Token>;
 
-  updateTokenExpiry(employeeId: string, tokenValue: string, timeToExpiry: number): Promise<Token | null>;
+  updateTokenExpiry(employeeId: string, tokenValue: string, timeToExpiry: number): Promise<Token | undefined>;
 }
 
 export class InMemoryTokenStore implements TokenStore {
@@ -52,7 +52,7 @@ export class InMemoryTokenStore implements TokenStore {
     return this.tokens.filter(token => token.employeeId === employeeId)!
   }
 
-  public async updateTokenExpiry(employeeId: string, tokenValue: string, tokenExpiryTime: number): Promise<Token | null> {
+  public async updateTokenExpiry(employeeId: string, tokenValue: string, tokenExpiryTime: number): Promise<Token | undefined> {
     const now = new Date(this.clock.now());
     this.tokens.map(token => {
       if(token.value === tokenValue && token.employeeId === employeeId) {
@@ -60,84 +60,15 @@ export class InMemoryTokenStore implements TokenStore {
         return token.expiry = newExpiry
       }
     });
-      return this.tokens.find(token => token.employeeId === tokenValue && token.employeeId === employeeId) || null;
+      return this.tokens.find(token => token.employeeId === tokenValue && token.employeeId === employeeId);
   }
 }
 
-export class SqlTokenStore implements TokenStore {
-  constructor(private database: PostgresDatabase) {
-  }
-
-  async store(employeeId: string, tokenValue: string, timeToExpiry: number): Promise<Token> {
-    const sqlStatement = `
-      INSERT INTO tokens (employee_id, value, expiry) 
-      VALUES ('${employeeId}','${tokenValue}', CURRENT_TIMESTAMP + INTERVAL '${timeToExpiry} minute') 
-      RETURNING *;`;
-    const insertedRow = (await this.database.query(sqlStatement)).rows[0];
-    return {
-      employeeId: insertedRow.employee_id,
-      value: insertedRow.value,
-      expiry: new Date(insertedRow.expiry)
-    }
-  }
-
-  async findAll(): Promise<Token[]> {
-    const sqlStatement = `SELECT * FROM tokens`;
-    const rows = (await this.database.query(sqlStatement)).rows;
-    return rows.map(row => {
-      return {
-        employeeId: row.employee_id,
-        value: row.value,
-        expiry: new Date(row.expiry)
-      }
-    })
-  }
-
-  async expireAll(employeeId: string): Promise<Token[]> {
-    const sqlStatement = `
-    UPDATE tokens
-    SET expiry = CURRENT_TIMESTAMP
-    WHERE employee_id = '${employeeId}'
-    RETURNING *;
-   `;
-    const rows = (await this.database.query(sqlStatement)).rows;
-    return rows.map(row => {
-      return {
-        employeeId: row.employee_id,
-        expiry: row.expiry,
-        value: row.value
-      }
-    })
-  }
-
-  public async find(employeeId: string, tokenValue: string): Promise<Token[]> {
-    const sqlStatement = `
-    SELECT * FROM tokens 
-    WHERE employee_id = '${employeeId}'
-    AND value = '${tokenValue}';
-    `;
-    const rows = (await this.database.query(sqlStatement)).rows;
-    return rows.map(row => {
-      return {
-        employeeId: row.employee_id,
-        value: row.value,
-        expiry: new Date(row.expiry)
-      }
-    })
-  }
-
-  public async updateTokenExpiry(employeeId: string, tokenValue: string, tokenExpiryTime: number): Promise<Token | null> {
-    const sqlStatement = `
-    UPDATE tokens
-    SET expiry = CURRENT_TIMESTAMP + INTERVAL '${tokenExpiryTime} minute'
-    WHERE employee_id = '${employeeId}'
-    RETURNING *;
-   `;
-    const row = (await this.database.query(sqlStatement)).rows[0];
-    return {
-        employeeId: row.employee_id,
-        expiry: row.expiry,
-        value: row.value
-      }
-  }
+export function buildToken(partial: Partial<Token>): Token {
+  return {
+    employeeId: Random.string('token', 16),
+    expiry: new Date(Dates.addMinutes(new Date(), 5)),
+    value: Random.string('tokenValue'),
+    ...partial
+  };
 }

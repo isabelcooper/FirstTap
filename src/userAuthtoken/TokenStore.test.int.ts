@@ -1,10 +1,10 @@
 import {Random} from "../../utils/Random";
 import {expect} from "chai";
-import {SqlTokenStore, TokenStore} from "./TokenStore";
+import {TokenStore} from "./TokenStore";
 import {Dates} from "../../utils/Dates";
 import {PostgresTestServer} from "../../database/postgres/PostgresTestServer";
 import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
-import {SqlEmployeeStore} from "../signup-logIn-logout/EmployeeStore";
+import {SqlTokenStore} from "./SqlTokenStore";
 
 describe('TokenStore', function () {
   this.timeout(30000);

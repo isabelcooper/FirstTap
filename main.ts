@@ -4,15 +4,15 @@ import {PostgresMigrator} from "./database/postgres/PostgresMigrator";
 import {EVENT_STORE_CONNECTION_DETAILS} from "./config/prod";
 import {PostgresDatabase} from "./database/postgres/PostgresDatabase";
 import {Pool} from "pg";
-import {SqlEmployeeStore} from "./src/signup-logIn-logout/EmployeeStore";
 import {InternalAuthenticator} from "./src/systemAuth/Authenticator";
 import {LogInHandler} from "./src/signup-logIn-logout/LogInHandler";
-import {SqlTokenStore} from "./src/userAuthtoken/TokenStore";
 import {LogOutHandler} from "./src/signup-logIn-logout/LogOutHandler";
 import {UniqueUserIdGenerator} from "./utils/IdGenerator";
 import {TokenManager} from "./src/userAuthtoken/TokenManager";
 import {BalanceHandler} from "./src/transactions/BalanceHandler";
 import {TransactionManager} from "./src/transactions/TransactionManager";
+import {SqlTokenStore} from "./src/userAuthtoken/SqlTokenStore";
+import {SqlEmployeeStore} from "./src/signup-logIn-logout/SqlEmployeeStore";
 
 (async () => {
   const clock = Date;

@@ -4,18 +4,12 @@ import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
 import {Server} from "./server";
 import {SignUpHandler} from "../src/signup-logIn-logout/SignUpHandler";
-import {
-  Action,
-  buildEmployee,
-  EmployeeStore,
-  SqlEmployeeStore,
-  TransactionType
-} from "../src/signup-logIn-logout/EmployeeStore";
+import {Action, buildEmployee, EmployeeStore, TransactionType} from "../src/signup-logIn-logout/EmployeeStore";
 import {PostgresDatabase} from "../database/postgres/PostgresDatabase";
 import {PostgresTestServer} from "../database/postgres/PostgresTestServer";
 import {InternalAuthenticator} from "../src/systemAuth/Authenticator";
 import {LogInHandler} from "../src/signup-logIn-logout/LogInHandler";
-import {SqlTokenStore, TokenStore} from "../src/userAuthtoken/TokenStore";
+import {TokenStore} from "../src/userAuthtoken/TokenStore";
 import {LogOutHandler} from "../src/signup-logIn-logout/LogOutHandler";
 import {Random} from "../utils/Random";
 import {TokenManager, TokenManagerClass} from "../src/userAuthtoken/TokenManager";
@@ -25,6 +19,8 @@ import {BalanceHandler} from "../src/transactions/BalanceHandler";
 import {TransactionManager, TransactionManagerClass} from "../src/transactions/TransactionManager";
 import {FileHandler} from "../utils/FileHandler";
 import {FixedClock} from "../utils/Clock";
+import {SqlTokenStore} from "../src/userAuthtoken/SqlTokenStore";
+import {SqlEmployeeStore} from "../src/signup-logIn-logout/SqlEmployeeStore";
 
 describe('E2E', function () {
   this.timeout(30000);

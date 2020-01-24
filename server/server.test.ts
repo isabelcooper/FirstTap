@@ -19,6 +19,7 @@ import {Dates} from "../utils/Dates";
 import {BalanceHandler} from "../src/transactions/BalanceHandler";
 import {InMemoryTransactionManager} from "../src/transactions/TransactionManager";
 import {FileHandler} from "../utils/FileHandler";
+import {buildToken} from "../src/userAuthtoken/TokenStore";
 
 require('dotenv').config();
 
@@ -129,7 +130,7 @@ describe('Server', () => {
 
     it('should retrieve an employee balance', async () => {
       transactionManager.employees.push(buildEmployee({...employee, balance: topUpAmount}));
-      tokenManager.tokens.push({employeeId: employee.employeeId, value: fixedToken, expiry: Dates.addMinutes(new Date, 5)});
+      tokenManager.tokens.push(buildToken({employeeId: employee.employeeId, value: fixedToken}));
 
       const response = await httpClient(ReqOf(
         Method.GET,
@@ -147,7 +148,7 @@ describe('Server', () => {
 
     it('should require system auth when getting balance', async () => {
       transactionManager.employees.push(buildEmployee({...employee, balance: topUpAmount}));
-      tokenManager.tokens.push({employeeId: employee.employeeId, value: fixedToken, expiry: Dates.addMinutes(new Date, 5)});
+      tokenManager.tokens.push(buildToken({employeeId: employee.employeeId, value: fixedToken}));
 
       const response = await httpClient(ReqOf(
         Method.GET, `http://localhost:${port}/balance/${employee.employeeId}`, undefined, {'token': fixedToken}
@@ -156,9 +157,9 @@ describe('Server', () => {
       expect(response.status).to.eql(401);
     });
 
-    it('should require logged in session tokeh when getting balance', async () => {
+    it('should require logged in session token when getting balance', async () => {
       transactionManager.employees.push(buildEmployee({...employee, balance: topUpAmount}));
-      tokenManager.tokens.push({employeeId: employee.employeeId, value: fixedToken, expiry: Dates.addMinutes(new Date, 5)});
+      tokenManager.tokens.push(buildToken({employeeId: employee.employeeId, value: fixedToken}));
 
       const response = await httpClient(ReqOf(
         Method.GET, `http://localhost:${port}/balance/${employee.employeeId}`, undefined, basicAuthHeaders
@@ -170,7 +171,7 @@ describe('Server', () => {
     it('should allow a user to top up their account', async () => {
       const zeroBalanceEmployee = buildEmployee({balance: 0});
       transactionManager.employees.push(buildEmployee(zeroBalanceEmployee));
-      tokenManager.tokens.push({employeeId: zeroBalanceEmployee.employeeId, value: fixedToken, expiry: Dates.addMinutes(new Date, 5)});
+      tokenManager.tokens.push(buildToken({employeeId: zeroBalanceEmployee.employeeId, value: fixedToken, }));
 
       const response = await httpClient(ReqOf(
         Method.PUT,
@@ -192,7 +193,7 @@ describe('Server', () => {
     it('should detract from the user balance according to their payment', async () => {
       const fixedTopUpAmount = 100;
       transactionManager.employees.push(buildEmployee({...employee, balance: fixedTopUpAmount}));
-      tokenManager.tokens.push({employeeId: employee.employeeId, value: fixedToken, expiry: Dates.addMinutes(new Date, 5)});
+      tokenManager.tokens.push(buildToken({employeeId: employee.employeeId, value: fixedToken, }));
 
       const paymentAmount = 99.99;
       const response = await httpClient(ReqOf(

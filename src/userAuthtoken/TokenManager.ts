@@ -12,7 +12,7 @@ export interface TokenManagerClass {
 
   validateAndUpdateToken(employeeId: string, token: string): Promise<boolean>;
 
-  updateTokenExpiry(employeeId: string, token: string): Promise<Token | null>;
+  updateTokenExpiry(employeeId: string, token: string): Promise<Token | undefined>;
 }
 
 export class InMemoryTokenManager implements TokenManagerClass {
@@ -45,17 +45,17 @@ export class InMemoryTokenManager implements TokenManagerClass {
           && storedToken.expiry >= new Date()
       }
     );
-    if(valid){ this.updateTokenExpiry(employeeId, tokenValue)}
+    if(valid){ await this.updateTokenExpiry(employeeId, tokenValue)}
     return valid
   }
 
-  public async updateTokenExpiry(employeeId: string, tokenValue: string): Promise<Token | null> {
+  public async updateTokenExpiry(employeeId: string, tokenValue: string): Promise<Token | undefined> {
     this.tokens.map(token => {
       if( token.employeeId === employeeId && token.value === tokenValue) {
         return token.expiry === Dates.addMinutes(new Date(), 5);
       }
     });
-    return this.tokens.find(token => token.employeeId === employeeId && token.value === tokenValue) || null;
+    return this.tokens.find(token => token.employeeId === employeeId && token.value === tokenValue);
   }
 
 }
@@ -74,7 +74,7 @@ export class AlwaysFailsTokenManager implements TokenManagerClass {
     throw Error('Issue with token management')
   }
 
-  updateTokenExpiry(employeeId: string, token: string): Promise<Token | null> {
+  updateTokenExpiry(employeeId: string, token: string): Promise<Token | undefined> {
     throw Error('Issue with token management')
   }
 }
@@ -99,7 +99,7 @@ export class TokenManager implements TokenManagerClass {
     });
   }
 
-  public async updateTokenExpiry(employeeId: string, tokenValue: string): Promise<Token | null> {
+  public async updateTokenExpiry(employeeId: string, tokenValue: string): Promise<Token | undefined> {
     return await this.tokenStore.updateTokenExpiry(employeeId, tokenValue, TIME_TO_TOKEN_EXPIRY);
   }
 }

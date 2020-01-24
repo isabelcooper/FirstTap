@@ -4,7 +4,6 @@ import {Random} from "../../utils/Random";
 import {FixedTokenGenerator} from "../../utils/IdGenerator";
 import {TokenManager, TokenManagerClass} from "./TokenManager";
 import {FixedClock} from "../../utils/Clock";
-import {Dates} from "../../utils/Dates";
 
 describe('TokenManager', () => {
   const employeeId = Random.string('id');

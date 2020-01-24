@@ -2,7 +2,7 @@ import {Action, EmployeeStore, TransactionType} from "../signup-logIn-logout/Emp
 import {Employee} from "../signup-logIn-logout/SignUpHandler";
 
 export interface TransactionManagerClass {
-  updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null>;
+  updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | undefined>;
 
   retrieveBalance(employeeId: string): Promise<number>;
 }
@@ -15,10 +15,10 @@ export class InMemoryTransactionManager implements TransactionManagerClass {
     return matchedEmployee && matchedEmployee.balance ? matchedEmployee.balance : 0;
   }
 
-  public async updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null> {
+  public async updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | undefined> {
     const updateThisEmployee = this.findEmployee(employeeId);
 
-    if (!updateThisEmployee) return null;
+    if (!updateThisEmployee) return;
     if (updateThisEmployee.balance === undefined) updateThisEmployee.balance = amount;
     else if (transactionType === TransactionType.TOPUP) updateThisEmployee.balance += amount;
     else if (transactionType === TransactionType.PURCHASE) {
@@ -38,7 +38,7 @@ export class InMemoryTransactionManager implements TransactionManagerClass {
 }
 
 export class AlwaysFailsTransactionManager implements TransactionManagerClass {
-  updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null> {
+  updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | undefined> {
     throw Error('transaction error ' + employeeId)
   }
 
@@ -50,7 +50,7 @@ export class AlwaysFailsTransactionManager implements TransactionManagerClass {
 export class TransactionManager implements TransactionManagerClass {
   constructor(private employeeStore: EmployeeStore) {}
 
-  public async updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | null> {
+  public async updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | undefined> {
     if (transactionType === TransactionType.PURCHASE) {
       const employeeBalance = await this.retrieveBalance(employeeId);
       if (employeeBalance < amount) throw Error('Insufficient funds, please top up to continue');
