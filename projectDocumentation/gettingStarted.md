@@ -23,6 +23,10 @@ The main entrypoint for the file is ./main.ts, which constructs the server (./se
 
 ![SystemArchitectureImage](https://github.com/makersacademy/isabel-cooper-sp/blob/master/projectDocumentation/images/systemArchitecture.JPG)
 
+## Data Model
+
+![DataStores](https://github.com/makersacademy/isabel-cooper-sp/blob/master/projectDocumentation/images/dataStores.png)
+
 ## Technical suggestions for improvement
 - [BUG] style.css is returning 200 but not applying to docs/privacy
 
@@ -30,7 +34,7 @@ The main entrypoint for the file is ./main.ts, which constructs the server (./se
 
 - app reloads slowly after release - needs investigation to avoid downtime
 
-- worth adding front-end form field protection eg for email address, pin code length. Seems sensible to do this at the front end, though the current system should handle any attempt to input invalid data into the DB by raising an error. 
+- worth adding front-end form field protection eg for email address, pin code length. Seems sensible to do this at the front end, though the current system would error if the pincode is too long. 
 
 - clock is currently untested as it's almost all standard functionality, but in the interest of full coverage it would be nice to add these. 
 
