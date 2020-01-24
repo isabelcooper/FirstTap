@@ -1,7 +1,9 @@
 # Getting started (for developers)
 
 ## Getting started in the codebase
+
 From your terminal you can run: 
+
 `./run version_check` checks you're on the correct version of node
 
 `./run` installs npm packages and runs all tests (exits early if unit tests fail) 

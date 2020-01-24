@@ -44,7 +44,7 @@
 
 - The api docs are accessed using the same basic auth credentials as the rest of the Api. This means the kiosks technically have access which they don't need and a third party might be able to access them if they can gain access to the kiosk. This doesn't seem high risk given the documentation isn't highly sensitive (a breach of a kiosk security would have more concerning implications for employee data security), however it would be possible to separate the auth processes so non-engineers don't have unnecessary privileges. 
 
-- [BUG] The jump links oon the documentation page aren't working - could be a bug with the html generator plugin. Worth investigating if the page becomes unwieldy with the addition of more endpoints! 
+- [BUG] The jump links on the documentation page aren't working - could be a bug with the html generator plugin. Worth investigating if the page becomes unwieldy with the addition of more endpoints! 
 
 - There is no endpoint for analysis of user activity.
 
