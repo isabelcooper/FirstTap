@@ -22,7 +22,7 @@ export class BalanceHandler implements Handler {
 
     let balance: number | undefined;
     try {
-      switch(req.method) {
+      switch (req.method) {
         case Method.GET:
           balance = await this.transactionManager.retrieveBalance(employeeId);
           break;
@@ -30,12 +30,15 @@ export class BalanceHandler implements Handler {
           const reqBody = JSON.parse(req.bodyString());
           const transactionType: TransactionType = reqBody.transactionType;
           const amount = reqBody.amount;
-          const transactionDetails  = reqBody.transactionDetails || undefined;
-          const transaction: Transaction = {
-            ... transactionDetails,
-            amount,
-            employeeId: employeeId
-          };
+          const transactionDetails = reqBody.transactionDetails || undefined;
+          let transaction: Transaction | undefined = undefined;
+          if (transactionDetails) {
+            transaction = {
+              ...transactionDetails,
+              amount,
+              employeeId: employeeId
+            }
+          }
           const updatedEmployee = await this.transactionManager.updateBalance(employeeId, amount, transactionType, transaction);
           balance = updatedEmployee!.balance;
           break;
@@ -44,7 +47,7 @@ export class BalanceHandler implements Handler {
       return ResOf(500, `${e}`)
     }
 
-    if(!balance) return ResOf(500, `User not found`);
+    if (!balance) return ResOf(500, `User not found`);
 
     return ResOf(200, `Your balance: ${balance.toFixed(2)}`);
   }
