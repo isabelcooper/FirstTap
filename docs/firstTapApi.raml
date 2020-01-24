@@ -138,6 +138,11 @@ documentation:
             type: string
             description: Basic authentication header using base64 encoded username and password credentials
             example: !include ./includes/requests/basic-auth-header.json
+          Token:
+            type: string
+            description: Valid session token for employee (provided when a user signs up/logs in). We recommend storing this in a cookie with an expiry of 5 mins as it is needed for all api calls related to the user. The same token is refreshed by 5 mins on each api call so remains valid.
+            example: !include ./includes/requests/session-token.json
+
       put:
         description: |
           **Top up an employee's balance with path using transactionType: 'topup'**
@@ -181,3 +186,7 @@ documentation:
             type: string
             description: Basic authentication header using base64 encoded username and password credentials
             example: !include ./includes/requests/basic-auth-header.json
+          Token:
+            type: string
+            description: Valid session token for employee (provided when a user signs up/logs in. We recommend storing this in a cookie with an expiry of 5 mins as it is needed for all api calls related to the user. The same token is refreshed by 5 mins on each api call so remains valid.
+            example: !include ./includes/requests/session-token.json
