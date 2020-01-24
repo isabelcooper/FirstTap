@@ -36,7 +36,6 @@ export class BalanceHandler implements Handler {
             amount,
             employeeId: employeeId
           };
-          console.log(transaction);
           const updatedEmployee = await this.transactionManager.updateBalance(employeeId, amount, transactionType, transaction);
           balance = updatedEmployee!.balance;
           break;
