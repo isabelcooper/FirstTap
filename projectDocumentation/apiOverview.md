@@ -48,6 +48,8 @@
 
 - There is no endpoint for analysis of user activity.
 
+- [BUG] last minute release may have broken balance handler: needs emergency review (but out of time). I'm so sorry. 
+
 ## Assumptions 
 - 5 mins is an acceptable session expiry time
 
