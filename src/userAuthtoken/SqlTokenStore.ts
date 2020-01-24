@@ -48,14 +48,12 @@ export class SqlTokenStore implements TokenStore {
   }
 
   public async find(employeeId: string, tokenValue: string): Promise<Token[]> {
-    console.log('searching store for', employeeId, tokenValue)
     const sqlStatement = `
     SELECT * FROM tokens 
     WHERE employee_id = '${employeeId}'
     AND value = '${tokenValue}';
     `;
     const rows = (await this.database.query(sqlStatement)).rows;
-    console.log("rows matching in store", rows);
     return rows.map(row => {
       return {
         employeeId: row.employee_id,
