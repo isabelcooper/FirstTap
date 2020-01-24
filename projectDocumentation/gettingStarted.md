@@ -21,7 +21,7 @@ The main entrypoint for the file is ./main.ts, which constructs the server (./se
 
 ## System architecture
 
-![SystemArchitectureImage]()
+![SystemArchitectureImage](https://github.com/makersacademy/isabel-cooper-sp/blob/master/projectDocumentation/images/systemArchitecture.JPG)
 
 ## Technical suggestions for improvement
 - [BUG] style.css is returning 200 but not applying to docs/privacy
