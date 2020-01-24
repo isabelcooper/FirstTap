@@ -17,7 +17,7 @@ export interface Employee {
   employeeId: string,
   mobile: string,
   pin: number,
-  balance?: number
+  balance: number
 }
 
 export function buildEmployee(partial?: Partial<Employee>) {
@@ -28,13 +28,13 @@ export function buildEmployee(partial?: Partial<Employee>) {
     employeeId: Random.string('employeeId', 16),
     mobile: Random.string('mobile'),
     pin: Random.integer(9999),
-    balance: Random.integer(10000000) / 100,
+    balance: 0,
     ...partial
   };
 }
 
 export interface EmployeeStore {
-  checkBalance(employeeId: string): Promise<number>;
+  checkBalance(employeeId: string): Promise<number | undefined>;
 
   login(pin: number, employeeId: string): Promise<Employee | undefined>;
 
@@ -76,9 +76,9 @@ export class InMemoryEmployeeStore implements EmployeeStore {
     //TODO simplify or split out? also not updating array!
   }
 
-  public async checkBalance(employeeId: string): Promise<number> {
+  public async checkBalance(employeeId: string): Promise<number | undefined> {
     const matchedEmployee = await this.find(employeeId);
-    return matchedEmployee && matchedEmployee.balance || 0
+    return matchedEmployee && matchedEmployee.balance
   }
 
   public async find(employeeId: string): Promise<Employee | undefined> {

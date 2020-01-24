@@ -54,7 +54,7 @@ describe('EmployeeStore', function () {
     });
   });
 
-  it('should not error if not matching employee is found', async () => {
+  it('should not error if no matching employee is found', async () => {
     const retrievedEmployee = await employeeStore.find(employee.employeeId);
     expect(retrievedEmployee).to.eql(undefined);
   });
@@ -104,6 +104,6 @@ describe('EmployeeStore', function () {
     await employeeStore.store(employee);
     await employeeStore.update(employee.employeeId, amountToTopUp, Action.Plus);
     const balance = await employeeStore.checkBalance(employee.employeeId);
-    expect(parseFloat(balance.toFixed(2))).to.eql(amountToTopUp);
+    expect(balance && parseFloat(balance.toFixed(2))).to.eql(amountToTopUp);
   });
 });

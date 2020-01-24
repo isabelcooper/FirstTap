@@ -3,7 +3,7 @@ import {Action, Employee, EmployeeStore, TransactionType} from "../signup-logIn-
 export interface TransactionManagerClass {
   updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | undefined>;
 
-  retrieveBalance(employeeId: string): Promise<number>;
+  retrieveBalance(employeeId: string): Promise<number | undefined>;
 }
 
 export class InMemoryTransactionManager implements TransactionManagerClass {
@@ -52,14 +52,14 @@ export class TransactionManager implements TransactionManagerClass {
   public async updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | undefined> {
     if (transactionType === TransactionType.PURCHASE) {
       const employeeBalance = await this.retrieveBalance(employeeId);
-      if (employeeBalance < amount) throw Error('Insufficient funds, please top up to continue');
+      if (employeeBalance && employeeBalance < amount) throw Error('Insufficient funds, please top up to continue');
     }
 
     const action = transactionType === TransactionType.TOPUP ? Action.Plus : Action.Minus;
     return await this.employeeStore.update(employeeId, amount, action)
   }
 
-  public async retrieveBalance(employeeId: string): Promise<number> {
-    return await this.employeeStore.checkBalance(employeeId)
+  public async retrieveBalance(employeeId: string): Promise<number | undefined> {
+    return await this.employeeStore.checkBalance(employeeId) || undefined;
   }
 }

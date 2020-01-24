@@ -19,21 +19,27 @@ export class BalanceHandler implements Handler {
       return ResOf(401, 'User not logged in')
     }
 
-    if(req.method === Method.GET) {
-      return ResOf(200, `Current balance: ${await this.transactionManager.retrieveBalance(employeeId)}`)
-    }
-
-    const reqBody = JSON.parse(req.bodyString());
-    const transactionType: TransactionType = reqBody.transactionType;
-    const amount = reqBody.amount;
-
-    let newBalance: number;
+    let balance: number | undefined;
     try {
-      const updatedEmployee = await this.transactionManager.updateBalance(employeeId, amount, transactionType);
-      newBalance = updatedEmployee!.balance || 0 // TODO add test?
+      switch(req.method) {
+        case Method.GET:
+          balance = await this.transactionManager.retrieveBalance(employeeId);
+          break;
+        case Method.PUT:
+          const reqBody = JSON.parse(req.bodyString());
+          const transactionType: TransactionType = reqBody.transactionType;
+          const amount = reqBody.amount;
+
+          const updatedEmployee = await this.transactionManager.updateBalance(employeeId, amount, transactionType);
+          balance = updatedEmployee!.balance;
+          break;
+      }
     } catch (e) {
       return ResOf(500, `${e}`)
     }
-    return ResOf(200, `New balance is ${(newBalance).toFixed(2)}`)
+
+    if(!balance) return ResOf(500, `User not found`);
+
+    return ResOf(200, `Your balance: ${balance.toFixed(2)}`);
   }
 }

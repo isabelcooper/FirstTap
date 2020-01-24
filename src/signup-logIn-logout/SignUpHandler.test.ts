@@ -6,7 +6,6 @@ import {AlwaysFailsEmployeeStore, buildEmployee, Employee, EmployeeStore, InMemo
 import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../userAuthtoken/TokenManager";
 import {Random} from "../../utils/Random";
 
-
 describe('SignUpHandler', () => {
   let employeeStore: EmployeeStore;
   let tokenManager: InMemoryTokenManager;
@@ -32,9 +31,17 @@ describe('SignUpHandler', () => {
 
   it('should not error if no last name provided', async() => {
     tokenManager.setToken(fixedToken);
-    const response = await signUpHandler.handle(ReqOf(Method.POST, '/signup', JSON.stringify(buildEmployee({}))));
+    const response = await signUpHandler.handle(ReqOf(Method.POST, '/signup', JSON.stringify(employee)));
 
     expect(response.status).to.eql(200);
+  });
+
+  it('should assume 0 balance', async() => {
+    tokenManager.setToken(fixedToken);
+    const response = await signUpHandler.handle(ReqOf(Method.POST, '/signup', JSON.stringify(employee)));
+
+    expect(response.status).to.eql(200);
+    expect(await employeeStore.checkBalance(employee.employeeId)).to.eql(0);
   });
 
   it('should not allow an existing user to sign up a second time',async () =>{

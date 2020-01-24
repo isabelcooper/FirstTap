@@ -37,7 +37,7 @@ describe('BalanceHandler', () => {
     ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
     expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.eql(`Current balance: ${topUpAmount}`);
+    expect(response.bodyString()).to.eql(`Your balance: ${topUpAmount}`);
   });
 
   it('it should add a given amount to the employee balance if logged in and return the new balance', async () => {
@@ -54,7 +54,7 @@ describe('BalanceHandler', () => {
     ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
     expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.eql(`New balance is ${(topUpAmount).toFixed(2)}`);
+    expect(response.bodyString()).to.eql(`Your balance: ${(topUpAmount).toFixed(2)}`);
 
     const matchedToken = tokenManager.tokens.find(token => token.employeeId === employee.employeeId);
     expect(matchedToken && matchedToken.expiry.getMinutes()).to.eql(Dates.addMinutes(new Date(), 5).getMinutes());
@@ -128,6 +128,6 @@ describe('BalanceHandler', () => {
     ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
     expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.eql(`New balance is ${(topUpAmount - purchaseAmount).toFixed(2)}`);
+    expect(response.bodyString()).to.eql(`Your balance: ${(topUpAmount - purchaseAmount).toFixed(2)}`);
   });
 });
