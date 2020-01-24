@@ -9,12 +9,17 @@ _NB I would normally work on a whiteboard which is a little more visually obviou
 
 ## Daily kanban screenshots:
 
+**Day 1** 
 ![Day1](https://github.com/makersacademy/isabel-cooper-sp/blob/master/projectDocumentation/images/Day1.png)
 
+**Day 2** 
 ![Day2](https://github.com/makersacademy/isabel-cooper-sp/blob/master/projectDocumentation/images/Day2.png)
 
+**Day 3** 
 ![Day3](https://github.com/makersacademy/isabel-cooper-sp/blob/master/projectDocumentation/images/Day3.png)
 
+**Day 4** 
 ![Day4](https://github.com/makersacademy/isabel-cooper-sp/blob/master/projectDocumentation/images/Day4.png)
 
+**Day 5** 
 ![Day5](https://github.com/makersacademy/isabel-cooper-sp/blob/master/projectDocumentation/images/Day5.png)
