@@ -32,7 +32,6 @@ export class InMemoryTransactionManager implements TransactionManagerClass {
       }
     }
     return updateThisEmployee
-    //TODO simplify or split out? also not updating array!
   }
 
   private async storeTransaction(transactionDetails: Transaction): Promise<Transaction | undefined> {

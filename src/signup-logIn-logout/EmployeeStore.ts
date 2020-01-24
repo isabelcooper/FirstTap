@@ -73,7 +73,6 @@ export class InMemoryEmployeeStore implements EmployeeStore {
     else if (action === Action.Plus) updateThisEmployee.balance += amount;
     else if (action === Action.Minus) updateThisEmployee.balance -= amount;
     return updateThisEmployee
-    //TODO simplify or split out? also not updating array!
   }
 
   public async checkBalance(employeeId: string): Promise<number | undefined> {

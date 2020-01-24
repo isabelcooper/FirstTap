@@ -14,4 +14,3 @@ export class FileHandler implements Handler {
     return ResOf(200, (fs.readFileSync(`./docs/privacy/${fileName}.${fileType}`)).toString())
   }
 }
-// TODO move tests over from server

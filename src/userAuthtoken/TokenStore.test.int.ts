@@ -45,8 +45,6 @@ describe('TokenStore', function () {
     expect(tokens[0].value).to.eql(value);
     expect(tokens[0].expiry.getDate()).to.eql(dateTimeIn5Minutes.getDate());
     expect(tokens[0].expiry.getMinutes()).to.eql(dateTimeIn5Minutes.getMinutes());
-
-    //TODO: sense check datetime manipulation - could the timezone impact login windows?
   });
 
   it('should update a token expiry date to now', async () => {
