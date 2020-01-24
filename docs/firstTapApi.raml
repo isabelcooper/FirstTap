@@ -161,9 +161,12 @@ documentation:
           application/json:
             type: !include ./includes/schemas/balance-query.json
             examples:
-              basic:
-                displayName: Simple topup
-                value: !include ./includes/requests/balance-query.json
+              topup:
+                displayName: Topup
+                value: !include ./includes/requests/balance-topup.json
+              purchase:
+                displayName: Purchase
+                value: !include ./includes/requests/balance-purchase.json
         responses:
           200:
             body:
