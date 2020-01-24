@@ -157,10 +157,16 @@ documentation:
 
           Given a valid employeeId and session token, add or remove the given amount to the user's balance.
 
+          Beta feature:
+          On purchase, transaction details can also be stored for later analysis. Category, itemRef and kioskRef are currently required fields if this option is chosen. These will be stored along with the employeeId, amount and timestamp.
+          There is currently no endpoint for accessing this data, until there is a defined user story for analysis.
+          As it is new, the transactionDetails can also be left out entirely and the app will operate as normal. Any errors in the storing process will not stop the balance from updating. 
+          The structure of this data is open to debate and refinement.
+
           **Known limitations**
           - This is not configured to use any specific currency
           - The datastore allows 2 decimal places and figures up to 8 digits (so max £999999.99).
-          - The purchase history is not currently being stored, nor a record of balance updates.
+          - Currently all fields in transaction data are required.
 
           Should this prove insufficient, please contact us for an extension.
         body:
@@ -173,6 +179,9 @@ documentation:
               purchase:
                 displayName: Purchase
                 value: !include ./includes/requests/balance-purchase.json
+              purchase-with-transaction-details:
+                displayName: Purchase with Transaction details
+                value: !include ./includes/requests/balance-purchase-with-transaction-details.json
         responses:
           200:
             body:

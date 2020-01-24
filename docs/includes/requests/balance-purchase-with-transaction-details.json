@@ -1,0 +1,9 @@
+{
+  "amount": 15.20,
+  "transactionType": "purchase",
+  "transactionDetails": {
+    "category": "food" ,
+    "itemRef": "16qb9as889" ,
+    "kioskRef": "001b"
+  }
+}

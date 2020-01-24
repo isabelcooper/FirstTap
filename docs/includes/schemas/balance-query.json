@@ -10,6 +10,22 @@
       "type": "number",
       "format": "max 8 digits incl 2 decimal places",
       "required": true
+    },
+    "transactionDetails": {
+      "category": {
+        "type": "string",
+        "format": "currently unrestricted but we advise creating grouped tags",
+        "required": true
+      },
+      "itemRef": {
+        "type": "string",
+        "required": true
+      } ,
+      "kioskRef": {
+        "type": "string",
+        "required": true
+      },
+      "required": false
     }
   }
 }
