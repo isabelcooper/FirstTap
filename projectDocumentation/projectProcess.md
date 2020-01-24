@@ -20,6 +20,7 @@ I use a full tests suite of unit tests (which are isolated to their class by stu
 
 **Postman**
 I tested all the endpoints by following my own documentation files and running the requests in Postman (an app to send requests and show responses in a more user friendly way than curl)
+[Static tests for core endpoints](https://www.getpostman.com/collections/c59156dafda8e6e9cea4) NB update user tokens to test run
 
 **CircleCI**
 I commit small changes to master so before each commit I run my test suite (`./run`). This catches any surprises I've missed while I'm working, but because human error happens, I've also wired in Circle CI to run unit tests on each commit to master so any issues and exist before the deployment if anything fails. 
