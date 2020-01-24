@@ -42,6 +42,11 @@ The main entrypoint for the file is ./main.ts, which constructs the server (./se
 
 - the api documentation is manageable at this size, but risky as the content isn't tested, only compiled. Ideally we'd introduce a generator that can be fully tested - this will become particularly useful if multiple endpoints are added. 
 
+- the integration tests don't run in circle currently which is a risk: to make this work we'd probably want to look at running the whole release process in a docker container.
+
+- in the process of refactoring and moving logic to different places, some tests may have been repeated across different classes - these could probably be reduced, but I have left them in preference for over-testing rather than losing coverage. This is once of the areas where I most missed having a pair partner to help me sense check. 
+ 
+
 ## Quick look at tech stack 
 - CircleCI 
 - Google AppEngine & Psql Cloud Storage
