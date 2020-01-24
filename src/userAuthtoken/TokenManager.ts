@@ -94,6 +94,7 @@ export class TokenManager implements TokenManagerClass {
 
   public async validateAndUpdateToken(employeeId: string, token: string): Promise<boolean> {
     const matchingTokens = await this.tokenStore.find(employeeId, token);
+    console.log("matching tokens in tokenmanager", matchingTokens);
     return matchingTokens.some(matchingToken => {
       return matchingToken.expiry >= new Date(this.clock.now())
     });
