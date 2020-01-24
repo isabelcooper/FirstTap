@@ -7,6 +7,7 @@ import {expect} from "chai";
 import {BalanceHandler} from "./BalanceHandler";
 import {AlwaysFailsTransactionManager, InMemoryTransactionManager} from "./TransactionManager";
 import {Dates} from "../../utils/Dates";
+import {buildTransaction} from "./TransactionStore";
 
 describe('BalanceHandler', () => {
   const fixedToken = Random.string('token');
@@ -27,7 +28,7 @@ describe('BalanceHandler', () => {
   });
 
   it('should retrieve a users balance', async () => {
-    await transactionManager.updateBalance(employee.employeeId, topUpAmount, TransactionType.TOPUP);
+    await transactionManager.updateBalance(employee.employeeId, topUpAmount, TransactionType.TOPUP, undefined);
 
     const response = await balanceHandler.handle(ReqOf(
       Method.GET,
@@ -112,7 +113,7 @@ describe('BalanceHandler', () => {
 
   it('it should detract a given amount from the employee balance if logged in and return the new balance', async () => {
     const topUpAmount = 100;
-    await transactionManager.updateBalance(employee.employeeId, topUpAmount, TransactionType.TOPUP);
+    await transactionManager.updateBalance(employee.employeeId, topUpAmount, TransactionType.TOPUP, undefined);
     const purchaseAmount = Random.integer(9999)/100;
 
     const response = await balanceHandler.handle(ReqOf(
@@ -129,5 +130,31 @@ describe('BalanceHandler', () => {
 
     expect(response.status).to.eql(200);
     expect(response.bodyString()).to.eql(`Your balance: ${(topUpAmount - purchaseAmount).toFixed(2)}`);
+  });
+
+  it('should store a transaction if details provided', async () => {
+    const topUpAmount = 100;
+    await transactionManager.updateBalance(employee.employeeId, topUpAmount, TransactionType.TOPUP, undefined);
+    const purchaseAmount = Random.integer(9999)/100;
+
+    const transaction = buildTransaction({employeeId: undefined});
+
+    const response = await balanceHandler.handle(ReqOf(
+      Method.PUT,
+      `/balance/${employee.employeeId}`,
+      JSON.stringify({
+        amount: purchaseAmount,
+        transactionType: 'purchase',
+        transactionDetails: transaction
+      }),
+      {
+        'token': fixedToken
+      }
+    ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+    expect(response.status).to.eql(200);
+    expect(transactionManager.transactions.length).to.eql(1);
+    expect(transactionManager.transactions[0].employeeId).to.eql(employee.employeeId);
+    expect(transactionManager.transactions[0].amount).to.eql(purchaseAmount);
   });
 });

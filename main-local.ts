@@ -9,6 +9,7 @@ import {UniqueUserIdGenerator} from "./utils/IdGenerator";
 import {TokenManager} from "./src/userAuthtoken/TokenManager";
 import {BalanceHandler} from "./src/transactions/BalanceHandler";
 import {TransactionManager} from "./src/transactions/TransactionManager";
+import {InMemoryTransactionStore} from "./src/transactions/TransactionStore";
 
 (async () => {
   const clock = Date;
@@ -20,9 +21,10 @@ import {TransactionManager} from "./src/transactions/TransactionManager";
 
   const employeeStore = new InMemoryEmployeeStore();
   const tokenStore = new InMemoryTokenStore();
+  const transactionStore = new InMemoryTransactionStore();
 
   const tokenManager = new TokenManager(tokenStore, new UniqueUserIdGenerator(), clock);
-  const transactionManager = new TransactionManager(employeeStore);
+  const transactionManager = new TransactionManager(employeeStore, transactionStore);
 
   const signUpHandler = new SignUpHandler(employeeStore, tokenManager);
   const logInHandler = new LogInHandler(employeeStore, tokenManager);

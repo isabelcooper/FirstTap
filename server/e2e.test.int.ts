@@ -21,6 +21,8 @@ import {FileHandler} from "../utils/FileHandler";
 import {FixedClock} from "../utils/Clock";
 import {SqlTokenStore} from "../src/userAuthtoken/SqlTokenStore";
 import {SqlEmployeeStore} from "../src/signup-logIn-logout/SqlEmployeeStore";
+import {SqlTransactionStore} from "../src/transactions/SqlTransactionStore";
+import {buildTransaction, TransactionStore} from "../src/transactions/TransactionStore";
 
 describe('E2E', function () {
   this.timeout(30000);
@@ -31,6 +33,7 @@ describe('E2E', function () {
   let server: Server;
   let employeeStore: EmployeeStore;
   let tokenStore: TokenStore;
+  let transactionStore: TransactionStore;
   let idGenerator: IdGenerator;
   let tokenManager: TokenManagerClass;
   let transactionManager: TransactionManagerClass;
@@ -64,7 +67,8 @@ describe('E2E', function () {
     signUpHandler = new SignUpHandler(employeeStore, tokenManager);
     logInHandler = new LogInHandler(employeeStore, tokenManager);
     logOutHandler = new LogOutHandler(tokenManager);
-    transactionManager = new TransactionManager(employeeStore);
+    transactionStore = new SqlTransactionStore(database);
+    transactionManager = new TransactionManager(employeeStore, transactionStore);
     topUpHandler = new BalanceHandler(tokenManager, transactionManager);
 
     server = new Server(authenticator, signUpHandler, logInHandler, logOutHandler, topUpHandler, fileHandler, port);
@@ -76,13 +80,13 @@ describe('E2E', function () {
     await server.stop();
   });
 
-  describe('Sign up, log in and out', async() => {
+  describe('Sign up, log in and out', async () => {
     it('should allow an unknown user to register, but not twice', async () => {
       const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), authHeaders),);
       expect(response.status).to.eql(200);
       expect(JSON.parse(response.bodyString()).firstName).to.eql(employee.firstName);
 
-      const employeeSameId = buildEmployee({employeeId:employee.employeeId});
+      const employeeSameId = buildEmployee({employeeId: employee.employeeId});
       const response2 = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employeeSameId), authHeaders),);
       expect(response2.status).to.eql(401);
     });
@@ -130,7 +134,7 @@ describe('E2E', function () {
   describe('Updating a user balance', () => {
     const fixedIdGenerator = new FixedTokenGenerator();
     const fixedToken = Random.string();
-    const topUpAmount = Random.integer(100000)/100;
+    const topUpAmount = Random.integer(100000) / 100;
 
     beforeEach(async () => {
       fixedIdGenerator.setToken(fixedToken);
@@ -165,7 +169,7 @@ describe('E2E', function () {
     it('should detract from a user balance', async () => {
       await employeeStore.update(employee.employeeId, topUpAmount, Action.Plus);
 
-      const purchaseAmount = Random.integer(100)/10;
+      const purchaseAmount = Random.integer(100) / 10;
       const response = await httpClient(ReqOf(
         Method.PUT,
         `http://localhost:${port}/balance/${employee.employeeId}`,
@@ -243,6 +247,54 @@ describe('E2E', function () {
 
       expect(response.status).to.eql(200);
       expect(response.bodyString()).to.eql(`Your balance: ${topUpAmount.toFixed(2)}`);
+    });
+  });
+  describe('Storing user transaction history', () => {
+    const fixedIdGenerator = new FixedTokenGenerator();
+    const fixedToken = Random.string();
+    const topUpAmount = Random.integer(100000) / 100;
+
+    beforeEach(async () => {
+      fixedIdGenerator.setToken(fixedToken);
+      tokenManager = new TokenManager(tokenStore, fixedIdGenerator, Date);
+
+      signUpHandler = new SignUpHandler(employeeStore, tokenManager);
+      logInHandler = new LogInHandler(employeeStore, tokenManager);
+      logOutHandler = new LogOutHandler(tokenManager);
+      topUpHandler = new BalanceHandler(tokenManager, transactionManager);
+      await employeeStore.store(employee);
+      await tokenManager.generateAndStoreToken(employee.employeeId);
+    });
+
+    it('should store transaction details if provided on purchase', async () => {
+      await employeeStore.update(employee.employeeId, topUpAmount, Action.Plus);
+      const purchaseAmount = Random.integer(100) / 10;
+
+      const transactionDetails = buildTransaction({employeeId: undefined});
+
+      const response = await httpClient(ReqOf(
+        Method.PUT,
+        `http://localhost:${port}/balance/${employee.employeeId}`,
+        JSON.stringify({
+          amount: purchaseAmount,
+          transactionType: TransactionType.PURCHASE,
+          transactionDetails
+        }),
+        {
+          ...authHeaders,
+          'token': fixedToken
+        }
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      expect(response.status).to.eql(200);
+      const storedTransactions = await transactionStore.findAllByEmployeeId(employee.employeeId);
+      const firstTransaction = storedTransactions[0];
+
+      expect(firstTransaction.employeeId).to.eql(employee.employeeId);
+      expect(firstTransaction.amount).to.eql(purchaseAmount);
+      expect(firstTransaction.kioskRef).to.eql(transactionDetails.kioskRef);
+      expect(firstTransaction.itemRef).to.eql(transactionDetails.itemRef);
+      expect(firstTransaction.category).to.eql(transactionDetails.category);
     });
   });
 });

@@ -5,6 +5,7 @@ import {Req} from "http4js/core/Req";
 import {Res} from "http4js/core/Res";
 import {TransactionManagerClass} from "./TransactionManager";
 import {Method} from "http4js/core/Methods";
+import {Transaction} from "./TransactionStore";
 
 export class BalanceHandler implements Handler {
   constructor(private tokenManager: TokenManagerClass, private transactionManager: TransactionManagerClass) {
@@ -29,8 +30,14 @@ export class BalanceHandler implements Handler {
           const reqBody = JSON.parse(req.bodyString());
           const transactionType: TransactionType = reqBody.transactionType;
           const amount = reqBody.amount;
-
-          const updatedEmployee = await this.transactionManager.updateBalance(employeeId, amount, transactionType);
+          const transactionDetails  = reqBody.transactionDetails || undefined;
+          const transaction: Transaction = {
+            ... transactionDetails,
+            amount,
+            employeeId: employeeId
+          };
+          console.log(transaction);
+          const updatedEmployee = await this.transactionManager.updateBalance(employeeId, amount, transactionType, transaction);
           balance = updatedEmployee!.balance;
           break;
       }

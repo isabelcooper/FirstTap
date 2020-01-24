@@ -20,6 +20,7 @@ import {BalanceHandler} from "../src/transactions/BalanceHandler";
 import {InMemoryTransactionManager} from "../src/transactions/TransactionManager";
 import {FileHandler} from "../utils/FileHandler";
 import {buildToken} from "../src/userAuthtoken/TokenStore";
+import {buildTransaction} from "../src/transactions/TransactionStore";
 
 require('dotenv').config();
 
@@ -211,6 +212,41 @@ describe('Server', () => {
 
       expect(response.status).to.eql(200);
       expect(response.bodyString()).to.eql(`Your balance: ${(fixedTopUpAmount - paymentAmount).toFixed(2)}`);
+    });
+
+    it('should store transaction data if present', async () => {
+      const fixedTopUpAmount = 100;
+      transactionManager.employees.push(buildEmployee({...employee, balance: fixedTopUpAmount}));
+      tokenManager.tokens.push(buildToken({employeeId: employee.employeeId, value: fixedToken, }));
+
+      const paymentAmount = 99.99;
+      const transaction = buildTransaction({employeeId: employee.employeeId});
+
+      const response = await httpClient(ReqOf(
+        Method.PUT,
+        `http://localhost:${port}/balance/${employee.employeeId}`,
+        JSON.stringify({
+          amount: paymentAmount,
+          transactionType: 'purchase',
+          transactionDetails: transaction
+        }),
+        {
+          ...basicAuthHeaders,
+          'token': fixedToken
+        }
+      ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+      expect(response.status).to.eql(200);
+      expect(response.bodyString()).to.eql(`Your balance: ${(fixedTopUpAmount - paymentAmount).toFixed(2)}`);
+
+      expect(transactionManager.transactions.length).to.eql(1);
+      expect(transactionManager.transactions[0]).to.eql({
+        category: transaction.category,
+        itemRef: transaction.itemRef,
+        kioskRef: transaction.kioskRef,
+        employeeId: employee.employeeId,
+        amount: paymentAmount,
+      });
     });
 
     it('should return 500 with an error message if there are insufficient funds for the payment', async() =>{

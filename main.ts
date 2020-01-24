@@ -13,6 +13,7 @@ import {BalanceHandler} from "./src/transactions/BalanceHandler";
 import {TransactionManager} from "./src/transactions/TransactionManager";
 import {SqlTokenStore} from "./src/userAuthtoken/SqlTokenStore";
 import {SqlEmployeeStore} from "./src/signup-logIn-logout/SqlEmployeeStore";
+import {SqlTransactionStore} from "./src/transactions/SqlTransactionStore";
 
 (async () => {
   const clock = Date;
@@ -21,8 +22,10 @@ import {SqlEmployeeStore} from "./src/signup-logIn-logout/SqlEmployeeStore";
   const database = new PostgresDatabase(new Pool(EVENT_STORE_CONNECTION_DETAILS));
   const employeeStore = new SqlEmployeeStore(database);
   const tokenStore = new SqlTokenStore(database);
+  const transactionStore = new SqlTransactionStore(database);
+
   const tokenManager = new TokenManager(tokenStore, new UniqueUserIdGenerator(), clock);
-  const transactionManager = new TransactionManager(employeeStore);
+  const transactionManager = new TransactionManager(employeeStore, transactionStore);
 
   const authenticator = new InternalAuthenticator({
     username: process.env.FIRSTTAP_CLIENT_USERNAME as string,
