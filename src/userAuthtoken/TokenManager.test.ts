@@ -23,9 +23,8 @@ describe('TokenManager', () => {
 
     await tokenManager.generateAndStoreToken(employeeId);
 
-    const tokens = await tokenStore.findAll();
-    expect(tokens[0].employeeId).to.eql(employeeId);
-    expect(tokens[0].value).to.eql(fixedTokenValue);
+    const token = (await tokenStore.find(employeeId, fixedTokenValue))[0];
+    expect(token.value).to.eql(fixedTokenValue);
   });
 
   it('should expire all tokens for the employeeId', async() => {
@@ -82,7 +81,7 @@ describe('TokenManager', () => {
     expect(resultForValidToken).to.eql(false);
 
     clock.moveForwardMins(5);
-    expect((await tokenStore.findAll())[0].expiry).to.be.lessThan(new Date(clock.now()));
+    expect((await tokenStore.find(employeeId, fixedTokenValue))[0].expiry).to.be.lessThan(new Date(clock.now()));
   });
 
   it('should update expiry times', async () => {

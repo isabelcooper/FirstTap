@@ -114,8 +114,7 @@ describe('E2E', function () {
       expect(response.status).to.eql(200);
       expect(response.bodyString()).to.eql('Log out successful - Goodbye!');
 
-      const matchedToken = (await tokenStore.findAll()).find(token => token.employeeId === employee.employeeId);
-      //TODO update to find method
+      const matchedToken = (await tokenStore.find(employee.employeeId, fixedToken))[0];
 
       expect(matchedToken!.value).to.eql(fixedToken);
       expect(Dates.stripMillis(matchedToken!.expiry)).to.be.at.most(new Date());
@@ -218,7 +217,7 @@ describe('E2E', function () {
 
       expect(response.status).to.eql(200);
 
-      const tokens = await tokenStore.findAll();
+      const tokens = await tokenStore.find(employee.employeeId, fixedToken);
       expect(tokens.length).to.eql(1);
       expect(tokens[0].expiry).to.be.greaterThan(new Date(clock.now()));
     });
