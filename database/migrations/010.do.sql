@@ -1,2 +1,5 @@
-ALTER TABLE tokens
-    ADD CONSTRAINT foreign_key FOREIGN KEY (employee_id) REFERENCES employees (employee_id);
+ALTER TABLE employees
+    RENAME COLUMN name TO first_name;
+
+ALTER TABLE employees
+    ADD COLUMN last_name VARCHAR;
