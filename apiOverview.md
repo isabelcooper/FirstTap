@@ -43,6 +43,10 @@
 
 - The api docs are accessed using the same basic auth credentials as the rest of the Api. This means the kiosks technically have access which they don't need and a third party might be able to access them if they can gain access to the kiosk. This doesn't seem high risk given the documentation isn't highly sensitive (a breach of a kiosk security would have more concerning implications for employee data security), however it would be possible to separate the auth processes so non-engineers don't have unnecessary privileges. 
 
+- [BUG] The jump links oon the documentation page aren't working - could be a bug with the html generator plugin. Worth investigating if the page becomes unwieldy with the addition of more endpoints! 
+
+- Session tokens are currently stored indefinitely and updated on new logins. This seems an unnecessary use of storage space so it may be desirable to wip old session tokens on a recurring basis (for example with a cron job) or possible add a 'current tokens' view that allows faster querying of the valid tokens.
+
 
 - There is currently no concept of transaction history nor are any of the details of an individual transaction stored. If desirable, this information could be stored in a 'transaction' table in the database, joined to the existing employee table on employeeId. This could be done from the TransactionManager.
 
