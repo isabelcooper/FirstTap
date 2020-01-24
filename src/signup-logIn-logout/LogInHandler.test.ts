@@ -1,8 +1,7 @@
 import {ReqOf} from "http4js/core/Req";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
-import {Employee} from "./SignUpHandler";
-import {AlwaysFailsEmployeeStore, buildEmployee, InMemoryEmployeeStore} from "./EmployeeStore";
+import {AlwaysFailsEmployeeStore, buildEmployee, Employee, InMemoryEmployeeStore} from "./EmployeeStore";
 import {LogInHandler} from "./LogInHandler";
 import {Random} from "../../utils/Random";
 import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../userAuthtoken/TokenManager";
@@ -25,7 +24,7 @@ describe('LogInHandler', () => {
     ));
 
     expect(response.status).to.eql(200);
-    expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+    expect(JSON.parse(response.bodyString()).firstName).to.eql(employee.firstName);
     expect(JSON.parse(response.bodyString()).token).to.eql(fixedToken);
 
     const storedTokens = await tokenManager.tokens;

@@ -1,5 +1,4 @@
-import {Action, EmployeeStore, TransactionType} from "../signup-logIn-logout/EmployeeStore";
-import {Employee} from "../signup-logIn-logout/SignUpHandler";
+import {Action, Employee, EmployeeStore, TransactionType} from "../signup-logIn-logout/EmployeeStore";
 
 export interface TransactionManagerClass {
   updateBalance(employeeId: string, amount: number, transactionType: TransactionType): Promise<Employee | undefined>;

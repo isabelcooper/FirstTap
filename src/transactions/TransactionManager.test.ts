@@ -1,7 +1,12 @@
-import {Action, buildEmployee, InMemoryEmployeeStore, TransactionType} from "../signup-logIn-logout/EmployeeStore";
+import {
+  Action,
+  buildEmployee,
+  Employee,
+  InMemoryEmployeeStore,
+  TransactionType
+} from "../signup-logIn-logout/EmployeeStore";
 import {Random} from "../../utils/Random";
 import {expect} from "chai";
-import {Employee} from "../signup-logIn-logout/SignUpHandler";
 import {TransactionManager} from "./TransactionManager";
 
 describe('TransactionManager', () => {

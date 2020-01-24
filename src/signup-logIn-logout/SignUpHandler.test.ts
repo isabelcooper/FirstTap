@@ -1,8 +1,8 @@
 import {ReqOf} from "http4js/core/Req";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
-import {Employee, SignUpHandler} from "./SignUpHandler";
-import {AlwaysFailsEmployeeStore, buildEmployee, EmployeeStore, InMemoryEmployeeStore} from "./EmployeeStore";
+import {SignUpHandler} from "./SignUpHandler";
+import {AlwaysFailsEmployeeStore, buildEmployee, Employee, EmployeeStore, InMemoryEmployeeStore} from "./EmployeeStore";
 import {AlwaysFailsTokenManager, InMemoryTokenManager} from "../userAuthtoken/TokenManager";
 import {Random} from "../../utils/Random";
 
@@ -25,9 +25,16 @@ describe('SignUpHandler', () => {
     const response = await signUpHandler.handle(ReqOf(Method.POST, '/signup', JSON.stringify(employee)));
 
     expect(response.status).to.eql(200);
-    expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+    expect(JSON.parse(response.bodyString()).firstName).to.eql(employee.firstName);
     expect(JSON.parse(response.bodyString()).token).to.eql(fixedToken);
     expect( await employeeStore.findAll()).to.eql([employee])
+  });
+
+  it('should not error if no last name provided', async() => {
+    tokenManager.setToken(fixedToken);
+    const response = await signUpHandler.handle(ReqOf(Method.POST, '/signup', JSON.stringify(buildEmployee({}))));
+
+    expect(response.status).to.eql(200);
   });
 
   it('should not allow an existing user to sign up a second time',async () =>{

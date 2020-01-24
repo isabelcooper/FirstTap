@@ -1,4 +1,3 @@
-import {Employee} from "./SignUpHandler";
 import {Random} from "../../utils/Random";
 
 export enum Action {
@@ -11,9 +10,20 @@ export enum TransactionType {
   TOPUP = 'topup',
 }
 
+export interface Employee {
+  firstName: string,
+  lastName?: string,
+  email: string,
+  employeeId: string,
+  mobile: string,
+  pin: number,
+  balance?: number
+}
+
 export function buildEmployee(partial?: Partial<Employee>) {
   return {
-    name: Random.string('name'),
+    firstName: Random.string('firstName'),
+    lastName: Random.string('lastName'),
     email: Random.string('email'),
     employeeId: Random.string('employeeId', 16),
     mobile: Random.string('mobile'),

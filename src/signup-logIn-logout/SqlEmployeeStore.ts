@@ -1,6 +1,5 @@
 import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
-import {Employee} from "./SignUpHandler";
-import {Action, EmployeeStore} from "./EmployeeStore";
+import {Action, Employee, EmployeeStore} from "./EmployeeStore";
 
 export class SqlEmployeeStore implements EmployeeStore {
   constructor(private database: PostgresDatabase) {
@@ -15,7 +14,8 @@ export class SqlEmployeeStore implements EmployeeStore {
     const row = (await this.database.query(sqlStatement)).rows[0];
     if (!row) return;
     return {
-      name: row.name,
+      firstName: row.first_name,
+      lastName: row.last_name,
       email: row.email,
       employeeId: row.employee_id,
       mobile: row.mobile,
@@ -29,7 +29,8 @@ export class SqlEmployeeStore implements EmployeeStore {
     const rows = (await this.database.query(sqlStatement)).rows;
     return rows.map(row => {
       return {
-        name: row.name,
+        firstName: row.first_name,
+        lastName: row.last_name,
         email: row.email,
         employeeId: row.employee_id,
         mobile: row.mobile,
@@ -40,15 +41,17 @@ export class SqlEmployeeStore implements EmployeeStore {
   }
 
   async store(employee: Employee): Promise<Employee | undefined> {
+    const lastNameInsert =  employee.lastName ? `'${employee.lastName}'` : null;
     const sqlStatement = `
-      INSERT INTO employees (name, email, employee_id, mobile, pin) 
-      VALUES ('${employee.name}','${employee.email}','${employee.employeeId}','${employee.mobile}',${employee.pin}) 
+      INSERT INTO employees (first_name, last_name, email, employee_id, mobile, pin) 
+      VALUES ('${employee.firstName}',${lastNameInsert},'${employee.email}','${employee.employeeId}','${employee.mobile}',${employee.pin}) 
       ON CONFLICT DO NOTHING
       RETURNING *;`;
     const row = (await this.database.query(sqlStatement)).rows[0];
     if (!row) return;
     return {
-      name: row.name,
+      firstName: row.first_name,
+      lastName: row.last_name,
       email: row.email,
       employeeId: row.employee_id,
       mobile: row.mobile,
@@ -67,7 +70,8 @@ export class SqlEmployeeStore implements EmployeeStore {
     if (!row) return;
     return {
       employeeId: row.employee_id,
-      name: row.name,
+      firstName: row.first_name,
+      lastName: row.last_name,
       email: row.email,
       mobile: row.mobile,
       pin: parseInt(row.pin),
@@ -93,7 +97,8 @@ export class SqlEmployeeStore implements EmployeeStore {
     if (!row) return;
     return {
       employeeId: row.employee_id,
-      name: row.name,
+      firstName: row.first_name,
+      lastName: row.last_name,
       email: row.email,
       mobile: row.mobile,
       pin: parseInt(row.pin),

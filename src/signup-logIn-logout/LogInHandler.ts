@@ -1,7 +1,6 @@
 import {Handler, Req, Res} from "http4js";
 import {ResOf} from "http4js/core/Res";
-import {EmployeeStore} from "./EmployeeStore";
-import {Employee} from "./SignUpHandler";
+import {Employee, EmployeeStore} from "./EmployeeStore";
 import {Token} from "../userAuthtoken/TokenStore";
 import {TokenManagerClass} from "../userAuthtoken/TokenManager";
 
@@ -34,6 +33,6 @@ export class LogInHandler implements Handler {
       return ResOf(500, `Error retrieving token - please contact your administrator.`)
     }
 
-    return ResOf(200, JSON.stringify({name: matchedEmployee.name, token: token.value}));
+    return ResOf(200, JSON.stringify({firstName: matchedEmployee.firstName, token: token.value}));
   }
 }

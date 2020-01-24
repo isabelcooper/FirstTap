@@ -19,7 +19,7 @@ describe('EmployeeStore', function () {
   });
 
   afterEach(async () => {
-    await database.query(`TRUNCATE TABLE employees;`)
+    await database.query(`TRUNCATE TABLE employees CASCADE;`);
   });
 
   after(async () => {
@@ -30,6 +30,16 @@ describe('EmployeeStore', function () {
     const storedEmployee = await employeeStore.store(employee);
     expect(storedEmployee).to.eql({
       ...employee,
+      balance: 0
+    });
+  });
+
+  it('should not blow up if employee has no last name', async () => {
+    const employeeNoLastName = buildEmployee({lastName: undefined});
+    const storedEmployee = await employeeStore.store(employeeNoLastName);
+    expect(storedEmployee).to.eql({
+      ...employeeNoLastName,
+      lastName: null,
       balance: 0
     });
   });

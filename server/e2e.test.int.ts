@@ -80,11 +80,17 @@ describe('E2E', function () {
     it('should allow an unknown user to register, but not twice', async () => {
       const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), authHeaders),);
       expect(response.status).to.eql(200);
-      expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+      expect(JSON.parse(response.bodyString()).firstName).to.eql(employee.firstName);
 
       const employeeSameId = buildEmployee({employeeId:employee.employeeId});
       const response2 = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employeeSameId), authHeaders),);
       expect(response2.status).to.eql(401);
+    });
+
+    it('should not require a last name on registration', async () => {
+      const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), authHeaders),);
+      expect(response.status).to.eql(200);
+      expect(JSON.parse(response.bodyString()).firstName).to.eql(employee.firstName);
     });
 
     it('should allow a known user to log in', async () => {
@@ -96,7 +102,7 @@ describe('E2E', function () {
         authHeaders
       ));
       expect(response.status).to.eql(200);
-      expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+      expect(JSON.parse(response.bodyString()).firstName).to.eql(employee.firstName);
       expect(JSON.parse(response.bodyString()).token).to.exist;
     });
 

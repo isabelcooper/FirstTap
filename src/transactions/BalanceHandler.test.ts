@@ -1,11 +1,10 @@
 import {InMemoryTokenManager} from "../userAuthtoken/TokenManager";
-import {buildEmployee, TransactionType} from "../signup-logIn-logout/EmployeeStore";
+import {buildEmployee, Employee, TransactionType} from "../signup-logIn-logout/EmployeeStore";
 import {Random} from "../../utils/Random";
 import {ReqOf} from "http4js/core/Req";
 import {Method} from "http4js/core/Methods";
 import {expect} from "chai";
 import {BalanceHandler} from "./BalanceHandler";
-import {Employee} from "../signup-logIn-logout/SignUpHandler";
 import {AlwaysFailsTransactionManager, InMemoryTransactionManager} from "./TransactionManager";
 import {Dates} from "../../utils/Dates";
 

@@ -73,7 +73,7 @@ describe('Server', () => {
     it('should allow a new employee to be created and return the name & token of the employee if successful', async () => {
       const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/signup`, JSON.stringify(employee), basicAuthHeaders));
       expect(response.status).to.eql(200);
-      expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+      expect(JSON.parse(response.bodyString()).firstName).to.eql(employee.firstName);
       expect(JSON.parse(response.bodyString()).token).to.exist;
     });
 
@@ -91,7 +91,7 @@ describe('Server', () => {
       };
       const response = await httpClient(ReqOf(Method.POST, `http://localhost:${port}/login`, JSON.stringify(loginDetails), basicAuthHeaders));
       expect(response.status).to.eql(200);
-      expect(JSON.parse(response.bodyString()).name).to.eql(employee.name);
+      expect(JSON.parse(response.bodyString()).firstName).to.eql(employee.firstName);
       expect(JSON.parse(response.bodyString()).token).to.eql(fixedToken);
     });
 
