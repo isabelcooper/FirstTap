@@ -46,7 +46,7 @@
 
 - [BUG] The jump links oon the documentation page aren't working - could be a bug with the html generator plugin. Worth investigating if the page becomes unwieldy with the addition of more endpoints! 
 
-- Session tokens are currently stored indefinitely and updated on new logins. This seems an unnecessary use of storage space so it may be desirable to wip old session tokens on a recurring basis (for example with a cron job) or possible add a 'current tokens' view that allows faster querying of the valid tokens.
+- We only collect 'name' as a string at the moment, but for a nice user interface it'd be better to split this into First and Last Name.
 
 
 - There is currently no concept of transaction history nor are any of the details of an individual transaction stored. If desirable, this information could be stored in a 'transaction' table in the database, joined to the existing employee table on employeeId. This could be done from the TransactionManager.

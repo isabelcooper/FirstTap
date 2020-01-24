@@ -46,6 +46,13 @@ The main entrypoint for the file is ./main.ts, which constructs the server (./se
 
 - in the process of refactoring and moving logic to different places, some tests may have been repeated across different classes - these could probably be reduced, but I have left them in preference for over-testing rather than losing coverage. This is once of the areas where I most missed having a pair partner to help me sense check. 
  
+- the format of responses could be neater: a more defined body structure might be easier to parse on the front end
+
+- the store interfaces are currently built around the very specific queries in use in this project, but in growing, it might be advisable to add a further level of abstraction for CRUD methods (ideally with an interface which both Stores could implement) and perhaps even a sql query builder. 
+
+- session tokens are currently stored indefinitely and updated on new logins. This seems an unnecessary use of storage space so it may be desirable to wip old session tokens on a recurring basis (for example with a cron job) or possible add a 'current tokens' view that allows faster querying of the valid tokens.
+
+- there's a lot of repetition between the login/sign up handlers - seems likely they could be merged into one.
 
 ## Quick look at tech stack 
 - CircleCI 

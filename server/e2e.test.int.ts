@@ -101,6 +101,7 @@ describe('E2E', function () {
     });
 
     it('should log a user out', async () => {
+      await employeeStore.store(employee);
       await tokenStore.store(employee.employeeId, fixedToken, 5);
 
       const response = await httpClient(ReqOf(

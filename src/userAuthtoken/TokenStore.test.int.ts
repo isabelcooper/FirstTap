@@ -5,18 +5,24 @@ import {Dates} from "../../utils/Dates";
 import {PostgresTestServer} from "../../database/postgres/PostgresTestServer";
 import {PostgresDatabase} from "../../database/postgres/PostgresDatabase";
 import {SqlTokenStore} from "./SqlTokenStore";
+import {SqlEmployeeStore} from "../signup-logIn-logout/SqlEmployeeStore";
+import {buildEmployee, EmployeeStore} from "../signup-logIn-logout/EmployeeStore";
 
 describe('TokenStore', function () {
   this.timeout(30000);
   const testPostgresServer = new PostgresTestServer();
   let database: PostgresDatabase;
   let tokenStore: TokenStore;
+  let employeeStore: EmployeeStore;
   const employeeId = Random.string('', 16);
   const value = Random.string();
 
   before(async () => {
     database = await testPostgresServer.startAndGetFirstTapDatabase();
     tokenStore = new SqlTokenStore(database);
+
+    employeeStore = new SqlEmployeeStore(database);
+    await employeeStore.store(buildEmployee({employeeId}));
   });
 
   afterEach(async () => {

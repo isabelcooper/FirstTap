@@ -1,8 +1,2 @@
-ALTER TABLE employees
-    DROP CONSTRAINT employees_pkey;
-
-ALTER TABLE employees
-    DROP COLUMN id;
-
-ALTER TABLE employees
-    ADD PRIMARY KEY (employee_id);
+ALTER TABLE tokens
+    ADD CONSTRAINT foreign_key FOREIGN KEY (employee_id) REFERENCES employees (employee_id);
