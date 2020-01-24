@@ -1,6 +1,7 @@
 {
   "employeeId": "r7jTG7dqBy5wGO4L",
-  "name": "Joe Smith",
+  "firstName": "Joe",
+  "lastName": "Smith",
   "email": "joe@smith.com",
   "mobile": "+44 1234 567890",
   "pin": 1234

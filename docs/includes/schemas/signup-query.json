@@ -6,9 +6,13 @@
       "format": "max 16 characters",
       "required": true
     },
-    "name": {
+    "firstName": {
       "type": "string",
       "required": true
+    },
+    "lastName": {
+      "type": "string",
+      "required": false
     },
     "email": {
       "type": "string",

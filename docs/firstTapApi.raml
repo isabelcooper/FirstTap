@@ -37,6 +37,10 @@ documentation:
 
         The employee name and a usage token valid for 5 minutes will be returned. This must be included in the headers of all further API calls.
 
+        NB employee lastName is not required.
+
+        The signup route returns a valid session token and the user's first name.
+
         **Known limitations:**
         - there is currently no means of changing or resetting a pin code so employees cannot forget (!)
 
@@ -77,6 +81,8 @@ documentation:
         **Log in an existing user**
 
         Retrieve a valid user token by logging in with a  valid employeeId and pincode.
+
+        The login route returns a valid session token and the user's first name.
       body:
         application/json:
           type: !include ./includes/schemas/login-query.json

@@ -182,7 +182,11 @@ pre code {
       "format": "max 16 characters",
       "required": true
     },
-    "name": {
+    "firstName": {
+      "type": "string",
+      "required": true
+    },    
+    "lastName": {
       "type": "string",
       "required": true
     },
@@ -203,7 +207,8 @@ pre code {
 }
 </code></pre><p><strong>Example</strong>:</p><div class="examples"><p><strong>Basic user info</strong>:<br></p><pre><code>{
   "employeeId": "r7jTG7dqBy5wGO4L",
-  "name": "Joe Smith",
+  "firstName": "Joe",
+  "lastName": "Smith",
   "email": "joe@smith.com",
   "mobile": "+44 1234 567890",
   "pin": 1234
@@ -211,7 +216,7 @@ pre code {
 </code></pre></div></div><div class="tab-pane" id="signup_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: any</p><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
   "status": "ok",
   "body": {
-    "name": "employee name",
+    "firstName": "Joe",
     "token": "37c05c56-ecd7-4720-b6ab-8314a53d2b63"
   }
 }
@@ -256,7 +261,7 @@ pre code {
 </code></pre></div></div><div class="tab-pane" id="login_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: any</p><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
   "status": "ok",
   "body": {
-    "name": "employee name",
+    "firstName": "Joe",
     "token": "37c05c56-ecd7-4720-b6ab-8314a53d2b63"
   }
 }
