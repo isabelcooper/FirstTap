@@ -1,9 +1,12 @@
 # FirstTap
 First Catering Ltd API to allow F1 company employees to top up and purchase food at their existing kiosk terminals using their current payment cards. 
 
-### Useful links:
+## Useful links:
 - [Full API documentation](https://firsttap.appspot.com/docs#)
 - [Privacy Policy](https://firsttap.appspot.com/docs/privacy) _NB the FirstCatering API should be updated to cover our involvement in processing and storing this data._
+- [Api Overview]() Including use cases, assumptions and limitations
+- [Getting Started]() Including run scripts, system architecture, suggestions for improvement
+- [Project Process]() Including run scripts, system architecture, suggestions for improvement
 
 ## Api Overview
 
@@ -37,12 +40,22 @@ First Catering Ltd API to allow F1 company employees to top up and purchase food
 
 ### Api Limitations 
 - The current session token timeout is 5 minutes, based on a loose assumption. Should this be too narrow, it can be altered using the constant TIME_TO_TOKEN_EXPIRY in src/userAuthtoken/TokenManager.ts
+
 - Employee balance has max 8 digits - in a world where they can top up beyond this, it would need to be expanded.
+
 - There is currently no capability for resetting pin codes (which would seem a useful addition given an employee cannot create more than 1 account).
+
 - The API does not account for multiple currencies as there is no indication that the client is international in nature. Indeed currency is not stored at all (though could sensibly be added in a transaction table (see below). 
+
 - The Privacy Policy is currently sketchy: better justification is needed for storing contact details in this 3rd party given they are currently unused. Ideally these would be made optional. There is also currently no mechanism for 'forgetting' employees (eg when they leave the company) which is not GDPR compliant. 
 
+- Email addresses and mobile numbers are currently stored as strings so can include symbols (eg +44 or @), but could also be invalid. It would seem simplest to implement protection for this at the front end, or it could be added to the Handler to return an appropriate error. 
+
+- The api docs are accessed using the same basic auth credentials as the rest of the Api. This means the kiosks technically have access which they don't need and a third party might be able to access them if they can gain access to the kiosk. This doesn't seem high risk given the documentation isn't highly sensitive (a breach of a kiosk security would have more concerning implications for employee data security), however it would be possible to separate the auth processes so non-engineers don't have unnecessary privileges. 
+
+
 - There is currently no concept of transaction history nor are any of the details of an individual transaction stored. If desirable, this information could be stored in a 'transaction' table in the database, joined to the existing employee table on employeeId. This could be done from the TransactionManager.
+
 - There is no endpoint for analysis of user activity (which of course would be reliant on the above).
 
 ### Assumptions 
@@ -69,22 +82,3 @@ FIRSTTAP_CLIENT_PASSWORD
 Committing to master runs the ci script, regenerating the api docs and deploying to production if all the tests pass. 
 
 The main entrypoint for the file is ./main.ts, which constructs the server (./server/server.ts)
-
-### Technical suggestions for improvement
-- [ ] local psql testing would be better hooked to a local DB and using some fake data (rather than inMemory), or alternatively in a docker env. If further development is needed this may be a wise addition to improve local testing. 
-- [ ] app reloads slowly after release - needs investigation to avoid downtime
-- [ ] worth adding front-end form field protection eg for email address, pin code length. Seems sensible to do this at the front end, though the current system should handle any attempt to input invalid data into the DB by raising an error. 
-- [ ] clock is currently untested as it's almost all standard functionality, but in the interest of full coverage it would be nice to add these. 
-- [ ] integrating the payment system into this backend would be a neat solution to avoid multiple calls to the api (to check if there is sufficient budget on the card before taking payment). In the meantime however, both the GET and PUT endpoints remain exposed on the /balance endpoint. 
-- [ ] add DELETE endpoint to remove employees (and cascade into any linked tables)
-
-### Quick look at tech stack 
-- CircleCI 
-- Google AppEngine & Psql Cloud Storage
-- http4js server framework
-- postgrator runs pg migrations
-- mocha/chai testing frameworks
-- raml/html generates documentation
-- uuid generates unique identifiers as session tokens
-For full dependency list, see [package.json](https://github.com/makersacademy/isabel-cooper-sp/blob/master/package.json)
-
