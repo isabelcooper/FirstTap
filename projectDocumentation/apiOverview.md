@@ -20,6 +20,7 @@
 ...view a privacy policy
 
 **"As a developer at FirstCatering, I want to..."**
+
 ...see a summary of all available endpoints, how to structure requests and possible responses.
 
 ...run a full test suite so that I can ensure any change I make doesn't break existing functionality.
