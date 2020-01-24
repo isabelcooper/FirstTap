@@ -37,7 +37,7 @@ describe('BalanceHandler', () => {
     ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
     expect(response.status).to.eql(200);
-    expect(response.bodyString()).to.eql(`Your balance: ${topUpAmount}`);
+    expect(response.bodyString()).to.eql(`Your balance: ${topUpAmount.toFixed(2)}`);
   });
 
   it('it should add a given amount to the employee balance if logged in and return the new balance', async () => {

@@ -242,7 +242,7 @@ describe('E2E', function () {
       ).withPathParamsFromTemplate('/balance/{employeeId}'));
 
       expect(response.status).to.eql(200);
-      expect(response.bodyString()).to.eql(`Your balance: ${topUpAmount}`);
+      expect(response.bodyString()).to.eql(`Your balance: ${topUpAmount.toFixed(2)}`);
     });
   });
 });
