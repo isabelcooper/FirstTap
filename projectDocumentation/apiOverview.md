@@ -46,10 +46,7 @@
 
 - [BUG] The jump links oon the documentation page aren't working - could be a bug with the html generator plugin. Worth investigating if the page becomes unwieldy with the addition of more endpoints! 
 
-
-- There is currently no concept of transaction history nor are any of the details of an individual transaction stored. If desirable, this information could be stored in a 'transaction' table in the database, joined to the existing employee table on employeeId. This could be done from the TransactionManager.
-
-- There is no endpoint for analysis of user activity (which of course would be reliant on the above).
+- There is no endpoint for analysis of user activity.
 
 ## Assumptions 
 - 5 mins is an acceptable session expiry time
@@ -61,3 +58,5 @@
 - Payments will be sent to the api as a float with max 2 decimal places - if this is not the case, the system will currently round, store and return as such. 
 
 - Niceties of error handling/ posting messages to the UI will be handled by the front end. Required data is returned (eg the username on the login endpoint), but not stylised.
+
+- At some point analysis of the transactions will be desirable so it makes sense to start storing this data now.
