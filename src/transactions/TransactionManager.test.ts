@@ -16,7 +16,7 @@ describe('TransactionManager', () => {
   let employee: Employee;
 
   beforeEach(async () => {
-    employee = buildEmployee({balance: undefined});
+    employee = buildEmployee();
     await employeeStore.store(employee);
   });
 

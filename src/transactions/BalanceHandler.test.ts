@@ -18,7 +18,7 @@ describe('BalanceHandler', () => {
   let employee: Employee;
 
   beforeEach(async () => {
-    employee = buildEmployee({balance: 0});
+    employee = buildEmployee();
     transactionManager = new InMemoryTransactionManager();
     balanceHandler = new BalanceHandler(tokenManager, transactionManager);
     transactionManager.employees.push(employee);

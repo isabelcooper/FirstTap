@@ -41,7 +41,7 @@ describe('Server', () => {
     password: process.env.FIRSTTAP_CLIENT_PASSWORD as string
   });
 
-  const employee = buildEmployee({balance: undefined});
+  const employee = buildEmployee();
   const encodedCredentials = Buffer.from(`${process.env.FIRSTTAP_CLIENT_USERNAME}:${process.env.FIRSTTAP_CLIENT_PASSWORD}`).toString('base64');
   const basicAuthHeaders = {'authorization': `Basic ${encodedCredentials}`};
 
@@ -169,7 +169,7 @@ describe('Server', () => {
     });
 
     it('should allow a user to top up their account', async () => {
-      const zeroBalanceEmployee = buildEmployee({balance: 0});
+      const zeroBalanceEmployee = buildEmployee();
       transactionManager.employees.push(buildEmployee(zeroBalanceEmployee));
       tokenManager.tokens.push(buildToken({employeeId: zeroBalanceEmployee.employeeId, value: fixedToken, }));
 

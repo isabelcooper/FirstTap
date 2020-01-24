@@ -10,7 +10,7 @@ describe('EmployeeStore', function () {
   const testPostgresServer = new PostgresTestServer();
   let database: PostgresDatabase;
   let employeeStore: EmployeeStore;
-  const employee = buildEmployee({balance: undefined});
+  const employee = buildEmployee();
   const amountToTopUp = Random.integer(1000) / 100;
 
   before(async () => {
