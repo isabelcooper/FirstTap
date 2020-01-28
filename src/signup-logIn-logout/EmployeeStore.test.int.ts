@@ -106,4 +106,12 @@ describe('EmployeeStore', function () {
     const balance = await employeeStore.checkBalance(employee.employeeId);
     expect(balance && parseFloat(balance.toFixed(2))).to.eql(amountToTopUp);
   });
+
+  it('should not error if no matching employee is found when checking balance', async () => {
+    try {
+      await employeeStore.checkBalance(employee.employeeId);
+    } catch (e) {
+      expect(e.message).to.eql('User not found');
+    }
+  });
 });

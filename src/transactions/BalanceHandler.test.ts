@@ -27,7 +27,7 @@ describe('BalanceHandler', () => {
     await tokenManager.generateAndStoreToken(employee.employeeId);
   });
 
-  it('should retrieve a users balance', async () => {
+  it('should retrieve a users balance if a value', async () => {
     await transactionManager.updateBalance(employee.employeeId, topUpAmount, TransactionType.TOPUP, undefined);
 
     const response = await balanceHandler.handle(ReqOf(
@@ -39,6 +39,18 @@ describe('BalanceHandler', () => {
 
     expect(response.status).to.eql(200);
     expect(response.bodyString()).to.eql(`Your balance: ${topUpAmount.toFixed(2)}`);
+  });
+
+  it('should retrieve a users balance if 0', async () => {
+    const response = await balanceHandler.handle(ReqOf(
+      Method.GET,
+      `/balance/${employee.employeeId}`,
+      undefined,
+      {'token': fixedToken}
+    ).withPathParamsFromTemplate('/balance/{employeeId}'));
+
+    expect(response.status).to.eql(200);
+    expect(response.bodyString()).to.eql(`Your balance: 0.00`);
   });
 
   it('it should add a given amount to the employee balance if logged in and return the new balance', async () => {

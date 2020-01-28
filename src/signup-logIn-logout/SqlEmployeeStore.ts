@@ -79,13 +79,13 @@ export class SqlEmployeeStore implements EmployeeStore {
     }
   }
 
-  public async checkBalance(employeeId: string): Promise<number | undefined> {
+  public async checkBalance(employeeId: string): Promise<number> {
     const sqlStatement = `
       SELECT balance FROM employees 
       WHERE employee_id = '${employeeId}' 
       ;`;
     const row = (await this.database.query(sqlStatement)).rows[0];
-    if(!row) return;
+    if(!row) throw new Error('User not found');
     return parseFloat(row.balance)
   }
 

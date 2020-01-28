@@ -20,7 +20,7 @@ export class BalanceHandler implements Handler {
       return ResOf(401, 'User not logged in')
     }
 
-    let balance: number | undefined;
+    let balance: number = 0;
     try {
       switch (req.method) {
         case Method.GET:
@@ -46,8 +46,6 @@ export class BalanceHandler implements Handler {
     } catch (e) {
       return ResOf(500, `${e}`)
     }
-
-    if (!balance) return ResOf(500, `User not found`);
 
     return ResOf(200, `Your balance: ${balance.toFixed(2)}`);
   }
