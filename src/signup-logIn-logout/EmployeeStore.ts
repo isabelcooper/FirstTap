@@ -34,7 +34,7 @@ export function buildEmployee(partial?: Partial<Employee>) {
 }
 
 export interface EmployeeStore {
-  checkBalance(employeeId: string): Promise<number | undefined>;
+  checkBalance(employeeId: string): Promise<number>;
 
   login(pin: number, employeeId: string): Promise<Employee | undefined>;
 
@@ -75,8 +75,9 @@ export class InMemoryEmployeeStore implements EmployeeStore {
     return updateThisEmployee
   }
 
-  public async checkBalance(employeeId: string): Promise<number | undefined> {
+  public async checkBalance(employeeId: string): Promise<number> {
     const matchedEmployee = await this.find(employeeId);
+    if(!matchedEmployee) throw new Error('User not found');
     return matchedEmployee && matchedEmployee.balance
   }
 

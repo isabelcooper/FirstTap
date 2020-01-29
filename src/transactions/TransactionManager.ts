@@ -4,7 +4,7 @@ import {Transaction, TransactionStore} from "./TransactionStore";
 export interface TransactionManagerClass {
   updateBalance(employeeId: string, amount: number, transactionType: TransactionType, transactionDetails: Transaction | undefined): Promise<Employee | undefined>;
 
-  retrieveBalance(employeeId: string): Promise<number | undefined>;
+  retrieveBalance(employeeId: string): Promise<number>;
 }
 
 export class InMemoryTransactionManager implements TransactionManagerClass {
@@ -13,7 +13,8 @@ export class InMemoryTransactionManager implements TransactionManagerClass {
 
   public async retrieveBalance(employeeId: string): Promise<number> {
     const matchedEmployee = this.findEmployee(employeeId);
-    return matchedEmployee && matchedEmployee.balance ? matchedEmployee.balance : 0;
+    if(!matchedEmployee) throw new Error('User not found');
+    return matchedEmployee.balance;
   }
 
   public async updateBalance(employeeId: string, amount: number, transactionType: TransactionType, transactionDetails: Transaction | undefined): Promise<Employee | undefined> {
@@ -69,8 +70,8 @@ export class TransactionManager implements TransactionManagerClass {
     return await this.employeeStore.update(employeeId, amount, action)
   }
 
-  public async retrieveBalance(employeeId:string): Promise<number | undefined> {
-    return await this.employeeStore.checkBalance(employeeId) || undefined;
+  public async retrieveBalance(employeeId:string): Promise<number> {
+    return await this.employeeStore.checkBalance(employeeId);
   }
 
   private async storeTransaction(transactionDetails:Transaction):Promise<Transaction | undefined> {
